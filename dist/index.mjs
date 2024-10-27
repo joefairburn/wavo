@@ -1,5 +1,6 @@
 'use client';
 import React, { useId, useRef, useInsertionEffect } from 'react';
+import { W as WaveformAsSVG$1 } from './WaveformAsSVG-client-CZ11D09x.mjs';
 
 const BREAKPOINTS = [
     {
@@ -32,13 +33,14 @@ const generateReducedContent = (data, reduction)=>{
 };
 const calcRatio = (dataSize, thickness)=>{
     const base = 400;
+    //@TODO: Maybe round this? Not sure if that could cause issues.
     return base / thickness;
 };
-const Waveform = ({ data, thickness = 50 })=>{
+function FontRenderer({ data, thickness = 25, gap = 0 }) {
     const id = useId();
-    const dataAttr = `waveform-${id}`;
     const ref = useRef(null);
     const dataSize = data.length;
+    const dataHash = `wf-${thickness}-${gap}`;
     if (thickness < 1 || thickness > 100) {
         throw new Error('Waveform thickness must be between 1 and 100');
     }
@@ -49,24 +51,34 @@ const Waveform = ({ data, thickness = 50 })=>{
     const fontWeight = 1000 * normalizedThickness;
     useInsertionEffect(()=>{
         const ratio = calcRatio(dataSize, normalizedThickness);
-        console.time('Waveform');
+        /*
+     * Remove existing style with this hash if it exists
+     * This allows us to share styles between multiple waveforms, if they have the same props.
+     */ const existingStyle = document.querySelector(`style[data-waveform-style="${dataHash}"]`);
+        if (existingStyle) {
+            document.head.removeChild(existingStyle);
+        }
         const style = document.createElement('style');
+        // Add identifier attribute to style tag
+        style.setAttribute('data-waveform-style', dataHash);
         style.textContent = `
-      [data-waveform="${dataAttr}"] {
+      [data-waveform-hash="${dataHash}"] {
         container-type: inline-size;
+				width: 100%;
       }
-      [data-waveform="${dataAttr}"]::before {
+      [data-waveform-hash="${dataHash}"]::before {
         display: block;	
         content: "${data}"; 
         height: 100%; 
 				font-weight: ${fontWeight};
-        font-size: calc(${ratio}cqw / ${dataSize});
+        font-size: calc(${ratio}cqw / ${dataSize} - ${ratio / 100 * gap}px);
+				letter-spacing: ${gap}px;
       }
       ${BREAKPOINTS.map(({ maxWidth, reduction })=>`
         @media (max-width: ${maxWidth}px) {
-          [data-waveform="${dataAttr}"]::before {
+          [data-waveform-hash="${dataHash}"]::before {
             content: "${generateReducedContent(data, reduction)}";
-            font-size: calc(${ratio}cqw / ${Math.floor(dataSize / reduction)});
+            font-size: calc(${ratio}cqw / ${Math.floor(dataSize / reduction)} - ${ratio / 100 * gap}px);	
           }
         }
       `).join('\n')}
@@ -74,18 +86,28 @@ const Waveform = ({ data, thickness = 50 })=>{
         document.head.appendChild(style);
         console.timeEnd('Waveform');
         return ()=>{
-            document.head.removeChild(style);
+            const styleToRemove = document.querySelector(`style[data-waveform-style="${dataHash}"]`);
+            if (styleToRemove) {
+                document.head.removeChild(styleToRemove);
+            }
         };
     }, [
-        dataAttr,
+        dataHash,
         data,
-        dataSize
+        dataSize,
+        normalizedThickness,
+        gap,
+        fontWeight
     ]);
     return /*#__PURE__*/ React.createElement("div", {
         ref: ref,
         "aria-hidden": "true",
-        "data-waveform": dataAttr
+        "data-waveform-id": id,
+        "data-waveform-hash": dataHash
     });
-};
+}
 
-export { Waveform };
+const WaveformAsFont = FontRenderer;
+const WaveformAsSVG = WaveformAsSVG$1;
+
+export { WaveformAsFont, WaveformAsSVG };
