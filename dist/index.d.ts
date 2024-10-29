@@ -1,4 +1,4 @@
-import * as react_jsx_runtime from 'react/jsx-runtime';
+import React from 'react';
 
 interface WaveformProps {
     /** The waveform data as a string of numbers */
@@ -18,14 +18,15 @@ interface WaveformProps {
      */
     gap?: number;
 }
-declare function FontRenderer({ data, thickness, gap }: WaveformProps): react_jsx_runtime.JSX.Element;
+declare function FontRenderer({ data, thickness, gap }: WaveformProps): React.JSX.Element;
 
 interface WaveformAsSVGProps {
     dataPoints: number[];
     gap: number;
     width: number;
+    completionPercentage?: number;
 }
-declare function WaveformAsSVG$1({ dataPoints, gap, width, }: WaveformAsSVGProps): react_jsx_runtime.JSX.Element;
+declare function WaveformAsSVG$1({ dataPoints, gap, width, completionPercentage, }: WaveformAsSVGProps): React.JSX.Element | null;
 
 declare const WaveformAsFont: typeof FontRenderer;
 declare const WaveformAsSVG: typeof WaveformAsSVG$1;

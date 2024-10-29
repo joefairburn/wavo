@@ -1,6 +1,5 @@
-'use client';
 import React, { useId, useRef, useInsertionEffect } from 'react';
-import { W as WaveformAsSVG$1 } from './WaveformAsSVG-client-CZ11D09x.mjs';
+import { W as WaveformAsSVG$1 } from './WaveformAsSVG-client-DUdu8eO1.mjs';
 
 const BREAKPOINTS = [
     {

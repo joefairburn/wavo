@@ -1,6 +1,7 @@
-'use client';
+Object.defineProperty(exports, '__esModule', { value: true });
+
 var React = require('react');
-var WaveformAsSVGClient = require('./WaveformAsSVG-client-CdG7kFS7.js');
+var WaveformAsSVGClient = require('./WaveformAsSVG-client-B7DPzAwm.js');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 

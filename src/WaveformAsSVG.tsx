@@ -7,6 +7,8 @@ interface WaveformAsSVGProps {
   dataPoints: number[];
   gap: number;
   width: number;
+  // Add new prop
+  completionPercentage?: number;
 }
 
 export default function WaveformAsSVG({
@@ -20,6 +22,7 @@ export default function WaveformAsSVG({
   ],
   gap = 1,
   width = 3,
+  completionPercentage = 0.2, // Add default value
 }: WaveformAsSVGProps) {
   const cornerRadius = 0;
   const svgRef = useRef<SVGSVGElement>(null);
