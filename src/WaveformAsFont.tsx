@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useId, useInsertionEffect, useRef } from 'react';
 
 export type Breakpoint = {

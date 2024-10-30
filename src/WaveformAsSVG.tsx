@@ -2,6 +2,7 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { generateReducedContent } from './lib';
+import useIsClient from './hooks/useIsClient';
 
 interface WaveformAsSVGProps {
   dataPoints: number[];
@@ -26,12 +27,8 @@ export default function WaveformAsSVG({
 }: WaveformAsSVGProps) {
   const cornerRadius = 0;
   const svgRef = useRef<SVGSVGElement>(null);
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   /*
    * Debounce the width update to prevent excessive re-renders
@@ -61,7 +58,7 @@ export default function WaveformAsSVG({
     return () => {
       window.removeEventListener('resize', updateWidth);
     };
-  }, [isClient, debouncedUpdateWidth]);
+  }, [debouncedUpdateWidth, isClient]);
 
   if (!isClient) return null;
 
