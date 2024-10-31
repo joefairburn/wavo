@@ -20,15 +20,24 @@ interface WaveformProps {
 }
 declare function FontRenderer({ data, thickness, gap }: WaveformProps): React.JSX.Element;
 
+interface WaveformAsSVGProps$1 {
+    dataPoints: number[];
+    gap: number;
+    width: number;
+    completionPercentage?: number;
+}
+declare function WaveformAsSVG$1({ dataPoints, gap, width, completionPercentage, }: WaveformAsSVGProps$1): React.JSX.Element | null;
+
 interface WaveformAsSVGProps {
     dataPoints: number[];
     gap: number;
     width: number;
     completionPercentage?: number;
 }
-declare function WaveformAsSVG$1({ dataPoints, gap, width, completionPercentage, }: WaveformAsSVGProps): React.JSX.Element | null;
+declare function WaveformAsPath$1({ dataPoints, gap, width, completionPercentage, }: WaveformAsSVGProps): React.JSX.Element | null;
 
 declare const WaveformAsFont: typeof FontRenderer;
 declare const WaveformAsSVG: typeof WaveformAsSVG$1;
+declare const WaveformAsPath: typeof WaveformAsPath$1;
 
-export { WaveformAsFont, WaveformAsSVG };
+export { WaveformAsFont, WaveformAsPath, WaveformAsSVG };

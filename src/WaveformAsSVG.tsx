@@ -66,11 +66,14 @@ export default function WaveformAsSVG({
 
   const reducedDataPoints = generateReducedContent(dataPoints, barCount);
 
+  if (isNaN(barCount)) return null;
+
   return (
     <svg style={{ width: '100%', height: '100%' }} preserveAspectRatio="none" ref={svgRef}>
       {reducedDataPoints.map((point, index) => {
         const x = index * (width + gap);
         const barHeight = Math.max(1, point * 50); // Using 50% to allow bars to grow up and down
+
         return (
           <rect
             key={index}
