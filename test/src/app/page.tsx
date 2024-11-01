@@ -1,5 +1,4 @@
-import { testData } from '@/fixtures/testData';
-import { WaveformAsFont, WaveformAsPath } from 'wavelet';
+import Waveform from 'wavelet';
 const dummyData = [
   {
     id: 1010,
@@ -2911,8 +2910,7 @@ export default function Home() {
     <div className=" w-screen flex flex-col items-center justify-center">
       {dummyData.map((track) => (
         <div className="h-24 w-full" key={track.id}>
-          {/* <WaveformAsSVG dataPoints={JSON.parse(track.track_version[0].waveform_json)} gap={0} width={2} /> */}
-          <WaveformAsPath dataPoints={JSON.parse(track.track_version[0].waveform_json)} gap={0} width={2} />
+          <Waveform dataPoints={JSON.parse(track.track_version[0].waveform_json)} gap={2} width={2} />
         </div>
       ))}
     </div>

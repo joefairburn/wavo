@@ -1,20 +1,47 @@
-export const generateReducedContent = (data: number[], newSize: number) => {
-  const result = [];
-
-  // Process each segment
-  for (let i = 0; i < newSize; i++) {
-    let sum = 0;
-    let validCount = 0;  // Track number of valid values
-    // Calculate sum for this position across all segments
-    for (let j = 0; j < data.length / newSize; j++) {  // Adjust loop bound
-      const index = i + newSize * j;
-      if (index < data.length) {  // Check if index is valid
-        sum += data[index];
-        validCount++;
-      }
-    }
-    result.push(sum / validCount);
+const findNeighborValue = (
+  dataPoints: number[], 
+  startIndex: number, 
+  increment: number, 
+  endCondition: number
+): number => {
+  for (let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment) {
+    if (!isNaN(dataPoints[i])) return dataPoints[i];
   }
+  
+  return NaN;
+};
 
-  return result;
+const calculateSegmentAverage = (dataPoints: number[], startIndex: number, endIndex: number): number => {
+  // Calculate average using reduce
+  const segment = dataPoints.slice(startIndex, endIndex);
+  const { sum, count } = segment.reduce((acc, val) => {
+    if (!isNaN(val)) {
+      acc.sum += val;
+      acc.count++;
+    }
+    return acc;
+  }, { sum: 0, count: 0 });
+
+  if (count > 0) return sum / count;
+
+  // If no valid points, search for neighbors
+  const prevValue = findNeighborValue(dataPoints, startIndex - 1, -1, 0);
+  const nextValue = findNeighborValue(dataPoints, endIndex, 1, dataPoints.length);
+
+  // Calculate final value based on available neighbors
+  if (!isNaN(prevValue) && !isNaN(nextValue)) return (prevValue + nextValue) / 2;
+  if (!isNaN(prevValue)) return prevValue;
+  if (!isNaN(nextValue)) return nextValue;
+  return 0;
+};
+
+export const calculateReducedDataPoints = (barCount: number, dataPoints: number[]): number[] => {
+  if (barCount === 0) return [];
+  
+  const length = dataPoints.length; // Cache length
+  return Array.from({ length: barCount }, (_, barIndex) => {
+    const startIndex = Math.floor((barIndex / barCount) * length);
+    const endIndex = Math.floor(((barIndex + 1) / barCount) * length);
+    return calculateSegmentAverage(dataPoints, startIndex, endIndex);
+  });
 };

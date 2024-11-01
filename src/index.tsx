@@ -1,6 +1,4 @@
-import FontRenderer from './WaveformAsFont';
-import SVGRenderer from './WaveformAsSVG';
-import PathRenderer from './WaveformAsPath';
-export const WaveformAsFont = FontRenderer;
-export const WaveformAsSVG = SVGRenderer;
-export const WaveformAsPath = PathRenderer;
+import Waveform from './Waveform';
+
+export default Waveform;
+// export const WaveformAsPath = PathRenderer;
