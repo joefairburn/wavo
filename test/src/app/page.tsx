@@ -2907,10 +2907,10 @@ const dummyData = [
 
 export default function Home() {
   return (
-    <div className=" w-screen flex flex-col items-center justify-center">
+    <div className=" w-screen flex flex-col items-center justify-center gap-4">
       {dummyData.map((track) => (
         <div className="h-24 w-full" key={track.id}>
-          <Waveform dataPoints={JSON.parse(track.track_version[0].waveform_json)} gap={2} width={2} />
+          <Waveform dataPoints={JSON.parse(track.track_version[0].waveform_json)} gap={2} width={2} lazyLoad={true} />
         </div>
       ))}
     </div>

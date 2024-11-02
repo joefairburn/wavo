@@ -28,11 +28,34 @@ export default function Waveform({
   const [shouldRender, setShouldRender] = useState(!lazyLoad);
   const [visibleBars, setVisibleBars] = useState(0);
   const animationFrameRef = useRef<number>();
+  const hasBeenVisible = useRef(false);
 
   useEffect(() => {
-    if (!lazyLoad) return;
-    const cleanup = requestIdleCallback(() => setShouldRender(true));
-    return () => clearTimeout(cleanup);
+    if (!lazyLoad || !svgRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            hasBeenVisible.current = true;
+            setShouldRender(true);
+          } else {
+            if (hasBeenVisible.current) {
+              setShouldRender(false);
+              setVisibleBars(0);
+            }
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '50px',
+        threshold: 0,
+      },
+    );
+
+    observer.observe(svgRef.current);
+    return () => observer.disconnect();
   }, [lazyLoad]);
 
   useLayoutEffect(() => {
