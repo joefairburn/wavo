@@ -1,6 +1,6 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var WaveformClient = require('./Waveform-client-m3QC7odG.js');
+var WaveformClient = require('./Waveform-client-B2FJ0F7Q.js');
 
 
 

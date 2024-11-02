@@ -5,7 +5,9 @@ interface WaveformProps {
     gap: number;
     width: number;
     completionPercentage?: number;
+    lazyLoad?: boolean;
+    animationSpeed?: number;
 }
-declare function Waveform({ dataPoints, gap, width, completionPercentage }: WaveformProps): React.JSX.Element | null;
+declare function Waveform({ dataPoints, gap, width, completionPercentage, lazyLoad, animationSpeed, }: WaveformProps): React.JSX.Element;
 
 export { Waveform as default };

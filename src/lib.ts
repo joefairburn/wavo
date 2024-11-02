@@ -45,3 +45,26 @@ export const calculateReducedDataPoints = (barCount: number, dataPoints: number[
     return calculateSegmentAverage(dataPoints, startIndex, endIndex);
   });
 };
+
+/**
+ * Utility function to handle requestIdleCallback with fallback
+ */
+export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
+  if ('requestIdleCallback' in window) {
+    return window.requestIdleCallback(callback, { timeout });
+  }
+  // Fallback for browsers that don't support requestIdleCallback
+  return setTimeout(callback, 100);
+};
+
+/**
+ * Creates a debounced version of a function
+ */
+export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 50) => {
+  let timeoutId: NodeJS.Timeout;
+  
+  return (value: T) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback(value), delay);
+  };
+};

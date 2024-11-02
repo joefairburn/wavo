@@ -14,20 +14,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Wavefont:wght,ROND,YELA@4..1000,0..100,-100..100"
           rel="stylesheet"
         />
-        <style>
-          {`
-            .wavefont {
-              font-variation-settings:
-                "ROND" 100,
-                "YELA" 0;
-            }
-        `}
-        </style>
       </head>
-
-      <body style={{ fontFamily: 'Wavefont' }} className="antialiased text-9xl wavefont">
-        {children}
-      </body>
+      <body className="antialiased text-9xl text-neutral-500 fill-green-500">{children}</body>
     </html>
   );
 }
