@@ -17,6 +17,7 @@ interface WaveformProps {
   onDrag?: (percentage: number) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
+  className?: string;
 }
 
 export default function Waveform({
@@ -31,6 +32,7 @@ export default function Waveform({
   onDrag,
   onDragStart,
   onDragEnd,
+  className,
 }: WaveformProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const isClient = useIsClient();
@@ -158,7 +160,7 @@ export default function Waveform({
 
   return (
     <svg
-      style={{ width: '100%', height: '100%' }}
+      className={className}
       preserveAspectRatio="none"
       ref={svgRef}
       onClick={handleClick}

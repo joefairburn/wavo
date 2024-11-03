@@ -37,7 +37,8 @@ export function WaveformBars({ dataPoints, width, gap, progress = 0 }: WaveformB
             style={{
               opacity: hasAnimatedOnce.current ? 1 : 0,
               transition: 'opacity 0.3s ease-in-out',
-              color: 'red',
+              // TODO: Make this a prop
+              color: '#F23D75',
             }}
             clipPath={`url(#${clipPathId})`}
           >

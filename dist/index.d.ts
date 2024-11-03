@@ -12,7 +12,8 @@ interface WaveformProps {
     onDrag?: (percentage: number) => void;
     onDragStart?: () => void;
     onDragEnd?: () => void;
+    className?: string;
 }
-declare function Waveform({ dataPoints, gap, width, completionPercentage, lazyLoad, animationSpeed, progress, onClick, onDrag, onDragStart, onDragEnd, }: WaveformProps): React.JSX.Element;
+declare function Waveform({ dataPoints, gap, width, completionPercentage, lazyLoad, animationSpeed, progress, onClick, onDrag, onDragStart, onDragEnd, className, }: WaveformProps): React.JSX.Element;
 
 export { Waveform as default };
