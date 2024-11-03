@@ -139,6 +139,23 @@ export default function Waveform({
     };
   }, [isDragging, handleGlobalMouseMove]);
 
+  const handleKeyDown = (event: React.KeyboardEvent<SVGElement>) => {
+    if (!onClick) return;
+
+    const STEP = 0.05; // 5% increment/decrement
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        onClick(Math.max(0, progress - STEP));
+        event.preventDefault();
+        break;
+      case 'ArrowRight':
+        onClick(Math.min(1, progress + STEP));
+        event.preventDefault();
+        break;
+    }
+  };
+
   return (
     <svg
       style={{ width: '100%', height: '100%' }}
@@ -146,6 +163,13 @@ export default function Waveform({
       ref={svgRef}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="slider"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress * 100)}
+      aria-label="Audio progress"
     >
       {isClient && shouldRender && (
         <WaveformBars dataPoints={reducedDataPoints} width={width} gap={gap} progress={progress} />

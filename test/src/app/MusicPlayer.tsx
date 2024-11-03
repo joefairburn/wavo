@@ -9,7 +9,7 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      const percentage = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      const percentage = audioRef.current.currentTime / audioRef.current.duration;
       setProgress(percentage);
     }
   };

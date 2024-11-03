@@ -49,7 +49,7 @@ export function WaveformBars({ dataPoints, width, gap, progress = 0 }: WaveformB
           {/* Clip path definition */}
           <defs>
             <clipPath id={clipPathId}>
-              <rect x={0} y={0} width={totalWidth} height="100%" transform={`scale(${progress / 100}, 1)`} />
+              <rect x={0} y={0} width={totalWidth} height="100%" transform={`scale(${progress}, 1)`} />
             </clipPath>
           </defs>
         </>
