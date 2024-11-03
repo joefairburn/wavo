@@ -25,6 +25,7 @@
 		"copy-assets": "cp -r ./src/style.css ./style.css",
 		"dev": "bunchee --watch",
 		"dev:test": "turbo run dev --filter=test...",
+		"build:test": "turbo run build --filter=test...",
 		"format": "prettier --write .",
 		"test": "playwright test"
 	},
