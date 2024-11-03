@@ -60,7 +60,7 @@ export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
 /**
  * Creates a debounced version of a function
  */
-export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 50) => {
+export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 30) => {
   let timeoutId: NodeJS.Timeout;
   
   return (value: T) => {

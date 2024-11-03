@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
-import { generateReducedContent } from './lib';
 import useIsClient from './hooks/useIsClient';
 
 interface WaveformAsSVGProps {
@@ -23,7 +22,6 @@ export default function WaveformAsPath({
   ],
   gap = 1,
   width = 3,
-  completionPercentage = 0.2, // Add default value
 }: WaveformAsSVGProps) {
   const cornerRadius = 0;
   const svgRef = useRef<SVGSVGElement>(null);

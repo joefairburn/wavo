@@ -12,6 +12,11 @@ interface WaveformProps {
   completionPercentage?: number;
   lazyLoad?: boolean;
   animationSpeed?: number;
+  progress?: number;
+  onClick?: (percentage: number) => void;
+  onDrag?: (percentage: number) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 export default function Waveform({
@@ -21,14 +26,18 @@ export default function Waveform({
   completionPercentage = 0.2,
   lazyLoad = false,
   animationSpeed = 3,
+  progress = 0,
+  onClick,
+  onDrag,
+  onDragStart,
+  onDragEnd,
 }: WaveformProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const isClient = useIsClient();
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
   const [shouldRender, setShouldRender] = useState(!lazyLoad);
-  const [visibleBars, setVisibleBars] = useState(0);
-  const animationFrameRef = useRef<number>();
   const hasBeenVisible = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!lazyLoad || !svgRef.current) return;
@@ -42,7 +51,6 @@ export default function Waveform({
           } else {
             if (hasBeenVisible.current) {
               setShouldRender(false);
-              setVisibleBars(0);
             }
           }
         });
@@ -80,38 +88,67 @@ export default function Waveform({
     [barCount, dataPoints, isClient],
   );
 
+  const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current || !onClick) return;
+
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const percentage = x / rect.width;
+
+    onClick(percentage);
+  };
+
+  const handleMouseDown = () => {
+    setIsDragging((prev) => {
+      if (prev) return true;
+      onDragStart?.();
+      return true;
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging((prev) => {
+      if (!prev) return false;
+      onDragEnd?.();
+      return false;
+    });
+  };
+
+  const handleGlobalMouseMove = React.useCallback(
+    (event: MouseEvent) => {
+      if (!isDragging || !svgRef.current || !onDrag) return;
+
+      const rect = svgRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
+      const percentage = x / rect.width;
+
+      onDrag(percentage);
+    },
+    [isDragging, onDrag],
+  );
+
   useEffect(() => {
-    if (!shouldRender || !reducedDataPoints.length) return;
+    if (isDragging) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
 
-    const animate = () => {
-      setVisibleBars((prev) => {
-        const next = prev + animationSpeed;
-        if (next >= reducedDataPoints.length) {
-          return reducedDataPoints.length;
-        }
-        animationFrameRef.current = requestAnimationFrame(animate);
-        return next;
-      });
-    };
-
-    animationFrameRef.current = requestAnimationFrame(animate);
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [shouldRender, reducedDataPoints.length, animationSpeed]);
+  }, [isDragging, handleGlobalMouseMove]);
 
   return (
-    <svg style={{ width: '100%', height: '100%' }} preserveAspectRatio="none" ref={svgRef}>
+    <svg
+      style={{ width: '100%', height: '100%' }}
+      preserveAspectRatio="none"
+      ref={svgRef}
+      onClick={handleClick}
+      onMouseDown={handleMouseDown}
+    >
       {isClient && shouldRender && (
-        <WaveformBars
-          dataPoints={reducedDataPoints}
-          visibleBars={visibleBars}
-          width={width}
-          gap={gap}
-          isAnimationComplete={visibleBars === reducedDataPoints.length}
-        />
+        <WaveformBars dataPoints={reducedDataPoints} width={width} gap={gap} progress={progress} />
       )}
     </svg>
   );

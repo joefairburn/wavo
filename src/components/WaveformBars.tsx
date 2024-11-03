@@ -1,31 +1,59 @@
-import React, { useRef } from 'react';
+import React, { useRef, useId } from 'react';
 import { WaveformBar } from './WaveformBar';
 
 interface WaveformBarsProps {
   dataPoints: number[];
-  visibleBars: number;
   width: number;
   gap: number;
-  isAnimationComplete: boolean;
+  progress?: number;
 }
 
-export function WaveformBars({ dataPoints, visibleBars, width, gap, isAnimationComplete }: WaveformBarsProps) {
+export function WaveformBars({ dataPoints, width, gap, progress = 0 }: WaveformBarsProps) {
   const hasAnimatedOnce = useRef(false);
+  const clipPathId = useId();
+  const totalWidth = dataPoints.length * (width + gap);
 
-  if (isAnimationComplete && !hasAnimatedOnce.current) {
+  if (!hasAnimatedOnce.current) {
     hasAnimatedOnce.current = true;
   }
 
   return (
-    <g
-      style={{
-        opacity: hasAnimatedOnce.current ? 1 : 0,
-        transition: 'opacity 0.3s ease-in-out',
-      }}
-    >
-      {dataPoints.slice(0, visibleBars).map((point, index) => (
-        <WaveformBar key={index} x={index * (width + gap)} width={width} point={point} />
-      ))}
-    </g>
+    <>
+      {/* Background layer (gray bars) */}
+      <g
+        style={{
+          opacity: hasAnimatedOnce.current ? 1 : 0,
+          transition: 'opacity 0.3s ease-in-out',
+        }}
+      >
+        {dataPoints.map((point, index) => (
+          <WaveformBar key={index} x={index * (width + gap)} width={width} point={point} />
+        ))}
+      </g>
+      {progress > 0 && (
+        <>
+          {/* Progress layer (highlighted bars) */}
+          <g
+            style={{
+              opacity: hasAnimatedOnce.current ? 1 : 0,
+              transition: 'opacity 0.3s ease-in-out',
+              color: 'red',
+            }}
+            clipPath={`url(#${clipPathId})`}
+          >
+            {dataPoints.map((point, index) => (
+              <WaveformBar key={index} x={index * (width + gap)} width={width} point={point} />
+            ))}
+          </g>
+
+          {/* Clip path definition */}
+          <defs>
+            <clipPath id={clipPathId}>
+              <rect x={0} y={0} width={totalWidth} height="100%" transform={`scale(${progress / 100}, 1)`} />
+            </clipPath>
+          </defs>
+        </>
+      )}
+    </>
   );
 }
