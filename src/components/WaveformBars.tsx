@@ -20,12 +20,7 @@ export function WaveformBars({ dataPoints, width, gap, progress = 0 }: WaveformB
   return (
     <>
       {/* Background layer (gray bars) */}
-      <g
-        style={{
-          opacity: hasAnimatedOnce.current ? 1 : 0,
-          transition: 'opacity 0.3s ease-in-out',
-        }}
-      >
+      <g>
         {dataPoints.map((point, index) => (
           <WaveformBar key={index} x={index * (width + gap)} width={width} point={point} />
         ))}
@@ -33,15 +28,7 @@ export function WaveformBars({ dataPoints, width, gap, progress = 0 }: WaveformB
       {progress > 0 && (
         <>
           {/* Progress layer (highlighted bars) */}
-          <g
-            style={{
-              opacity: hasAnimatedOnce.current ? 1 : 0,
-              transition: 'opacity 0.3s ease-in-out',
-              // TODO: Make this a prop
-              color: '#F23D75',
-            }}
-            clipPath={`url(#${clipPathId})`}
-          >
+          <g data-wavelet-progress clipPath={`url(#${clipPathId})`}>
             {dataPoints.map((point, index) => (
               <WaveformBar key={index} x={index * (width + gap)} width={width} point={point} />
             ))}

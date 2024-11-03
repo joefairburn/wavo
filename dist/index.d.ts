@@ -13,7 +13,8 @@ interface WaveformProps {
     onDragStart?: () => void;
     onDragEnd?: () => void;
     className?: string;
+    shouldAnimate?: boolean;
 }
-declare function Waveform({ dataPoints, gap, width, completionPercentage, lazyLoad, animationSpeed, progress, onClick, onDrag, onDragStart, onDragEnd, className, }: WaveformProps): React.JSX.Element;
+declare const Waveform: React.ForwardRefExoticComponent<WaveformProps & React.RefAttributes<SVGSVGElement>>;
 
 export { Waveform as default };
