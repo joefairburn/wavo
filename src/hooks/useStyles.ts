@@ -1,4 +1,4 @@
-import { useInsertionEffect } from "react";
+import { useInsertionEffect } from 'react';
 
 // Add this at the top of the file, outside the hook
 let stylesInserted = false;
