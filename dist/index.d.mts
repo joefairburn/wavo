@@ -14,6 +14,7 @@ interface WaveformProps {
     onDragEnd?: () => void;
     className?: string;
     shouldAnimate?: boolean;
+    onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
 }
 declare const Waveform: React.ForwardRefExoticComponent<WaveformProps & React.RefAttributes<SVGSVGElement>>;
 

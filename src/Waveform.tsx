@@ -19,6 +19,7 @@ interface WaveformProps {
   onDragEnd?: () => void;
   className?: string;
   shouldAnimate?: boolean;
+  onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
 }
 
 const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
@@ -36,6 +37,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       onDragStart,
       onDragEnd,
       className,
+      onKeyDown,
     },
     forwardedRef,
   ) => {
@@ -54,8 +56,8 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       if (!lazyLoad || !svgRef.current) return;
 
       const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
+        entries => {
+          entries.forEach(entry => {
             if (entry.isIntersecting) {
               hasBeenVisible.current = true;
               setShouldRender(true);
@@ -81,7 +83,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       if (!svgRef.current) return;
       const debouncedSetWidth = createDebouncedFunction(setSvgWidth);
 
-      const resizeObserver = new ResizeObserver((entries) => {
+      const resizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
           debouncedSetWidth(entry.contentRect.width);
         }
@@ -110,7 +112,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     };
 
     const handleMouseDown = () => {
-      setIsDragging((prev) => {
+      setIsDragging(prev => {
         if (prev) return true;
         onDragStart?.();
         return true;
@@ -118,7 +120,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     };
 
     const handleMouseUp = () => {
-      setIsDragging((prev) => {
+      setIsDragging(prev => {
         if (!prev) return false;
         onDragEnd?.();
         return false;
@@ -150,23 +152,6 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       };
     }, [isDragging, handleGlobalMouseMove]);
 
-    const handleKeyDown = (event: React.KeyboardEvent<SVGElement>) => {
-      if (!onClick) return;
-
-      const STEP = 0.05; // 5% increment/decrement
-
-      switch (event.key) {
-        case 'ArrowLeft':
-          onClick(Math.max(0, progress - STEP));
-          event.preventDefault();
-          break;
-        case 'ArrowRight':
-          onClick(Math.min(1, progress + STEP));
-          event.preventDefault();
-          break;
-      }
-    };
-
     useStyles();
 
     return (
@@ -176,7 +161,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         ref={svgRef}
         onClick={handleClick}
         onMouseDown={handleMouseDown}
-        onKeyDown={handleKeyDown}
+        onKeyDown={onKeyDown}
         data-wavelet-svg=""
         data-wavelet-animate={isClient && shouldRender ? 'true' : 'false'}
         tabIndex={0}
