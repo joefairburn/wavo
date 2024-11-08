@@ -16,7 +16,18 @@ export function useStyles() {
 
     stylesInserted = true;
     const style = document.createElement('style');
-    style.innerHTML = `[data-wavelet-svg] { --wavelet-progress-color: #F23D75; } [data-wavelet-bar] { willChange: height, y; transition: height 1s ease-in-out, y 1s ease-in-out; } [data-wavelet-svg] [data-wavelet-progress] { color: var(--wavelet-progress-color); }`;
+    style.innerHTML = `
+      [data-wavelet-svg] {
+        --wavelet-progress-color: #F23D75;
+      }
+      [data-wavelet-bar] {
+        willChange: height, y;
+        transition: height 1s ease-in-out, y 1s ease-in-out;
+      }
+      [data-wavelet-svg] [data-wavelet-progress] {
+        color: var(--wavelet-progress-color);
+      }
+    `;
 
     document.head.appendChild(style);
 
