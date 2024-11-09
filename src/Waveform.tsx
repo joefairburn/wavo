@@ -1,11 +1,13 @@
 'use client';
 
-import React, { forwardRef, useEffect, useInsertionEffect, useLayoutEffect, useRef, useState } from 'react';
-import { WaveformBars } from './components/WaveformBars';
+import React, { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { WaveformProvider } from './contexts/WaveformContext';
 import useIsClient from './hooks/useIsClient';
-import { calculateReducedDataPoints, createDebouncedFunction } from './lib';
 import { useStyles } from './hooks/useStyles';
-interface WaveformProps {
+import { calculateReducedDataPoints, createDebouncedFunction } from './lib';
+import { Progress } from './components/Progress';
+
+export interface WaveformProps {
   dataPoints: number[];
   gap: number;
   width: number;
@@ -20,6 +22,8 @@ interface WaveformProps {
   className?: string;
   shouldAnimate?: boolean;
   onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
+  unstyled?: boolean;
+  children: React.ReactNode;
 }
 
 const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
@@ -28,9 +32,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       dataPoints,
       gap = 1,
       width = 3,
-      completionPercentage = 0.2,
       lazyLoad = false,
-      animationSpeed = 3,
       progress = 0,
       onClick,
       onDrag,
@@ -38,6 +40,8 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       onDragEnd,
       className,
       onKeyDown,
+      unstyled = false,
+      children,
     },
     forwardedRef,
   ) => {
@@ -51,6 +55,11 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     const [shouldRender, setShouldRender] = useState(!lazyLoad);
     const hasBeenVisible = useRef(false);
     const [isDragging, setIsDragging] = useState(false);
+
+    // Add this function to check for Progress component
+    const hasProgressComponent = React.Children.toArray(children).some(
+      child => React.isValidElement(child) && child.type === Progress,
+    );
 
     useEffect(() => {
       if (!lazyLoad || !svgRef.current) return;
@@ -152,29 +161,35 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       };
     }, [isDragging, handleGlobalMouseMove]);
 
-    useStyles();
+    useStyles({ unstyled });
 
     return (
-      <svg
-        className={className}
-        preserveAspectRatio="none"
-        ref={svgRef}
-        onClick={handleClick}
-        onMouseDown={handleMouseDown}
-        onKeyDown={onKeyDown}
-        data-wavelet-svg=""
-        data-wavelet-animate={isClient && shouldRender ? 'true' : 'false'}
-        tabIndex={0}
-        role="slider"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(progress * 100)}
-        aria-label="Audio progress"
+      <WaveformProvider
+        dataPoints={reducedDataPoints}
+        svgRef={svgRef}
+        hasProgress={hasProgressComponent}
+        isStyled={!unstyled}
       >
-        {isClient && shouldRender && (
-          <WaveformBars dataPoints={reducedDataPoints} width={width} gap={gap} progress={progress} />
-        )}
-      </svg>
+        <svg
+          className={className}
+          preserveAspectRatio="none"
+          ref={svgRef}
+          onClick={handleClick}
+          onMouseDown={handleMouseDown}
+          onKeyDown={onKeyDown}
+          data-wavelet-svg=""
+          data-wavelet-animate={isClient && shouldRender ? 'true' : 'false'}
+          tabIndex={0}
+          role="slider"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress * 100)}
+          aria-label="Audio progress"
+        >
+          {/* Only render children if the component is visible and the SVG is mounted. */}
+          {isClient && shouldRender && children}
+        </svg>
+      </WaveformProvider>
     );
   },
 );

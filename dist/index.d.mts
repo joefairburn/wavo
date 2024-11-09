@@ -1,4 +1,5 @@
-import React from 'react';
+import * as React from 'react';
+import React__default from 'react';
 
 interface WaveformProps {
     dataPoints: number[];
@@ -14,8 +15,25 @@ interface WaveformProps {
     onDragEnd?: () => void;
     className?: string;
     shouldAnimate?: boolean;
-    onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
+    onKeyDown?: (event: React__default.KeyboardEvent<SVGSVGElement>) => void;
+    unstyled?: boolean;
+    children: React__default.ReactNode;
 }
-declare const Waveform: React.ForwardRefExoticComponent<WaveformProps & React.RefAttributes<SVGSVGElement>>;
 
-export { Waveform as default };
+interface BarsProps {
+    width?: number;
+    gap?: number;
+    progress?: number;
+}
+declare function Bars({ width, gap }: BarsProps): React__default.JSX.Element;
+
+declare const _default: {
+    Container: React.ForwardRefExoticComponent<WaveformProps & React.RefAttributes<SVGSVGElement>>;
+    Bars: typeof Bars;
+    Progress: ({ progress, color }: {
+        progress: number;
+        color: string;
+    }) => React.JSX.Element;
+};
+
+export { _default as default };

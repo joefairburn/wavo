@@ -44,9 +44,13 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
   };
 
   return (
-    <div className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4" key={id}>
+    <div
+      className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4"
+      key={id}
+      style={{ '--wavelet-progress-color': '#f23d75' } as React.CSSProperties}
+    >
       <audio ref={audioRef} controls className="mb-2" src={src} onTimeUpdate={handleTimeUpdate} />
-      <Waveform
+      <Waveform.Container
         className="w-full h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 rounded-lg"
         dataPoints={JSON.parse(waveformJson)}
         gap={2}
@@ -58,7 +62,10 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
         onDragStart={() => audioRef.current?.pause()}
         onDragEnd={() => audioRef.current?.play()}
         onKeyDown={handleKeyDown}
-      />
+      >
+        <Waveform.Bars width={2} gap={2} />
+        <Waveform.Progress color="var(--wavelet-progress-color)" progress={progress} />
+      </Waveform.Container>
     </div>
   );
 }
