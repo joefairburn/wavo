@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { u as useWaveform, a as useIsClient, W as Waveform, P as Progress } from './Waveform-client-B9jV4A7t.mjs';
+import { u as useWaveform, a as useIsClient, W as Waveform, P as Progress } from './Waveform-client-5nhCWAXf.mjs';
 
 function SingleBar({ x, width, point, className, fill, isFirstRender }) {
     useWaveform();
@@ -13,7 +13,7 @@ function SingleBar({ x, width, point, className, fill, isFirstRender }) {
         height: `${barHeight * 2}%`,
         fill: fill,
         className: className,
-        "data-wavelet-bar": true
+        "data-wavo-bar": true
     });
 }
 function Bars({ width = 3, gap = 1 }) {

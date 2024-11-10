@@ -1,7 +1,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var React = require('react');
-var WaveformClient = require('./Waveform-client-DDNyC5GO.js');
+var WaveformClient = require('./Waveform-client-3G6ftlf6.js');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -19,7 +19,7 @@ function SingleBar({ x, width, point, className, fill, isFirstRender }) {
         height: `${barHeight * 2}%`,
         fill: fill,
         className: className,
-        "data-wavelet-bar": true
+        "data-wavo-bar": true
     });
 }
 function Bars({ width = 3, gap = 1 }) {

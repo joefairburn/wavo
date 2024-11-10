@@ -26,7 +26,7 @@ export function SingleBar({ x, width, point, className, fill, isFirstRender }: S
       height={`${barHeight * 2}%`}
       fill={fill}
       className={className}
-      data-wavelet-bar
+      data-wavo-bar
       // data-bar-animate={isAnimated ? 'true' : 'false'}
     />
   );

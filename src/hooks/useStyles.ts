@@ -18,11 +18,11 @@ export function useStyles({ unstyled = false }: { unstyled?: boolean } = {}) {
     const style = document.createElement('style');
     style.innerHTML = `
       @media (prefers-reduced-motion: no-preference) {
-        [data-wavelet-bar] {
+        [data-wavo-bar] {
           will-change: height, y;
           transition: height 1s ease-in-out, y 1s ease-in-out;
         }
-        [data-wavelet-svg] [data-new-bars='true'] {
+        [data-wavo-svg] [data-new-bars='true'] {
           will-change: transform;
           transform: scaleY(0);
           transform-origin: center;

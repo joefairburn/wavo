@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Waveform from 'wavelet';
+import Waveform from 'wavo';
 
 export default function MusicPlayer({ src, waveformJson, id }: { src: string; waveformJson: string; id: string }) {
   const [progress, setProgress] = useState(0);
@@ -47,7 +47,7 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
     <div
       className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4"
       key={id}
-      style={{ '--wavelet-progress-color': '#f23d75' } as React.CSSProperties}
+      style={{ '--wavo-progress-color': '#f23d75' } as React.CSSProperties}
     >
       <audio ref={audioRef} controls className="mb-2" src={src} onTimeUpdate={handleTimeUpdate} />
       <Waveform.Container
@@ -64,7 +64,7 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
         onKeyDown={handleKeyDown}
       >
         <Waveform.Bars width={2} gap={2} />
-        <Waveform.Progress color="var(--wavelet-progress-color)" progress={progress} />
+        <Waveform.Progress color="var(--wavo-progress-color)" progress={progress} />
       </Waveform.Container>
     </div>
   );

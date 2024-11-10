@@ -1,0 +1,47 @@
+---
+title: Quick Start
+description: Learn how to quickly integrate and use wavo in your React application
+---
+
+## Basic Usage
+
+Import and use wavo in your React components:
+
+```tsx
+import wavo from '@wavo/react';
+
+function AudioWaveform() {
+  // Sample array of numbers between 0 and 1
+  const audioData = [0.5, 0.8, 0.2, 0.7, 0.4];
+
+  return (
+    <wavo.Container dataPoints={audioData}>
+      <wavo.Bars />
+    </wavo.Container>
+  );
+}
+```
+
+## Adding Playback Progress
+
+To show playback progress, add the `Progress` component and pass a `progress` prop (value between 0 and 1):
+
+```tsx
+function AudioWaveformWithProgress() {
+  const audioData = [0.5, 0.8, 0.2, 0.7, 0.4];
+  const [progress, setProgress] = useState(0);
+
+  return (
+    <wavo.Container dataPoints={audioData} progress={progress}>
+      <wavo.Progress progress={progress} color="#ff0000" />
+      <wavo.Bars />
+    </wavo.Container>
+  );
+}
+```
+
+## Next Steps
+
+- Check out the [Examples](/guides/examples) to see more advanced usage
+- Learn about all available [Configuration Options](/guides/configuration)
+- See how to [Handle Audio Data](/guides/audio-data) with wavo

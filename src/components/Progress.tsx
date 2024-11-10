@@ -15,7 +15,7 @@ export const Progress = ({ progress, color }: { progress: number; color: string 
         x2={progressPercentage}
         y2="0"
         gradientUnits="userSpaceOnUse"
-        data-wavelet-gradient
+        data-wavo-gradient
       >
         <stop offset="50%" stopColor={color} />
         <stop offset="50%" stopColor="currentColor" />
