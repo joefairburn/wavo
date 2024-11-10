@@ -12,11 +12,7 @@ interface SingleBarProps {
 }
 
 export function SingleBar({ x, width, point, className, fill, isFirstRender }: SingleBarProps) {
-  const { isStyled } = useWaveform();
-  const isClient = useIsClient();
   const barHeight = Math.max(1, point * 50);
-
-  // const isAnimated = isStyled && isFirstRender;
 
   return (
     <rect
@@ -27,7 +23,6 @@ export function SingleBar({ x, width, point, className, fill, isFirstRender }: S
       fill={fill}
       className={className}
       data-wavo-bar
-      // data-bar-animate={isAnimated ? 'true' : 'false'}
     />
   );
 }

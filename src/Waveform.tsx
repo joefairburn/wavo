@@ -49,6 +49,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     const hasForwardedRef = typeof forwardedRef === 'object' && forwardedRef !== null;
     const _internalRef = useRef<SVGSVGElement>(null);
     const svgRef = hasForwardedRef ? forwardedRef : _internalRef;
+    const hasMouseOrKeyboardEvents = onClick || onDrag || onKeyDown || onDragStart || onDragEnd;
 
     const isClient = useIsClient();
     const [svgWidth, setSvgWidth] = useState<number | null>(null);
@@ -179,8 +180,8 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
           onKeyDown={onKeyDown}
           data-wavo-svg=""
           data-wavo-animate={isClient && shouldRender ? 'true' : 'false'}
-          tabIndex={0}
-          role="slider"
+          tabIndex={hasMouseOrKeyboardEvents ? 0 : undefined}
+          role={hasMouseOrKeyboardEvents ? 'slider' : undefined}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(progress * 100)}

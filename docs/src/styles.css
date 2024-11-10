@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add these CSS rules */
+.demo-card .expressive-code > .frame {
+  --header-border-radius: 0px;
+}
+
+.demo-card .expressive-code .frame.has-title:not(.is-terminal) .header::before {
+  border-left: 0;
+  border-right: 0;
+}
+
+.demo-card .expressive-code .frame pre {
+  border: 0;
+}

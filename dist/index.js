@@ -1,17 +1,14 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var React = require('react');
-var WaveformClient = require('./Waveform-client-3G6ftlf6.js');
+var WaveformClient = require('./Waveform-client-C_9pfDF0.js');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
 var React__default = /*#__PURE__*/_interopDefault(React);
 
 function SingleBar({ x, width, point, className, fill, isFirstRender }) {
-    WaveformClient.useWaveform();
-    WaveformClient.useIsClient();
     const barHeight = Math.max(1, point * 50);
-    // const isAnimated = isStyled && isFirstRender;
     return /*#__PURE__*/ React__default.default.createElement("rect", {
         x: x + 'px',
         y: `${50 - barHeight}%`,

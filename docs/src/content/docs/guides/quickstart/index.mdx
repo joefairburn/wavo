@@ -3,24 +3,22 @@ title: Quick Start
 description: Learn how to quickly integrate and use wavo in your React application
 ---
 
+import BasicWaveform from './BasicWaveform';
+import importedCode from './BasicWaveform.tsx?raw';
+import { Code } from '@astrojs/starlight/components';
+import DemoCard from '@docs/components/DemoCard.astro';
+
 ## Basic Usage
 
 Import and use wavo in your React components:
 
-```tsx
-import wavo from '@wavo/react';
+<DemoCard class="p-0" code={importedCode} lang="ts" title="BasicWaveform.tsx">
+  <BasicWaveform client:load />
+</DemoCard>
 
-function AudioWaveform() {
-  // Sample array of numbers between 0 and 1
-  const audioData = [0.5, 0.8, 0.2, 0.7, 0.4];
+<div className="w-full flex text-gray-400 dark:text-gray-300">
 
-  return (
-    <wavo.Container dataPoints={audioData}>
-      <wavo.Bars />
-    </wavo.Container>
-  );
-}
-```
+</div>
 
 ## Adding Playback Progress
 
@@ -32,10 +30,10 @@ function AudioWaveformWithProgress() {
   const [progress, setProgress] = useState(0);
 
   return (
-    <wavo.Container dataPoints={audioData} progress={progress}>
-      <wavo.Progress progress={progress} color="#ff0000" />
-      <wavo.Bars />
-    </wavo.Container>
+    <Wave.Container dataPoints={audioData} progress={progress}>
+      <Wave.Progress progress={progress} color="#ff0000" />
+      <Wave.Bars />
+    </Wave.Container>
   );
 }
 ```

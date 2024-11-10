@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { u as useWaveform, a as useIsClient, W as Waveform, P as Progress } from './Waveform-client-5nhCWAXf.mjs';
+import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-C3W83qht.mjs';
 
 function SingleBar({ x, width, point, className, fill, isFirstRender }) {
-    useWaveform();
-    useIsClient();
     const barHeight = Math.max(1, point * 50);
-    // const isAnimated = isStyled && isFirstRender;
     return /*#__PURE__*/ React.createElement("rect", {
         x: x + 'px',
         y: `${50 - barHeight}%`,
