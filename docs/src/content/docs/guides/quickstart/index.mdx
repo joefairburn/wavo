@@ -3,8 +3,10 @@ title: Quick Start
 description: Learn how to quickly integrate and use wavo in your React application
 ---
 
-import BasicWaveform from './BasicWaveform';
-import importedCode from './BasicWaveform.tsx?raw';
+import BasicWaveform from './components/BasicWaveform';
+import basicWaveformCode from './components/BasicWaveform.tsx?raw';
+import WaveformWithProgress from './components/WaveformWithProgress';
+import waveformWithProgressCode from './components/WaveformWithProgress.tsx?raw';
 import { Code } from '@astrojs/starlight/components';
 import DemoCard from '@docs/components/DemoCard.astro';
 
@@ -12,31 +14,17 @@ import DemoCard from '@docs/components/DemoCard.astro';
 
 Import and use wavo in your React components:
 
-<DemoCard class="p-0" code={importedCode} lang="ts" title="BasicWaveform.tsx">
+<DemoCard class="p-0" code={basicWaveformCode} lang="ts" title="BasicWaveform">
   <BasicWaveform client:load />
 </DemoCard>
-
-<div className="w-full flex text-gray-400 dark:text-gray-300">
-
-</div>
 
 ## Adding Playback Progress
 
 To show playback progress, add the `Progress` component and pass a `progress` prop (value between 0 and 1):
 
-```tsx
-function AudioWaveformWithProgress() {
-  const audioData = [0.5, 0.8, 0.2, 0.7, 0.4];
-  const [progress, setProgress] = useState(0);
-
-  return (
-    <Wave.Container dataPoints={audioData} progress={progress}>
-      <Wave.Progress progress={progress} color="#ff0000" />
-      <Wave.Bars />
-    </Wave.Container>
-  );
-}
-```
+<DemoCard class="p-0" code={waveformWithProgressCode} lang="ts" title="WaveformWithProgress">
+  <WaveformWithProgress client:load />
+</DemoCard>
 
 ## Next Steps
 
