@@ -3,8 +3,6 @@ import React__default from 'react';
 
 interface WaveformProps {
     dataPoints: number[];
-    gap: number;
-    width: number;
     completionPercentage?: number;
     lazyLoad?: boolean;
     animationSpeed?: number;

@@ -1,6 +1,7 @@
-import React, { useRef, useId, CSSProperties, useState } from 'react';
+import React, { useRef, useId, CSSProperties, useState, useLayoutEffect } from 'react';
 import { useWaveform } from '../contexts/WaveformContext';
 import { useIsClient } from '../hooks/useIsClient';
+import { calculateReducedDataPoints, createDebouncedFunction } from '../lib';
 
 interface SingleBarProps {
   x: number;
@@ -34,28 +35,56 @@ interface BarsProps {
 }
 
 export function Bars({ width = 3, gap = 1 }: BarsProps) {
-  const { dataPoints, hasProgress, id } = useWaveform();
-  const [previouslyRenderedBars, setPreviouslyRenderedBars] = useState(dataPoints.length);
+  const [svgWidth, setSvgWidth] = useState<number | null>(null);
+  const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
+  const { dataPoints: _dataPoints, hasProgress, id, svgRef } = useWaveform();
+  const reducedDataPoints = React.useMemo(
+    () => calculateReducedDataPoints(barCount, _dataPoints) ?? [],
+    [barCount, _dataPoints],
+  );
 
-  if (previouslyRenderedBars > dataPoints.length) setPreviouslyRenderedBars(dataPoints.length);
+  const [previouslyRenderedBars, setPreviouslyRenderedBars] = useState<number | null | undefined>(null);
 
-  const newBars = dataPoints.slice(previouslyRenderedBars);
+  // If the bars have not been rendered yet, we don't want to animate them.
+  const shouldAnimateBars = previouslyRenderedBars !== null;
+
+  useLayoutEffect(() => {
+    if (!svgRef?.current) return;
+    const debouncedSetWidth = createDebouncedFunction(setSvgWidth);
+
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        debouncedSetWidth(entry.contentRect.width);
+      }
+    });
+
+    resizeObserver.observe(svgRef.current);
+    setSvgWidth(svgRef.current.clientWidth);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  if (previouslyRenderedBars && previouslyRenderedBars > reducedDataPoints.length)
+    setPreviouslyRenderedBars(reducedDataPoints.length);
+
+  const newBars = reducedDataPoints.slice(previouslyRenderedBars ?? reducedDataPoints.length);
+
   return (
     <>
       <g fill={hasProgress ? `url(#gradient-${id})` : 'currentColor'}>
         {/* Previously rendered bars */}
         <g>
-          {dataPoints.slice(0, previouslyRenderedBars).map((point, index) => (
+          {reducedDataPoints.slice(0, previouslyRenderedBars ?? reducedDataPoints.length).map((point, index) => (
             <SingleBar key={index} x={index * (width + gap)} width={width} point={point} isFirstRender={false} />
           ))}
         </g>
         {/* Newly added bars */}
         <g
           data-new-bars={newBars.length > 0 ? 'true' : 'false'}
-          onAnimationEnd={() => setPreviouslyRenderedBars(dataPoints.length)}
+          onAnimationEnd={() => setPreviouslyRenderedBars(reducedDataPoints.length)}
         >
           {newBars.map((point, index) => {
-            const actualIndex = index + previouslyRenderedBars;
+            const actualIndex = index + (previouslyRenderedBars ?? reducedDataPoints.length);
 
             return (
               <SingleBar

@@ -13,8 +13,6 @@ const WaveformWithProgress = () => {
     <Wave.Container
       className="w-full text-neutral-400"
       dataPoints={dataPoints}
-      gap={1}
-      width={2}
       onClick={handleProgressChange}
       onDrag={handleProgressChange}
     >

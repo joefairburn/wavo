@@ -9,8 +9,6 @@ import { Progress } from './components/Progress';
 
 export interface WaveformProps {
   dataPoints: number[];
-  gap: number;
-  width: number;
   completionPercentage?: number;
   lazyLoad?: boolean;
   animationSpeed?: number;
@@ -30,8 +28,6 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
   (
     {
       dataPoints,
-      gap = 1,
-      width = 3,
       lazyLoad = false,
       progress = 0,
       onClick,
@@ -50,9 +46,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     const _internalRef = useRef<SVGSVGElement>(null);
     const svgRef = hasForwardedRef ? forwardedRef : _internalRef;
     const hasMouseOrKeyboardEvents = onClick || onDrag || onKeyDown || onDragStart || onDragEnd;
-
     const isClient = useIsClient();
-    const [svgWidth, setSvgWidth] = useState<number | null>(null);
     const [shouldRender, setShouldRender] = useState(!lazyLoad);
     const hasBeenVisible = useRef(false);
     const [isDragging, setIsDragging] = useState(false);
@@ -88,28 +82,6 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       observer.observe(svgRef.current);
       return () => observer.disconnect();
     }, [lazyLoad]);
-
-    useLayoutEffect(() => {
-      if (!svgRef.current) return;
-      const debouncedSetWidth = createDebouncedFunction(setSvgWidth);
-
-      const resizeObserver = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          debouncedSetWidth(entry.contentRect.width);
-        }
-      });
-
-      resizeObserver.observe(svgRef.current);
-      setSvgWidth(svgRef.current.clientWidth);
-
-      return () => resizeObserver.disconnect();
-    }, [isClient]);
-
-    const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
-    const reducedDataPoints = React.useMemo(
-      () => (isClient ? calculateReducedDataPoints(barCount, dataPoints) : []),
-      [barCount, dataPoints, isClient],
-    );
 
     const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
       if (!svgRef.current || !onClick) return;
@@ -165,12 +137,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     useStyles({ unstyled });
 
     return (
-      <WaveformProvider
-        dataPoints={reducedDataPoints}
-        svgRef={svgRef}
-        hasProgress={hasProgressComponent}
-        isStyled={!unstyled}
-      >
+      <WaveformProvider dataPoints={dataPoints} svgRef={svgRef} hasProgress={hasProgressComponent} isStyled={!unstyled}>
         <svg
           className={className}
           preserveAspectRatio="none"

@@ -53,8 +53,6 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
       <Waveform.Container
         className="w-full h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 rounded-lg"
         dataPoints={JSON.parse(waveformJson)}
-        gap={2}
-        width={2}
         lazyLoad={true}
         progress={progress}
         onClick={handleClick}
