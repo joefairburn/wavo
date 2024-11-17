@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useRef, useEffect } from 'react';
 import { useWaveform } from '../contexts/WaveformContext';
 import { calculateReducedDataPoints, createDebouncedFunction } from '../lib';
 
@@ -8,11 +8,11 @@ interface SingleBarProps {
   point: number;
   className?: string;
   fill?: string;
-  isFirstRender: boolean;
+  shouldAnimateIn: boolean;
   radius?: number;
 }
 
-export function SingleBar({ x, width, point, className, fill, radius = 2 }: SingleBarProps) {
+export function SingleBar({ x, width, point, className, fill, radius = 2, shouldAnimateIn }: SingleBarProps) {
   const barHeight = Math.max(1, point * 50);
   const heightInPixels = barHeight * 2;
   const normalizedRadius = Math.min(
@@ -42,21 +42,74 @@ interface BarsProps {
   progress?: number;
   radius?: number;
   className?: string;
+  dataPoints: number[];
 }
 
-export function Bars({ width = 3, gap = 1, radius = 2, className }: BarsProps) {
+const Bars = ({ width = 3, gap = 1, radius = 2, className, dataPoints }: BarsProps) => {
+  const { hasProgress, id } = useWaveform();
+  const previousDataPointsRef = useRef<number>(dataPoints.length);
+
+  useEffect(() => {
+    previousDataPointsRef.current = dataPoints.length;
+  }, [dataPoints]);
+
+  const newBars = dataPoints.slice(previousDataPointsRef.current);
+
+  return (
+    <>
+      <g fill={hasProgress ? `url(#gradient-${id})` : 'currentColor'} className={className}>
+        {/* Previously rendered bars */}
+        <g>
+          {dataPoints.slice(0, previousDataPointsRef.current).map((point, index) => (
+            <SingleBar
+              radius={radius}
+              key={index}
+              x={index * (width + gap)}
+              width={width}
+              point={point}
+              shouldAnimateIn={false}
+            />
+          ))}
+        </g>
+        {/* Newly added bars */}
+        {newBars.length > 0 && (
+          <g
+            key={previousDataPointsRef.current}
+            data-new-bars="true"
+            onAnimationEnd={() => {
+              previousDataPointsRef.current = dataPoints.length;
+            }}
+          >
+            {newBars.map((point, index) => {
+              const actualIndex = index + previousDataPointsRef.current;
+
+              return (
+                <SingleBar
+                  key={actualIndex}
+                  radius={radius}
+                  x={actualIndex * (width + gap)}
+                  width={width}
+                  point={point}
+                  shouldAnimateIn={true}
+                />
+              );
+            })}
+          </g>
+        )}
+      </g>
+    </>
+  );
+};
+
+export const BarsContainer = ({ width = 3, gap = 1, radius = 2, className }: BarsProps) => {
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
   const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
-  const { dataPoints: _dataPoints, hasProgress, id, svgRef } = useWaveform();
+  const { dataPoints: _dataPoints, svgRef } = useWaveform();
+
   const reducedDataPoints = React.useMemo(
     () => calculateReducedDataPoints(barCount, _dataPoints) ?? [],
     [barCount, _dataPoints],
   );
-
-  const [previouslyRenderedBars, setPreviouslyRenderedBars] = useState<number | null | undefined>(null);
-
-  // If the bars have not been rendered yet, we don't want to animate them.
-  const shouldAnimateBars = previouslyRenderedBars !== null;
 
   useLayoutEffect(() => {
     if (!svgRef?.current) return;
@@ -74,48 +127,8 @@ export function Bars({ width = 3, gap = 1, radius = 2, className }: BarsProps) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  if (previouslyRenderedBars && previouslyRenderedBars > reducedDataPoints.length)
-    setPreviouslyRenderedBars(reducedDataPoints.length);
+  // Return null if there are no datapoints
+  if (!reducedDataPoints.length) return null;
 
-  const newBars = reducedDataPoints.slice(previouslyRenderedBars ?? reducedDataPoints.length);
-
-  return (
-    <>
-      <g fill={hasProgress ? `url(#gradient-${id})` : 'currentColor'} className={className}>
-        {/* Previously rendered bars */}
-        <g>
-          {reducedDataPoints.slice(0, previouslyRenderedBars ?? reducedDataPoints.length).map((point, index) => (
-            <SingleBar
-              radius={radius}
-              key={index}
-              x={index * (width + gap)}
-              width={width}
-              point={point}
-              isFirstRender={false}
-            />
-          ))}
-        </g>
-        {/* Newly added bars */}
-        <g
-          data-new-bars={newBars.length > 0 ? 'true' : 'false'}
-          onAnimationEnd={() => setPreviouslyRenderedBars(reducedDataPoints.length)}
-        >
-          {newBars.map((point, index) => {
-            const actualIndex = index + (previouslyRenderedBars ?? reducedDataPoints.length);
-
-            return (
-              <SingleBar
-                key={actualIndex}
-                radius={radius}
-                x={actualIndex * (width + gap)}
-                width={width}
-                point={point}
-                isFirstRender={true}
-              />
-            );
-          })}
-        </g>
-      </g>
-    </>
-  );
-}
+  return <Bars width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />;
+};

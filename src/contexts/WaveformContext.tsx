@@ -6,6 +6,7 @@ interface WaveformContextType {
   svgRef: React.RefObject<SVGSVGElement> | null;
   hasProgress: boolean;
   isStyled: boolean;
+  transitionDuration: number;
 }
 
 const WaveformContext = createContext<WaveformContextType | null>(null);
@@ -16,13 +17,21 @@ interface WaveformProviderProps {
   svgRef: React.RefObject<SVGSVGElement>;
   hasProgress: boolean;
   isStyled: boolean;
+  transitionDuration: number;
 }
 
-export function WaveformProvider({ children, dataPoints, svgRef, hasProgress, isStyled }: WaveformProviderProps) {
+export function WaveformProvider({
+  children,
+  dataPoints,
+  svgRef,
+  hasProgress,
+  isStyled,
+  transitionDuration,
+}: WaveformProviderProps) {
   const id = useId().replace(/:/g, '');
 
   return (
-    <WaveformContext.Provider value={{ dataPoints, id, svgRef, hasProgress, isStyled }}>
+    <WaveformContext.Provider value={{ dataPoints, id, svgRef, hasProgress, isStyled, transitionDuration }}>
       {children}
     </WaveformContext.Provider>
   );

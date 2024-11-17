@@ -1,5 +1,5 @@
-import React, { useState, useLayoutEffect } from 'react';
-import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-DDQG2VVB.mjs';
+import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
+import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-DF-nvZY9.mjs';
 
 const findNeighborValue = (dataPoints, startIndex, increment, endCondition)=>{
     for(let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment){
@@ -51,7 +51,7 @@ const calculateReducedDataPoints = (barCount, dataPoints)=>{
     };
 };
 
-function SingleBar({ x, width, point, className, fill, radius = 2 }) {
+function SingleBar({ x, width, point, className, fill, radius = 2, shouldAnimateIn }) {
     const barHeight = Math.max(1, point * 50);
     const heightInPixels = barHeight * 2;
     const normalizedRadius = Math.min(radius, width < radius * 2 ? width / 2 : radius, heightInPixels < radius * 2 ? heightInPixels / 2 : radius);
@@ -67,10 +67,47 @@ function SingleBar({ x, width, point, className, fill, radius = 2 }) {
         "data-wavo-bar": true
     });
 }
-function Bars({ width = 3, gap = 1, radius = 2, className }) {
+const Bars = ({ width = 3, gap = 1, radius = 2, className, dataPoints })=>{
+    const { hasProgress, id } = useWaveform();
+    const previousDataPointsRef = useRef(dataPoints.length);
+    useEffect(()=>{
+        previousDataPointsRef.current = dataPoints.length;
+    }, [
+        dataPoints
+    ]);
+    const newBars = dataPoints.slice(previousDataPointsRef.current);
+    return /*#__PURE__*/ React.createElement(React.Fragment, null, /*#__PURE__*/ React.createElement("g", {
+        fill: hasProgress ? `url(#gradient-${id})` : 'currentColor',
+        className: className
+    }, /*#__PURE__*/ React.createElement("g", null, dataPoints.slice(0, previousDataPointsRef.current).map((point, index)=>/*#__PURE__*/ React.createElement(SingleBar, {
+            radius: radius,
+            key: index,
+            x: index * (width + gap),
+            width: width,
+            point: point,
+            shouldAnimateIn: false
+        }))), newBars.length > 0 && /*#__PURE__*/ React.createElement("g", {
+        key: previousDataPointsRef.current,
+        "data-new-bars": "true",
+        onAnimationEnd: ()=>{
+            previousDataPointsRef.current = dataPoints.length;
+        }
+    }, newBars.map((point, index)=>{
+        const actualIndex = index + previousDataPointsRef.current;
+        return /*#__PURE__*/ React.createElement(SingleBar, {
+            key: actualIndex,
+            radius: radius,
+            x: actualIndex * (width + gap),
+            width: width,
+            point: point,
+            shouldAnimateIn: true
+        });
+    }))));
+};
+const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
     const [svgWidth, setSvgWidth] = useState(null);
     const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
-    const { dataPoints: _dataPoints, hasProgress, id, svgRef } = useWaveform();
+    const { dataPoints: _dataPoints, svgRef } = useWaveform();
     const reducedDataPoints = React.useMemo(()=>{
         var _calculateReducedDataPoints;
         return (_calculateReducedDataPoints = calculateReducedDataPoints(barCount, _dataPoints)) != null ? _calculateReducedDataPoints : [];
@@ -78,7 +115,6 @@ function Bars({ width = 3, gap = 1, radius = 2, className }) {
         barCount,
         _dataPoints
     ]);
-    const [previouslyRenderedBars, setPreviouslyRenderedBars] = useState(null);
     useLayoutEffect(()=>{
         if (!(svgRef == null ? void 0 : svgRef.current)) return;
         const debouncedSetWidth = createDebouncedFunction(setSvgWidth);
@@ -91,37 +127,20 @@ function Bars({ width = 3, gap = 1, radius = 2, className }) {
         setSvgWidth(svgRef.current.clientWidth);
         return ()=>resizeObserver.disconnect();
     }, []);
-    if (previouslyRenderedBars && previouslyRenderedBars > reducedDataPoints.length) setPreviouslyRenderedBars(reducedDataPoints.length);
-    const newBars = reducedDataPoints.slice(previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length);
-    return /*#__PURE__*/ React.createElement(React.Fragment, null, /*#__PURE__*/ React.createElement("g", {
-        fill: hasProgress ? `url(#gradient-${id})` : 'currentColor',
-        className: className
-    }, /*#__PURE__*/ React.createElement("g", null, reducedDataPoints.slice(0, previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length).map((point, index)=>/*#__PURE__*/ React.createElement(SingleBar, {
-            radius: radius,
-            key: index,
-            x: index * (width + gap),
-            width: width,
-            point: point,
-            isFirstRender: false
-        }))), /*#__PURE__*/ React.createElement("g", {
-        "data-new-bars": newBars.length > 0 ? 'true' : 'false',
-        onAnimationEnd: ()=>setPreviouslyRenderedBars(reducedDataPoints.length)
-    }, newBars.map((point, index)=>{
-        const actualIndex = index + (previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length);
-        return /*#__PURE__*/ React.createElement(SingleBar, {
-            key: actualIndex,
-            radius: radius,
-            x: actualIndex * (width + gap),
-            width: width,
-            point: point,
-            isFirstRender: true
-        });
-    }))));
-}
+    // Return null if there are no datapoints
+    if (!reducedDataPoints.length) return null;
+    return /*#__PURE__*/ React.createElement(Bars, {
+        width: width,
+        gap: gap,
+        radius: radius,
+        className: className,
+        dataPoints: reducedDataPoints
+    });
+};
 
 var index = {
     Container: Waveform,
-    Bars,
+    Bars: BarsContainer,
     Progress
 };
 

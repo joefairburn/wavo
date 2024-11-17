@@ -134,10 +134,16 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       };
     }, [isDragging, handleGlobalMouseMove]);
 
-    useStyles({ unstyled });
+    useStyles({ unstyled, transitionDuration: 1 });
 
     return (
-      <WaveformProvider dataPoints={dataPoints} svgRef={svgRef} hasProgress={hasProgressComponent} isStyled={!unstyled}>
+      <WaveformProvider
+        dataPoints={dataPoints}
+        svgRef={svgRef}
+        hasProgress={hasProgressComponent}
+        isStyled={!unstyled}
+        transitionDuration={1}
+      >
         <svg
           className={className}
           preserveAspectRatio="none"
