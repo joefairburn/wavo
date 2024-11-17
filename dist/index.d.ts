@@ -23,8 +23,9 @@ interface BarsProps {
     gap?: number;
     progress?: number;
     radius?: number;
+    className?: string;
 }
-declare function Bars({ width, gap, radius }: BarsProps): React__default.JSX.Element;
+declare function Bars({ width, gap, radius, className }: BarsProps): React__default.JSX.Element;
 
 declare const _default: {
     Container: React.ForwardRefExoticComponent<WaveformProps & React.RefAttributes<SVGSVGElement>>;

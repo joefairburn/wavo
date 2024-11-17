@@ -67,7 +67,7 @@ function SingleBar({ x, width, point, className, fill, radius = 2 }) {
         "data-wavo-bar": true
     });
 }
-function Bars({ width = 3, gap = 1, radius = 2 }) {
+function Bars({ width = 3, gap = 1, radius = 2, className }) {
     const [svgWidth, setSvgWidth] = useState(null);
     const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
     const { dataPoints: _dataPoints, hasProgress, id, svgRef } = useWaveform();
@@ -94,7 +94,8 @@ function Bars({ width = 3, gap = 1, radius = 2 }) {
     if (previouslyRenderedBars && previouslyRenderedBars > reducedDataPoints.length) setPreviouslyRenderedBars(reducedDataPoints.length);
     const newBars = reducedDataPoints.slice(previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length);
     return /*#__PURE__*/ React.createElement(React.Fragment, null, /*#__PURE__*/ React.createElement("g", {
-        fill: hasProgress ? `url(#gradient-${id})` : 'currentColor'
+        fill: hasProgress ? `url(#gradient-${id})` : 'currentColor',
+        className: className
     }, /*#__PURE__*/ React.createElement("g", null, reducedDataPoints.slice(0, previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length).map((point, index)=>/*#__PURE__*/ React.createElement(SingleBar, {
             radius: radius,
             key: index,

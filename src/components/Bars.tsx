@@ -41,9 +41,10 @@ interface BarsProps {
   gap?: number;
   progress?: number;
   radius?: number;
+  className?: string;
 }
 
-export function Bars({ width = 3, gap = 1, radius = 2 }: BarsProps) {
+export function Bars({ width = 3, gap = 1, radius = 2, className }: BarsProps) {
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
   const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
   const { dataPoints: _dataPoints, hasProgress, id, svgRef } = useWaveform();
@@ -80,7 +81,7 @@ export function Bars({ width = 3, gap = 1, radius = 2 }: BarsProps) {
 
   return (
     <>
-      <g fill={hasProgress ? `url(#gradient-${id})` : 'currentColor'}>
+      <g fill={hasProgress ? `url(#gradient-${id})` : 'currentColor'} className={className}>
         {/* Previously rendered bars */}
         <g>
           {reducedDataPoints.slice(0, previouslyRenderedBars ?? reducedDataPoints.length).map((point, index) => (
