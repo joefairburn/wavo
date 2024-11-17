@@ -57,19 +57,23 @@ const calculateReducedDataPoints = (barCount, dataPoints)=>{
     };
 };
 
-function SingleBar({ x, width, point, className, fill, isFirstRender }) {
+function SingleBar({ x, width, point, className, fill, radius = 2 }) {
     const barHeight = Math.max(1, point * 50);
+    const heightInPixels = barHeight * 2;
+    const normalizedRadius = Math.min(radius, width < radius * 2 ? width / 2 : radius, heightInPixels < radius * 2 ? heightInPixels / 2 : radius);
     return /*#__PURE__*/ React__default.default.createElement("rect", {
         x: x + 'px',
         y: `${50 - barHeight}%`,
         width: width,
         height: `${barHeight * 2}%`,
+        rx: `${normalizedRadius}px`,
+        ry: `${normalizedRadius}px`,
         fill: fill,
         className: className,
         "data-wavo-bar": true
     });
 }
-function Bars({ width = 3, gap = 1 }) {
+function Bars({ width = 3, gap = 1, radius = 2 }) {
     const [svgWidth, setSvgWidth] = React.useState(null);
     const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
     const { dataPoints: _dataPoints, hasProgress, id, svgRef } = WaveformClient.useWaveform();
@@ -98,6 +102,7 @@ function Bars({ width = 3, gap = 1 }) {
     return /*#__PURE__*/ React__default.default.createElement(React__default.default.Fragment, null, /*#__PURE__*/ React__default.default.createElement("g", {
         fill: hasProgress ? `url(#gradient-${id})` : 'currentColor'
     }, /*#__PURE__*/ React__default.default.createElement("g", null, reducedDataPoints.slice(0, previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length).map((point, index)=>/*#__PURE__*/ React__default.default.createElement(SingleBar, {
+            radius: radius,
             key: index,
             x: index * (width + gap),
             width: width,
@@ -110,6 +115,7 @@ function Bars({ width = 3, gap = 1 }) {
         const actualIndex = index + (previouslyRenderedBars != null ? previouslyRenderedBars : reducedDataPoints.length);
         return /*#__PURE__*/ React__default.default.createElement(SingleBar, {
             key: actualIndex,
+            radius: radius,
             x: actualIndex * (width + gap),
             width: width,
             point: point,

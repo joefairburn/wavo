@@ -1,6 +1,5 @@
-import React, { useRef, useId, CSSProperties, useState, useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { useWaveform } from '../contexts/WaveformContext';
-import { useIsClient } from '../hooks/useIsClient';
 import { calculateReducedDataPoints, createDebouncedFunction } from '../lib';
 
 interface SingleBarProps {
@@ -10,10 +9,17 @@ interface SingleBarProps {
   className?: string;
   fill?: string;
   isFirstRender: boolean;
+  radius?: number;
 }
 
-export function SingleBar({ x, width, point, className, fill, isFirstRender }: SingleBarProps) {
+export function SingleBar({ x, width, point, className, fill, radius = 2 }: SingleBarProps) {
   const barHeight = Math.max(1, point * 50);
+  const heightInPixels = barHeight * 2;
+  const normalizedRadius = Math.min(
+    radius,
+    width < radius * 2 ? width / 2 : radius,
+    heightInPixels < radius * 2 ? heightInPixels / 2 : radius,
+  );
 
   return (
     <rect
@@ -21,6 +27,8 @@ export function SingleBar({ x, width, point, className, fill, isFirstRender }: S
       y={`${50 - barHeight}%`}
       width={width}
       height={`${barHeight * 2}%`}
+      rx={`${normalizedRadius}px`}
+      ry={`${normalizedRadius}px`}
       fill={fill}
       className={className}
       data-wavo-bar
@@ -32,9 +40,10 @@ interface BarsProps {
   width?: number;
   gap?: number;
   progress?: number;
+  radius?: number;
 }
 
-export function Bars({ width = 3, gap = 1 }: BarsProps) {
+export function Bars({ width = 3, gap = 1, radius = 2 }: BarsProps) {
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
   const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
   const { dataPoints: _dataPoints, hasProgress, id, svgRef } = useWaveform();
@@ -75,7 +84,14 @@ export function Bars({ width = 3, gap = 1 }: BarsProps) {
         {/* Previously rendered bars */}
         <g>
           {reducedDataPoints.slice(0, previouslyRenderedBars ?? reducedDataPoints.length).map((point, index) => (
-            <SingleBar key={index} x={index * (width + gap)} width={width} point={point} isFirstRender={false} />
+            <SingleBar
+              radius={radius}
+              key={index}
+              x={index * (width + gap)}
+              width={width}
+              point={point}
+              isFirstRender={false}
+            />
           ))}
         </g>
         {/* Newly added bars */}
@@ -89,6 +105,7 @@ export function Bars({ width = 3, gap = 1 }: BarsProps) {
             return (
               <SingleBar
                 key={actualIndex}
+                radius={radius}
                 x={actualIndex * (width + gap)}
                 width={width}
                 point={point}

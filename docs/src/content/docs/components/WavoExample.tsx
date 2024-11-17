@@ -6,6 +6,8 @@ const WavoExample = () => {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const [controls, setControls] = useState({ gap: 2, width: 2, color: '#f23d75', radius: 2 });
+
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       const percentage = audioRef.current.currentTime / audioRef.current.duration;
@@ -45,7 +47,7 @@ const WavoExample = () => {
   return (
     <div
       className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4"
-      style={{ '--wavo-progress-color': '#f23d75' } as React.CSSProperties}
+      style={{ '--wavo-progress-color': controls.color } as React.CSSProperties}
     >
       <audio ref={audioRef} controls className="hidden" src={musicFile} onTimeUpdate={handleTimeUpdate} />
       <Waveform.Container
@@ -59,9 +61,61 @@ const WavoExample = () => {
         onDragEnd={() => audioRef.current?.play()}
         onKeyDown={handleKeyDown}
       >
-        <Waveform.Bars width={2} gap={2} />
+        <Waveform.Bars width={controls.width} gap={controls.gap} radius={controls.radius} />
         <Waveform.Progress color="var(--wavo-progress-color)" progress={progress} />
       </Waveform.Container>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2 items-center">
+          <label className="text-sm font-medium" htmlFor="color">
+            Color
+          </label>
+          <input
+            className="w-16"
+            type="color"
+            value={controls.color}
+            onChange={e => setControls({ ...controls, color: e.target.value })}
+          />
+        </div>
+        <div className="flex flex-row gap-2 items-center">
+          <label className="text-sm font-medium" htmlFor="gap">
+            Gap
+          </label>
+          <input
+            className="w-16"
+            type="range"
+            min="1"
+            max="10"
+            value={controls.gap}
+            onChange={e => setControls({ ...controls, gap: parseInt(e.target.value) })}
+          />
+        </div>
+        <div className="flex flex-row gap-2 items-center">
+          <label className="text-sm font-medium" htmlFor="width">
+            Width
+          </label>
+          <input
+            className="w-16"
+            type="range"
+            min="1"
+            max="10"
+            value={controls.width}
+            onChange={e => setControls({ ...controls, width: parseInt(e.target.value) })}
+          />
+        </div>
+        <div className="flex flex-row gap-2 items-center">
+          <label className="text-sm font-medium" htmlFor="radius">
+            Radius
+          </label>
+          <input
+            className="w-16"
+            type="range"
+            min="0"
+            max="10"
+            value={controls.radius}
+            onChange={e => setControls({ ...controls, radius: parseInt(e.target.value) })}
+          />
+        </div>
+      </div>
     </div>
   );
 };
