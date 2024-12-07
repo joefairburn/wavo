@@ -1,11 +1,10 @@
 'use client';
 
-import React, { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { Progress } from './components/Progress';
 import { WaveformProvider } from './contexts/WaveformContext';
 import useIsClient from './hooks/useIsClient';
 import { useStyles } from './hooks/useStyles';
-import { calculateReducedDataPoints, createDebouncedFunction } from './lib';
-import { Progress } from './components/Progress';
 
 export interface WaveformProps {
   dataPoints: number[];
@@ -51,6 +50,16 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     const hasBeenVisible = useRef(false);
     const [isDragging, setIsDragging] = useState(false);
 
+    const calculatePercentageFromEvent = React.useCallback(
+      (event: MouseEvent | React.MouseEvent) => {
+        if (!svgRef.current) return 0;
+        const rect = svgRef.current.getBoundingClientRect();
+        const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
+        return x / rect.width;
+      },
+      [svgRef],
+    );
+
     // Add this function to check for Progress component
     const hasProgressComponent = React.Children.toArray(children).some(
       child => React.isValidElement(child) && child.type === Progress,
@@ -85,15 +94,15 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
 
     const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
       if (!svgRef.current || !onClick) return;
-
-      const rect = svgRef.current.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const percentage = x / rect.width;
-
-      onClick(percentage);
+      onClick(calculatePercentageFromEvent(event));
     };
 
-    const handleMouseDown = () => {
+    const handleMouseDown = (event: React.MouseEvent<SVGSVGElement>) => {
+      if (!svgRef.current) return;
+
+      // If onDrag is provided, call it with the initial position
+      onDrag?.(calculatePercentageFromEvent(event));
+
       setIsDragging(prev => {
         if (prev) return true;
         onDragStart?.();
@@ -112,12 +121,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     const handleGlobalMouseMove = React.useCallback(
       (event: MouseEvent) => {
         if (!isDragging || !svgRef.current || !onDrag) return;
-
-        const rect = svgRef.current.getBoundingClientRect();
-        const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
-        const percentage = x / rect.width;
-
-        onDrag(percentage);
+        onDrag(calculatePercentageFromEvent(event));
       },
       [isDragging, onDrag],
     );

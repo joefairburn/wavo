@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
-import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-DF-nvZY9.js';
+import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-CMvMcf7G.js';
 
 const findNeighborValue = (dataPoints, startIndex, increment, endCondition)=>{
     for(let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment){

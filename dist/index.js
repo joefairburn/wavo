@@ -1,7 +1,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var React = require('react');
-var WaveformClient = require('./Waveform-client-CxvHmSqv.js');
+var WaveformClient = require('./Waveform-client-Wwf_z6tF.js');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
