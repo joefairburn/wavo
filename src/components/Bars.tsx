@@ -36,7 +36,7 @@ export function SingleBar({ x, width, point, className, fill, radius = 2, should
   );
 }
 
-interface BarsProps {
+export interface BarsProps {
   width?: number;
   gap?: number;
   progress?: number;

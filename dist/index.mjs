@@ -138,10 +138,11 @@ const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
     });
 };
 
-var index = {
+// For backward compatibility
+const components = {
     Container: Waveform,
     Bars: BarsContainer,
     Progress
 };
 
-export { index as default };
+export { BarsContainer, Progress, Waveform, components as default };

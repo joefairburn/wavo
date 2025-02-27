@@ -144,10 +144,14 @@ const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
     });
 };
 
-var index = {
+// For backward compatibility
+const components = {
     Container: WaveformClient.Waveform,
     Bars: BarsContainer,
     Progress: WaveformClient.Progress
 };
 
-exports.default = index;
+exports.Progress = WaveformClient.Progress;
+exports.Waveform = WaveformClient.Waveform;
+exports.BarsContainer = BarsContainer;
+exports.default = components;
