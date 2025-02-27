@@ -45,7 +45,7 @@ export interface BarsProps {
   dataPoints: number[];
 }
 
-const Bars = ({ width = 3, gap = 1, radius = 2, className, dataPoints }: BarsProps) => {
+const BarsRenderer = ({ width = 3, gap = 1, radius = 2, className, dataPoints }: BarsProps) => {
   const { hasProgress, id } = useWaveform();
   const previousDataPointsRef = useRef<number>(dataPoints.length);
 
@@ -101,7 +101,7 @@ const Bars = ({ width = 3, gap = 1, radius = 2, className, dataPoints }: BarsPro
   );
 };
 
-export const BarsContainer = ({ width = 3, gap = 1, radius = 2, className }: BarsProps) => {
+export const Bars = ({ width = 3, gap = 1, radius = 2, className }: BarsProps) => {
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
   const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
   const { dataPoints: _dataPoints, svgRef } = useWaveform();
@@ -130,5 +130,8 @@ export const BarsContainer = ({ width = 3, gap = 1, radius = 2, className }: Bar
   // Return null if there are no datapoints
   if (!reducedDataPoints.length) return null;
 
-  return <Bars width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />;
+  return <BarsRenderer width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />;
 };
+
+// For backward compatibility
+export { Bars as BarsContainer };

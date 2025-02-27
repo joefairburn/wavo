@@ -2,6 +2,6 @@
 export * from './exports';
 
 // For backward compatibility
-import { Waveform, BarsContainer, Progress } from './exports';
-const components = { Container: Waveform, Bars: BarsContainer, Progress };
+import { Waveform, Bars, Progress } from './exports';
+const components = { Container: Waveform, Bars, Progress };
 export default components;

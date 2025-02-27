@@ -73,7 +73,7 @@ function SingleBar({ x, width, point, className, fill, radius = 2, shouldAnimate
         "data-wavo-bar": true
     });
 }
-const Bars = ({ width = 3, gap = 1, radius = 2, className, dataPoints })=>{
+const BarsRenderer = ({ width = 3, gap = 1, radius = 2, className, dataPoints })=>{
     const { hasProgress, id } = WaveformClient.useWaveform();
     const previousDataPointsRef = React.useRef(dataPoints.length);
     React.useEffect(()=>{
@@ -110,7 +110,7 @@ const Bars = ({ width = 3, gap = 1, radius = 2, className, dataPoints })=>{
         });
     }))));
 };
-const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
+const Bars = ({ width = 3, gap = 1, radius = 2, className })=>{
     const [svgWidth, setSvgWidth] = React.useState(null);
     const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
     const { dataPoints: _dataPoints, svgRef } = WaveformClient.useWaveform();
@@ -135,7 +135,7 @@ const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
     }, []);
     // Return null if there are no datapoints
     if (!reducedDataPoints.length) return null;
-    return /*#__PURE__*/ React__default.default.createElement(Bars, {
+    return /*#__PURE__*/ React__default.default.createElement(BarsRenderer, {
         width: width,
         gap: gap,
         radius: radius,
@@ -147,11 +147,11 @@ const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
 // Re-export everything from exports.ts
 const components = {
     Container: WaveformClient.Waveform,
-    Bars: BarsContainer,
+    Bars,
     Progress: WaveformClient.Progress
 };
 
 exports.Progress = WaveformClient.Progress;
 exports.Waveform = WaveformClient.Waveform;
-exports.BarsContainer = BarsContainer;
+exports.Bars = Bars;
 exports.default = components;
