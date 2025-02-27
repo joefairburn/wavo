@@ -1,7 +1,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var React = require('react');
 var WaveformClient = require('./Waveform-client-Wwf_z6tF.js');
+var React = require('react');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -144,7 +144,7 @@ const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
     });
 };
 
-// For backward compatibility
+// Re-export everything from exports.ts
 const components = {
     Container: WaveformClient.Waveform,
     Bars: BarsContainer,

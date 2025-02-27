@@ -1,5 +1,5 @@
-import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-CMvMcf7G.js';
+import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 
 const findNeighborValue = (dataPoints, startIndex, increment, endCondition)=>{
     for(let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment){
@@ -138,7 +138,7 @@ const BarsContainer = ({ width = 3, gap = 1, radius = 2, className })=>{
     });
 };
 
-// For backward compatibility
+// Re-export everything from exports.ts
 const components = {
     Container: Waveform,
     Bars: BarsContainer,
