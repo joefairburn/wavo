@@ -1,5 +1,5 @@
 // Export all components explicitly
-export { default as Waveform } from './Waveform';
+export { default as Container } from './Waveform';
 export { Bars } from './components/Bars';
 export { Progress } from './components/Progress';
 
