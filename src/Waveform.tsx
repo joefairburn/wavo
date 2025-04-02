@@ -9,16 +9,20 @@ import { useLazyLoad } from './hooks/useLazyLoad';
 import { hasProgressComponent } from './utils/componentUtils';
 import WaveformSVG from './components/WaveformSVG';
 
+// Type representing normalized audio amplitude values between 0 and 1
+export type NormalizedAmplitude = number;
+export type WaveformData = readonly NormalizedAmplitude[];
+
 export interface WaveformProps {
-  dataPoints: number[];
+  dataPoints: WaveformData;
   completionPercentage?: number;
   lazyLoad?: boolean;
   animationSpeed?: number;
   progress?: number;
-  onClick?: (percentage: number) => void;
-  onDrag?: (percentage: number) => void;
-  onDragStart?: () => void;
-  onDragEnd?: () => void;
+  onClick?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+  onDrag?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+  onDragStart?: (event: React.MouseEvent<SVGSVGElement>) => void;
+  onDragEnd?: (event: React.MouseEvent<SVGSVGElement>) => void;
   className?: string;
   shouldAnimate?: boolean;
   onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
@@ -103,13 +107,9 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
 
     return (
       <WaveformProvider {...providerProps}>
-        <WaveformSVG
-          svgRef={svgRef}
-          svgAttributes={svgAttributes}
-          shouldRender={shouldRender}
-          isClient={isClient}
-          children={children}
-        />
+        <WaveformSVG svgRef={svgRef} svgAttributes={svgAttributes} shouldRender={shouldRender} isClient={isClient}>
+          {children}
+        </WaveformSVG>
       </WaveformProvider>
     );
   },

@@ -4,7 +4,10 @@ import { Progress } from '../components/Progress';
 /**
  * Detects if children contain a specific component type
  */
-export const hasComponentType = (children: React.ReactNode, componentType: React.ComponentType<any>): boolean => {
+export const hasComponentType = <P extends object>(
+  children: React.ReactNode,
+  componentType: React.ComponentType<P>,
+): boolean => {
   return React.Children.toArray(children).some(child => React.isValidElement(child) && child.type === componentType);
 };
 

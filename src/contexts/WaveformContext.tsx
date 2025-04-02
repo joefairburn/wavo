@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useId } from 'react';
+import { WaveformData } from '../Waveform';
 
 interface WaveformContextType {
-  dataPoints: number[];
+  dataPoints: WaveformData;
   id: string;
   svgRef: React.RefObject<SVGSVGElement> | null;
   hasProgress: boolean;
@@ -13,7 +14,7 @@ const WaveformContext = createContext<WaveformContextType | null>(null);
 
 interface WaveformProviderProps {
   children: React.ReactNode;
-  dataPoints: number[];
+  dataPoints: WaveformData;
   svgRef: React.RefObject<SVGSVGElement>;
   hasProgress: boolean;
   isStyled: boolean;

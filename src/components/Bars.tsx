@@ -1,6 +1,10 @@
 import React, { useLayoutEffect, useState, useRef, useEffect, useMemo } from 'react';
 import { useWaveform } from '../contexts/WaveformContext';
-import { calculateReducedDataPoints, createDebouncedFunction, getReducedDataPoints } from '../lib';
+import { createDebouncedFunction, getReducedDataPoints } from '../lib';
+import { WaveformData } from '../Waveform';
+
+// Type for radius with constraints
+export type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
 
 interface SingleBarProps {
   x: number;
@@ -8,8 +12,7 @@ interface SingleBarProps {
   point: number;
   className?: string;
   fill?: string;
-  shouldAnimateIn: boolean;
-  radius?: number;
+  radius?: BarRadius;
 }
 
 // Memoize the SingleBar component since it's rendered many times
@@ -20,7 +23,6 @@ export const SingleBar = React.memo(function SingleBar({
   className,
   fill,
   radius = 2,
-  shouldAnimateIn,
 }: SingleBarProps) {
   const barHeight = Math.max(1, point * 50);
   const heightInPixels = barHeight * 2;
@@ -49,9 +51,9 @@ export interface BarsProps {
   width?: number;
   gap?: number;
   progress?: number;
-  radius?: number;
+  radius?: BarRadius;
   className?: string;
-  dataPoints: number[];
+  dataPoints?: WaveformData;
 }
 
 // Memoize the BarsRenderer to prevent unnecessary renders
@@ -61,7 +63,7 @@ const BarsRenderer = React.memo(function BarsRenderer({
   radius = 2,
   className,
   dataPoints,
-}: BarsProps) {
+}: BarsProps & { dataPoints: readonly number[] }) {
   const { hasProgress, id } = useWaveform();
   const previousDataPointsRef = useRef<number>(dataPoints.length);
 
@@ -76,14 +78,7 @@ const BarsRenderer = React.memo(function BarsRenderer({
     return dataPoints
       .slice(0, previousDataPointsRef.current)
       .map((point, index) => (
-        <SingleBar
-          radius={radius}
-          key={index}
-          x={index * (width + gap)}
-          width={width}
-          point={point}
-          shouldAnimateIn={false}
-        />
+        <SingleBar radius={radius} key={index} x={index * (width + gap)} width={width} point={point} />
       ));
   }, [dataPoints, previousDataPointsRef.current, radius, width, gap]);
 
@@ -103,14 +98,7 @@ const BarsRenderer = React.memo(function BarsRenderer({
           const actualIndex = index + previousDataPointsRef.current;
 
           return (
-            <SingleBar
-              key={actualIndex}
-              radius={radius}
-              x={actualIndex * (width + gap)}
-              width={width}
-              point={point}
-              shouldAnimateIn={true}
-            />
+            <SingleBar key={actualIndex} radius={radius} x={actualIndex * (width + gap)} width={width} point={point} />
           );
         })}
       </g>
@@ -129,7 +117,7 @@ const BarsRenderer = React.memo(function BarsRenderer({
   );
 });
 
-export const Bars = ({ width = 3, gap = 1, radius = 2, className }: BarsProps) => {
+export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, className }) => {
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
   const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
   const { dataPoints: _dataPoints, svgRef } = useWaveform();

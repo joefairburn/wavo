@@ -15,11 +15,11 @@ export interface LazyLoadResult {
  * A hook that implements lazy loading using the Intersection Observer API.
  * It will only render content when the referenced element is visible in the viewport.
  */
-export const useLazyLoad = ({ 
-  elementRef, 
+export const useLazyLoad = ({
+  elementRef,
   enabled,
   rootMargin = '50px',
-  threshold = 0 
+  threshold = 0,
 }: LazyLoadOptions): LazyLoadResult => {
   const [shouldRender, setShouldRender] = useState(!enabled);
   const hasBeenVisible = useRef(false);
@@ -44,7 +44,7 @@ export const useLazyLoad = ({
         root: null,
         rootMargin,
         threshold,
-      }
+      },
     );
 
     observer.observe(elementRef.current);
@@ -52,4 +52,4 @@ export const useLazyLoad = ({
   }, [enabled, elementRef, rootMargin, threshold]);
 
   return { shouldRender };
-}; 
+};

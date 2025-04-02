@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Waveform from 'wavo';
 import { musicFile, dataPoints } from '@docs/fixtures/data';
 
@@ -6,7 +6,8 @@ const WavoExample = () => {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const [controls, setControls] = useState({ gap: 2, width: 2, color: '#f23d75', radius: 2 });
+  type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
+  const [controls, setControls] = useState({ gap: 2, width: 2, color: '#f23d75', radius: 2 as BarRadius });
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -110,9 +111,13 @@ const WavoExample = () => {
             className="w-16"
             type="range"
             min="0"
-            max="10"
+            max="5"
             value={controls.radius}
-            onChange={e => setControls({ ...controls, radius: parseInt(e.target.value) })}
+            onChange={e => {
+              const value = parseInt(e.target.value);
+              const radius = (value >= 0 && value <= 5 ? value : 2) as BarRadius;
+              setControls({ ...controls, radius });
+            }}
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
-import Wave from 'wavo';
+import React, { useState } from 'react';
 import { dataPoints } from '@docs/fixtures/data';
-import { useState, type KeyboardEventHandler } from 'react';
+import Wave from 'wavo';
 
 const WaveformWithProgress = () => {
   const [progress, setProgress] = useState(0);

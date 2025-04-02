@@ -43,26 +43,26 @@ export function useStyles({
   useInsertionEffect(() => {
     // Skip in SSR context
     if (typeof document === 'undefined') return;
-    
+
     // Return early if using the unstyled prop
     if (unstyled) return;
-    
+
     // Remove any existing styles (in case transition duration changed)
     const existingStyle = document.querySelector(`style[${STYLE_ATTRIBUTE_ID}]`);
     if (existingStyle) {
       existingStyle.parentNode?.removeChild(existingStyle);
     }
-    
+
     // Only show animations on higher performance devices
     const isHighPerformance = navigator.hardwareConcurrency >= 4;
     if (!isHighPerformance) return;
-    
+
     // Create and insert the style element with the appropriate transition duration
     const style = document.createElement('style');
     style.setAttribute(STYLE_ATTRIBUTE_ID, '');
     style.innerHTML = waveformStyles(transitionDuration);
     document.head.appendChild(style);
-    
+
     // Cleanup function
     return () => {
       if (style.parentNode) {

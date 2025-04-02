@@ -1,3 +1,4 @@
+import React from 'react';
 import Wave from 'wavo';
 import { dataPoints } from '@docs/fixtures/data';
 

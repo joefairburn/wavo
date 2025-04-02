@@ -2,10 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 export interface InteractionOptions<ElementType extends HTMLElement | SVGElement> {
   elementRef: React.RefObject<ElementType>;
-  onClick?: (percentage: number) => void;
-  onDrag?: (percentage: number) => void;
-  onDragStart?: () => void;
-  onDragEnd?: () => void;
+  onClick?: (percentage: number, event: React.MouseEvent<ElementType>) => void;
+  onDrag?: (percentage: number, event: React.MouseEvent<ElementType>) => void;
+  onDragStart?: (event: React.MouseEvent<ElementType>) => void;
+  onDragEnd?: (event: React.MouseEvent<ElementType>) => void;
   onKeyDown?: React.KeyboardEventHandler<ElementType>;
 }
 
@@ -32,11 +32,11 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
   onKeyDown,
 }: InteractionOptions<ElementType>): InteractionResult<ElementType> {
   const [isDragging, setIsDragging] = useState(false);
-  
+
   // Determine if the component has any mouse or keyboard events
   const hasInteractions = React.useMemo(
     () => Boolean(onClick || onDrag || onKeyDown || onDragStart || onDragEnd),
-    [onClick, onDrag, onKeyDown, onDragStart, onDragEnd]
+    [onClick, onDrag, onKeyDown, onDragStart, onDragEnd],
   );
 
   // Calculate percentage from mouse event
@@ -47,16 +47,16 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
       const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
       return x / rect.width;
     },
-    [elementRef]
+    [elementRef],
   );
 
   // Handle click events
   const handleClick = useCallback(
     (event: React.MouseEvent<ElementType>) => {
       if (!elementRef.current || !onClick) return;
-      onClick(calculatePercentageFromEvent(event));
+      onClick(calculatePercentageFromEvent(event), event);
     },
-    [onClick, calculatePercentageFromEvent, elementRef]
+    [onClick, calculatePercentageFromEvent, elementRef],
   );
 
   // Handle mouse down events
@@ -65,33 +65,56 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
       if (!elementRef.current) return;
 
       // If onDrag is provided, call it with the initial position
-      onDrag?.(calculatePercentageFromEvent(event));
+      onDrag?.(calculatePercentageFromEvent(event), event);
 
       setIsDragging(prev => {
         if (prev) return true;
-        onDragStart?.();
+        onDragStart?.(event);
         return true;
       });
     },
-    [elementRef, onDrag, onDragStart, calculatePercentageFromEvent]
+    [elementRef, onDrag, onDragStart, calculatePercentageFromEvent],
   );
 
   // Handle mouse up events
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(prev => {
-      if (!prev) return false;
-      onDragEnd?.();
-      return false;
-    });
-  }, [onDragEnd]);
+  const handleMouseUp = useCallback(
+    (event: MouseEvent) => {
+      setIsDragging(prev => {
+        if (!prev) return false;
+        // Convert the native MouseEvent to a React MouseEvent as much as possible
+        if (onDragEnd) {
+          const syntheticEvent = {
+            clientX: event.clientX,
+            clientY: event.clientY,
+            target: event.target,
+            currentTarget: elementRef.current,
+            preventDefault: () => event.preventDefault(),
+            stopPropagation: () => event.stopPropagation(),
+          } as unknown as React.MouseEvent<ElementType>;
+          onDragEnd(syntheticEvent);
+        }
+        return false;
+      });
+    },
+    [onDragEnd, elementRef],
+  );
 
   // Handle mouse move events
   const handleGlobalMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!isDragging || !elementRef.current || !onDrag) return;
-      onDrag(calculatePercentageFromEvent(event));
+      // Convert the native MouseEvent to a React MouseEvent as much as possible
+      const syntheticEvent = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        target: event.target,
+        currentTarget: elementRef.current,
+        preventDefault: () => event.preventDefault(),
+        stopPropagation: () => event.stopPropagation(),
+      } as unknown as React.MouseEvent<ElementType>;
+      onDrag(calculatePercentageFromEvent(event), syntheticEvent);
     },
-    [isDragging, onDrag, calculatePercentageFromEvent, elementRef]
+    [isDragging, onDrag, calculatePercentageFromEvent, elementRef],
   );
 
   // Add and remove event listeners
@@ -116,4 +139,4 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     isDragging,
     hasInteractions,
   };
-} 
+}

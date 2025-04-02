@@ -1,4 +1,3 @@
-import Waveform from 'wavo';
 import MusicPlayer from './MusicPlayer';
 const dummyData = [
   {
