@@ -1,4 +1,4 @@
-import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-CMvMcf7G.js';
+import { u as useWaveform, W as Waveform, P as Progress } from './Waveform-client-CMvMcf7G.mjs';
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 
 const findNeighborValue = (dataPoints, startIndex, increment, endCondition)=>{
@@ -145,4 +145,4 @@ const components = {
     Progress
 };
 
-export { Bars, Progress, Waveform, components as default };
+export { Bars, Waveform as Container, Progress, components as default };

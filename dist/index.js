@@ -151,7 +151,7 @@ const components = {
     Progress: WaveformClient.Progress
 };
 
+exports.Container = WaveformClient.Waveform;
 exports.Progress = WaveformClient.Progress;
-exports.Waveform = WaveformClient.Waveform;
 exports.Bars = Bars;
 exports.default = components;
