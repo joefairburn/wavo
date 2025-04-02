@@ -44,7 +44,6 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     const hasForwardedRef = typeof forwardedRef === 'object' && forwardedRef !== null;
     const _internalRef = useRef<SVGSVGElement>(null);
     const svgRef = hasForwardedRef ? forwardedRef : _internalRef;
-    const hasMouseOrKeyboardEvents = onClick || onDrag || onKeyDown || onDragStart || onDragEnd;
     const isClient = useIsClient();
     const [shouldRender, setShouldRender] = useState(!lazyLoad);
     const hasBeenVisible = useRef(false);
@@ -61,8 +60,15 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     );
 
     // Add this function to check for Progress component
-    const hasProgressComponent = React.Children.toArray(children).some(
-      child => React.isValidElement(child) && child.type === Progress,
+    const hasProgressComponent = React.useMemo(
+      () => React.Children.toArray(children).some(child => React.isValidElement(child) && child.type === Progress),
+      [children],
+    );
+
+    // Memoize the keyboard/mouse event flag
+    const hasMouseOrKeyboardEvents = React.useMemo(
+      () => Boolean(onClick || onDrag || onKeyDown || onDragStart || onDragEnd),
+      [onClick, onDrag, onKeyDown, onDragStart, onDragEnd],
     );
 
     useEffect(() => {
@@ -92,38 +98,44 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       return () => observer.disconnect();
     }, [lazyLoad]);
 
-    const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
-      if (!svgRef.current || !onClick) return;
-      onClick(calculatePercentageFromEvent(event));
-    };
+    const handleClick = React.useCallback(
+      (event: React.MouseEvent<SVGSVGElement>) => {
+        if (!svgRef.current || !onClick) return;
+        onClick(calculatePercentageFromEvent(event));
+      },
+      [onClick, calculatePercentageFromEvent],
+    );
 
-    const handleMouseDown = (event: React.MouseEvent<SVGSVGElement>) => {
-      if (!svgRef.current) return;
+    const handleMouseDown = React.useCallback(
+      (event: React.MouseEvent<SVGSVGElement>) => {
+        if (!svgRef.current) return;
 
-      // If onDrag is provided, call it with the initial position
-      onDrag?.(calculatePercentageFromEvent(event));
+        // If onDrag is provided, call it with the initial position
+        onDrag?.(calculatePercentageFromEvent(event));
 
-      setIsDragging(prev => {
-        if (prev) return true;
-        onDragStart?.();
-        return true;
-      });
-    };
+        setIsDragging(prev => {
+          if (prev) return true;
+          onDragStart?.();
+          return true;
+        });
+      },
+      [svgRef, onDrag, onDragStart, calculatePercentageFromEvent],
+    );
 
-    const handleMouseUp = () => {
+    const handleMouseUp = React.useCallback(() => {
       setIsDragging(prev => {
         if (!prev) return false;
         onDragEnd?.();
         return false;
       });
-    };
+    }, [onDragEnd]);
 
     const handleGlobalMouseMove = React.useCallback(
       (event: MouseEvent) => {
         if (!isDragging || !svgRef.current || !onDrag) return;
         onDrag(calculatePercentageFromEvent(event));
       },
-      [isDragging, onDrag],
+      [isDragging, onDrag, calculatePercentageFromEvent, svgRef],
     );
 
     useEffect(() => {
@@ -136,34 +148,45 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         document.removeEventListener('mousemove', handleGlobalMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
       };
-    }, [isDragging, handleGlobalMouseMove]);
+    }, [isDragging, handleGlobalMouseMove, handleMouseUp]);
 
     useStyles({ unstyled, transitionDuration: 1 });
 
+    // Memoize SVG attributes to reduce prop calculations on each render
+    const svgAttributes = React.useMemo(
+      () => ({
+        className,
+        preserveAspectRatio: 'none',
+        onClick: handleClick,
+        onMouseDown: handleMouseDown,
+        onKeyDown: onKeyDown as React.KeyboardEventHandler,
+        'data-wavo-svg': '',
+        'data-wavo-animate': isClient && shouldRender ? 'true' : 'false',
+        tabIndex: hasMouseOrKeyboardEvents ? 0 : undefined,
+        role: hasMouseOrKeyboardEvents ? 'slider' : undefined,
+        'aria-valuemin': 0,
+        'aria-valuemax': 100,
+        'aria-valuenow': Math.round(progress * 100),
+        'aria-label': 'Audio progress',
+      }),
+      [className, handleClick, handleMouseDown, onKeyDown, isClient, shouldRender, hasMouseOrKeyboardEvents, progress],
+    );
+
+    // Memoize WaveformProvider props to reduce prop calculations on each render
+    const providerProps = React.useMemo(
+      () => ({
+        dataPoints,
+        svgRef,
+        hasProgress: hasProgressComponent,
+        isStyled: !unstyled,
+        transitionDuration: 1,
+      }),
+      [dataPoints, svgRef, hasProgressComponent, unstyled],
+    );
+
     return (
-      <WaveformProvider
-        dataPoints={dataPoints}
-        svgRef={svgRef}
-        hasProgress={hasProgressComponent}
-        isStyled={!unstyled}
-        transitionDuration={1}
-      >
-        <svg
-          className={className}
-          preserveAspectRatio="none"
-          ref={svgRef}
-          onClick={handleClick}
-          onMouseDown={handleMouseDown}
-          onKeyDown={onKeyDown as React.KeyboardEventHandler}
-          data-wavo-svg=""
-          data-wavo-animate={isClient && shouldRender ? 'true' : 'false'}
-          tabIndex={hasMouseOrKeyboardEvents ? 0 : undefined}
-          role={hasMouseOrKeyboardEvents ? 'slider' : undefined}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progress * 100)}
-          aria-label="Audio progress"
-        >
+      <WaveformProvider {...providerProps}>
+        <svg ref={svgRef} {...svgAttributes}>
           {/* Only render children if the component is visible and the SVG is mounted. */}
           {isClient && shouldRender && children}
         </svg>

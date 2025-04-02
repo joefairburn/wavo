@@ -47,6 +47,46 @@ export const calculateReducedDataPoints = (barCount: number, dataPoints: number[
 };
 
 /**
+ * Memoized version of calculateReducedDataPoints to avoid unnecessary recalculations
+ * when the inputs haven't changed.
+ */
+export const memoizedReducedDataPoints = () => {
+  // Use a Map to store results
+  const cache = new Map<string, number[]>();
+  
+  return (barCount: number, dataPoints: number[]): number[] => {
+    // Skip caching for small data sets
+    if (dataPoints.length < 1000 && barCount < 100) {
+      return calculateReducedDataPoints(barCount, dataPoints);
+    }
+    
+    const key = `${barCount}:${dataPoints.length}`;
+    
+    if (cache.has(key)) {
+      const cachedResult = cache.get(key);
+      if (cachedResult) return cachedResult;
+    }
+    
+    const result = calculateReducedDataPoints(barCount, dataPoints);
+    cache.set(key, result);
+    
+    // Limit cache size to prevent memory issues
+    if (cache.size > 20) {
+      // Get the first key - TS doesn't know it's not undefined here
+      const keys = Array.from(cache.keys());
+      if (keys.length > 0) {
+        cache.delete(keys[0]);
+      }
+    }
+    
+    return result;
+  };
+};
+
+// Create a singleton instance for the app to use
+export const getReducedDataPoints = memoizedReducedDataPoints();
+
+/**
  * Utility function to handle requestIdleCallback with fallback
  */
 export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
