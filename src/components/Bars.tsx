@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useWaveform } from '../contexts/WaveformContext';
 import { getReducedDataPoints } from '../lib';
 import { WaveformData } from '../Waveform';
@@ -223,64 +223,48 @@ const BarsRenderer = React.memo(function BarsRenderer({
  * ```
  */
 export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, className }) => {
-  const [svgWidth, setSvgWidth] = useState<number | null>(null);
+  const [svgWidth, setSvgWidth] = useState<number>(0); // Initialize with 0 or a sensible default
   const { dataPoints: _dataPoints, svgRef } = useWaveform();
-  const widthMeasuredRef = useRef<boolean>(false);
 
-  /**
-   * Updates the measured width of the SVG container
-   * Only triggers a state update if the width has changed
-   */
-  const updateSvgWidth = useCallback(() => {
-    if (svgRef?.current) {
-      const newWidth = svgRef.current.clientWidth;
-      setSvgWidth(prev => {
-        // Only update if width has changed or not been set
-        if (prev !== newWidth) {
-          widthMeasuredRef.current = true;
-          return newWidth;
+  // Use ResizeObserver to update width when SVG container size changes
+  useEffect(() => {
+    // Ensure svgRef is available
+    if (!svgRef?.current) return;
+
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        // Ensure contentRect is available and provides width
+        if (entry.contentRect) {
+          const newWidth = entry.contentRect.width;
+          // Update state only if width has actually changed to avoid unnecessary renders
+          setSvgWidth(prevWidth => (prevWidth !== newWidth ? newWidth : prevWidth));
         }
-        return prev;
-      });
-    }
-  }, [svgRef]);
+      }
+    });
+
+    // Start observing the SVG element
+    resizeObserver.observe(svgRef.current);
+
+    // Cleanup function to disconnect observer on component unmount or ref change
+    return () => resizeObserver.disconnect();
+  }, [svgRef]); // Dependency array includes svgRef
 
   // Calculate bar count based on available space
   const barCount = useMemo(() => {
-    if (!svgWidth) return 0;
-    return Math.floor(svgWidth / (width + gap));
+    if (!svgWidth || svgWidth <= 0) return 0; // Handle zero or negative width
+    const barTotalWidth = width + gap;
+    return Math.max(1, Math.floor(svgWidth / barTotalWidth)); // Ensure at least 1 bar if width > 0
   }, [svgWidth, width, gap]);
 
-  // Use the memoized version for better performance with large datasets
+  // Calculate reduced data points based on bar count
   const reducedDataPoints = useMemo(() => {
-    if (!barCount) return [];
     return getReducedDataPoints(barCount, _dataPoints);
-  }, [barCount, _dataPoints]);
+  }, [_dataPoints, barCount]);
 
-  // Set up resize observer using useLayoutEffect for initial measurement before paint
-  useLayoutEffect(() => {
-    if (!svgRef?.current) return;
+  // Render nothing until width is properly measured and bars calculated
+  if (barCount === 0) return null;
 
-    // Initial width measurement
-    updateSvgWidth();
-
-    // Set up resize observer for subsequent changes
-    const resizeObserver = new ResizeObserver(() => {
-      updateSvgWidth();
-    });
-
-    resizeObserver.observe(svgRef.current);
-    return () => resizeObserver.disconnect();
-  }, [svgRef, updateSvgWidth]);
-
-  // Return null if there are no datapoints or width hasn't been measured yet
-  if (!reducedDataPoints.length || !widthMeasuredRef.current) return null;
-
-  return (
-    <svg width="100%" height="100%" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-      <BarsRenderer width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />
-    </svg>
-  );
+  return <BarsRenderer width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />;
 };
 
 /**
