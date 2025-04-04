@@ -45,6 +45,7 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
 
   return (
     <div
+      data-testid="music-player"
       className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4"
       key={id}
       style={{ '--wavo-progress-color': '#f23d75' } as React.CSSProperties}

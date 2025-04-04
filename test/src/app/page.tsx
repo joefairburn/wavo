@@ -1,15 +1,22 @@
-import { dummyData } from '@/fixtures/testData';
 import MusicPlayer from './MusicPlayer';
+import { generateTestData } from '@/utils/testDataGenerator';
+
+const NUMBER_OF_WAVEFORMS = 1000;
+// Removed testTracks generation from module scope
 
 export default function Home() {
+  // Generate data inside the component function to get new data on each render/refresh
+  const testTracks = generateTestData(NUMBER_OF_WAVEFORMS);
+
   return (
-    <div className=" w-screen flex flex-col items-center justify-center gap-4">
-      {dummyData.map(track => (
+    <div className="w-screen flex flex-col items-center justify-center gap-4">
+      {testTracks.map(track => (
         <MusicPlayer
           key={track.id}
           id={track.id.toString()}
-          src={track.track_version[0].version_preview_uri}
-          waveformJson={track.track_version[0].waveform_json}
+          // Directly use the properties from the simplified track object
+          src={track.src}
+          waveformJson={track.waveformJson}
         />
       ))}
     </div>
