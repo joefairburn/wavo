@@ -62,7 +62,7 @@ const WavoExample = () => {
         onDragEnd={() => audioRef.current?.play()}
         onKeyDown={handleKeyDown}
       >
-        <Waveform.Bars width={controls.width} gap={controls.gap} radius={controls.radius} />
+        <Waveform.PathBars width={controls.width} gap={controls.gap} radius={controls.radius} />
         <Waveform.Progress color="var(--wavo-progress-color)" progress={progress} />
       </Waveform.Container>
       <div className="flex flex-col gap-2">

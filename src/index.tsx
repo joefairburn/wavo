@@ -2,6 +2,6 @@
 export * from './exports';
 
 // For backward compatibility
-import { Container, Bars, Progress } from './exports';
-const components = { Container, Bars, Progress };
+import { Container, Bars, Progress, PathBars } from './exports';
+const components = { Container, Bars, Progress, PathBars };
 export default components;
