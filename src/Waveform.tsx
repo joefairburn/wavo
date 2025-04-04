@@ -13,11 +13,22 @@ import WaveformSVG from './components/WaveformSVG';
 export type NormalizedAmplitude = number;
 export type WaveformData = readonly NormalizedAmplitude[];
 
+// Available easing function types
+export type EasingFunction =
+  | 'linear'
+  | 'ease'
+  | 'ease-in'
+  | 'ease-out'
+  | 'ease-in-out'
+  | 'cubic-bezier'
+  | [number, number, number, number]; // cubic-bezier parameters: x1, y1, x2, y2
+
 export interface WaveformProps {
   dataPoints: WaveformData;
   completionPercentage?: number;
   lazyLoad?: boolean;
-  animationSpeed?: number;
+  transitionDuration?: number;
+  easing?: EasingFunction;
   progress?: number;
   onClick?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
   onDrag?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
@@ -43,6 +54,9 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       className,
       onKeyDown,
       unstyled = false,
+      transitionDuration = 1,
+      // Default easing function: snappy.
+      easing = [0.1, 0.9, 0.2, 1.0],
       children,
     },
     forwardedRef,
@@ -70,7 +84,7 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     });
 
     // Handle styles
-    useStyles({ unstyled, transitionDuration: 1 });
+    useStyles({ unstyled, transitionDuration, easing });
 
     // Check if there is a Progress component
     const hasProgress = React.useMemo(() => hasProgressComponent(children), [children]);
@@ -100,9 +114,10 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         svgRef,
         hasProgress,
         isStyled: !unstyled,
-        transitionDuration: 1,
+        transitionDuration,
+        easing,
       }),
-      [dataPoints, svgRef, hasProgress, unstyled],
+      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing],
     );
 
     return (

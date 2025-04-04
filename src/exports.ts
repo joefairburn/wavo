@@ -2,9 +2,10 @@
 export { default as Container } from './Waveform';
 export { Bars } from './components/Bars';
 export { Progress } from './components/Progress';
-export { default as Path } from './components/Path';
+// Re-export the Path component with default
+export { default as Path } from './components/path-exports';
 
 // Export types
-export type { WaveformProps } from './Waveform';
+export type { WaveformProps, WaveformData, EasingFunction } from './Waveform';
 export type { BarsProps } from './components/Bars';
-export type { PathProps, RenderType } from './components/Path';
+export type { PathProps, RenderType, BarRadius } from './components/path-exports';
