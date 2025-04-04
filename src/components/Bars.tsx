@@ -1,6 +1,6 @@
-import React, { useLayoutEffect, useState, useRef, useEffect, useMemo } from 'react';
+import React, { useLayoutEffect, useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useWaveform } from '../contexts/WaveformContext';
-import { createDebouncedFunction, getReducedDataPoints } from '../lib';
+import { getReducedDataPoints } from '../lib';
 import { WaveformData } from '../Waveform';
 
 // Type for radius with constraints
@@ -119,8 +119,29 @@ const BarsRenderer = React.memo(function BarsRenderer({
 
 export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, className }) => {
   const [svgWidth, setSvgWidth] = useState<number | null>(null);
-  const barCount = svgWidth ? Math.floor(svgWidth / (width + gap)) : 0;
   const { dataPoints: _dataPoints, svgRef } = useWaveform();
+  const widthMeasuredRef = useRef<boolean>(false);
+
+  // Function to measure and update SVG width
+  const updateSvgWidth = useCallback(() => {
+    if (svgRef?.current) {
+      const newWidth = svgRef.current.clientWidth;
+      setSvgWidth(prev => {
+        // Only update if width has changed or not been set
+        if (prev !== newWidth) {
+          widthMeasuredRef.current = true;
+          return newWidth;
+        }
+        return prev;
+      });
+    }
+  }, [svgRef]);
+
+  // Calculate bar count based on available space
+  const barCount = useMemo(() => {
+    if (!svgWidth) return 0;
+    return Math.floor(svgWidth / (width + gap));
+  }, [svgWidth, width, gap]);
 
   // Use the memoized version for better performance with large datasets
   const reducedDataPoints = useMemo(() => {
@@ -128,26 +149,30 @@ export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, clas
     return getReducedDataPoints(barCount, _dataPoints);
   }, [barCount, _dataPoints]);
 
+  // Set up resize observer using useLayoutEffect for initial measurement before paint
   useLayoutEffect(() => {
     if (!svgRef?.current) return;
-    const debouncedSetWidth = createDebouncedFunction(setSvgWidth);
 
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        debouncedSetWidth(entry.contentRect.width);
-      }
+    // Initial width measurement
+    updateSvgWidth();
+
+    // Set up resize observer for subsequent changes
+    const resizeObserver = new ResizeObserver(() => {
+      updateSvgWidth();
     });
 
     resizeObserver.observe(svgRef.current);
-    setSvgWidth(svgRef.current.clientWidth);
-
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [svgRef, updateSvgWidth]);
 
-  // Return null if there are no datapoints
-  if (!reducedDataPoints.length) return null;
+  // Return null if there are no datapoints or width hasn't been measured yet
+  if (!reducedDataPoints.length || !widthMeasuredRef.current) return null;
 
-  return <BarsRenderer width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />;
+  return (
+    <svg width="100%" height="100%" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+      <BarsRenderer width={width} gap={gap} radius={radius} className={className} dataPoints={reducedDataPoints} />
+    </svg>
+  );
 };
 
 // For backward compatibility

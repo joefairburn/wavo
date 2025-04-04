@@ -7,7 +7,15 @@ const WavoExample = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
-  const [controls, setControls] = useState({ gap: 2, width: 2, color: '#f23d75', radius: 2 as BarRadius });
+  type RenderType = 'bar' | 'line';
+
+  const [controls, setControls] = useState({
+    gap: 2,
+    width: 2,
+    color: '#f23d75',
+    radius: 2 as BarRadius,
+    type: 'bar' as RenderType,
+  });
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -45,14 +53,20 @@ const WavoExample = () => {
     }
   };
 
+  // Define all CSS variables needed
+  const cssVariables = {
+    '--wavo-bar-color': '#333333',
+    '--wavo-bar-color-progress': controls.color,
+    '--wavo-bar-width': `${controls.width}px`,
+    '--wavo-bar-gap': `${controls.gap}px`,
+    '--wavo-transition-duration': '0.5s',
+  } as React.CSSProperties;
+
   return (
-    <div
-      className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4"
-      style={{ '--wavo-progress-color': controls.color } as React.CSSProperties}
-    >
+    <div className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4" style={cssVariables}>
       <audio ref={audioRef} controls className="hidden" src={musicFile} onTimeUpdate={handleTimeUpdate} />
       <Waveform.Container
-        className="w-full h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75 rounded-lg"
+        className="w-full !h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75 rounded-lg"
         dataPoints={dataPoints}
         lazyLoad={true}
         progress={progress}
@@ -61,11 +75,26 @@ const WavoExample = () => {
         onDragStart={() => audioRef.current?.pause()}
         onDragEnd={() => audioRef.current?.play()}
         onKeyDown={handleKeyDown}
+        shouldAnimate={true}
       >
-        <Waveform.PathBars width={controls.width} gap={controls.gap} radius={controls.radius} />
-        <Waveform.Progress color="var(--wavo-progress-color)" progress={progress} />
+        {/* <Waveform.Bars width={controls.width} gap={controls.gap} radius={controls.radius} /> */}
+        <Waveform.Path type={controls.type} width={controls.width} gap={controls.gap} radius={controls.radius} />
+        <Waveform.Progress progress={progress} color={controls.color} />
       </Waveform.Container>
       <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2 items-center">
+          <label className="text-sm font-medium" htmlFor="type">
+            Type
+          </label>
+          <select
+            value={controls.type}
+            onChange={e => setControls({ ...controls, type: e.target.value as RenderType })}
+            className="w-20 p-1 text-sm border rounded"
+          >
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+          </select>
+        </div>
         <div className="flex flex-row gap-2 items-center">
           <label className="text-sm font-medium" htmlFor="color">
             Color
@@ -118,6 +147,7 @@ const WavoExample = () => {
               const radius = (value >= 0 && value <= 5 ? value : 2) as BarRadius;
               setControls({ ...controls, radius });
             }}
+            disabled={controls.type === 'line'}
           />
         </div>
       </div>

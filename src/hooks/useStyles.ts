@@ -1,18 +1,38 @@
 import { useInsertionEffect } from 'react';
 
+// Define CSS variables for consistent behavior
+export const cssVariables = {
+  BAR_WIDTH: '--wavo-bar-width',
+  BAR_GAP: '--wavo-bar-gap',
+  BAR_COLOR: '--wavo-bar-color',
+  BAR_COLOR_PROGRESS: '--wavo-bar-color-progress',
+  TRANSITION_DURATION: '--wavo-transition-duration',
+};
+
 // Define the styles as a string template
 export const waveformStyles = `
   @media (prefers-reduced-motion: no-preference) {
+    /* Apply transitions only to individual bars */
     [data-wavo-bar] {
       will-change: height, y;
       transition: height var(--wavo-transition-duration, 1s) ease-in-out, y var(--wavo-transition-duration, 1s) ease-in-out;
     }
+
+    /* Explicitly disable animations for Path elements */
+    [data-wavo-path] {
+      will-change: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+    
+    /* Animation for groups of bars */
     [data-wavo-svg] [data-new-bars='true'] {
       will-change: transform;
       transform: scaleY(0);
       transform-origin: center;
       animation: growBars var(--wavo-transition-duration, 1s) forwards ease-in-out;
     }
+    
     @keyframes growBars {
       0% {
         opacity: 0;
@@ -67,4 +87,6 @@ export function useStyles({
       }
     };
   }, [unstyled, transitionDuration]);
+
+  return { cssVariables };
 }
