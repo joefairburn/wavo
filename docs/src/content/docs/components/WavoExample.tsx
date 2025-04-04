@@ -1,6 +1,7 @@
 import { dataPoints, musicFile } from '@docs/fixtures/data';
 import React, { useRef, useState } from 'react';
 import Waveform, { type EasingFunction } from 'wavo';
+import ResizableContainer from '../../../components/ResizableContainer';
 
 const WavoExample = () => {
   const [progress, setProgress] = useState(0);
@@ -65,26 +66,34 @@ const WavoExample = () => {
   } as React.CSSProperties;
 
   return (
-    <div className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4" style={cssVariables}>
+    <div className="h-auto w-full flex flex-col items-center justify-center gap-4 p-4" style={cssVariables}>
       <audio ref={audioRef} controls className="hidden" src={musicFile} onTimeUpdate={handleTimeUpdate} />
-      <Waveform.Container
-        className="w-full !h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75 rounded-lg"
-        dataPoints={dataPoints}
-        lazyLoad={true}
-        progress={progress}
-        onClick={handleClick}
-        onDrag={handleClick}
-        onDragStart={() => audioRef.current?.pause()}
-        onDragEnd={() => audioRef.current?.play()}
-        onKeyDown={handleKeyDown}
-        transitionDuration={controls.transitionDuration}
-        easing={controls.easing}
-      >
-        {/* <Waveform.Path type={controls.type} width={controls.width} gap={controls.gap} radius={controls.radius} /> */}
-        <Waveform.Bars width={controls.width} gap={controls.gap} radius={controls.radius} />
-        <Waveform.Progress progress={progress} color={controls.color} />
-      </Waveform.Container>
-      <div className="flex flex-col gap-2 min-w-[220px]">
+
+      <ResizableContainer initialWidth={700} initialHeight={100}>
+        <Waveform.Container
+          className="w-full !h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75 rounded-lg"
+          dataPoints={dataPoints}
+          lazyLoad={true}
+          progress={progress}
+          onClick={handleClick}
+          onDrag={handleClick}
+          onDragStart={() => audioRef.current?.pause()}
+          onDragEnd={() => audioRef.current?.play()}
+          onKeyDown={handleKeyDown}
+          transitionDuration={controls.transitionDuration}
+          easing={controls.easing}
+        >
+          {controls.type === 'bar' && (
+            <Waveform.Bars width={controls.width} gap={controls.gap} radius={controls.radius} />
+          )}
+          {controls.type === 'line' && (
+            <Waveform.Path type={controls.type} width={controls.width} gap={controls.gap} radius={controls.radius} />
+          )}
+          <Waveform.Progress progress={progress} color={controls.color} />
+        </Waveform.Container>
+      </ResizableContainer>
+
+      <div className="flex flex-row flex-wrap justify-center items-center gap-4 mt-4">
         <div className="flex flex-row gap-2 items-center">
           <label className="text-sm font-medium" htmlFor="type">
             Type

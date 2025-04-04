@@ -19,3 +19,10 @@
 .hero {
   padding-bottom: 0;
 }
+
+/* Override for sl-markdown-content to remove margin-top for the first child */
+.sl-markdown-content
+  :not(a, strong, em, del, span, input, code, br)
+  + :not(a, strong, em, del, span, input, code, br, :where(.not-content *)) {
+  margin-top: 0;
+}
