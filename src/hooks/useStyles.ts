@@ -1,11 +1,8 @@
 import { useInsertionEffect } from 'react';
 
-// Define the styles as a string template that can be injected
-export const waveformStyles = (transitionDuration = 1) => `
+// Define the styles as a string template
+export const waveformStyles = `
   @media (prefers-reduced-motion: no-preference) {
-    :root {
-      --wavo-transition-duration: ${transitionDuration}s;
-    }
     [data-wavo-bar] {
       will-change: height, y;
       transition: height var(--wavo-transition-duration, 1s) ease-in-out, y var(--wavo-transition-duration, 1s) ease-in-out;
@@ -60,7 +57,7 @@ export function useStyles({
     // Create and insert the style element with the appropriate transition duration
     const style = document.createElement('style');
     style.setAttribute(STYLE_ATTRIBUTE_ID, '');
-    style.innerHTML = waveformStyles(transitionDuration);
+    style.innerHTML = waveformStyles;
     document.head.appendChild(style);
 
     // Cleanup function

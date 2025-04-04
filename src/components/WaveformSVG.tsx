@@ -1,4 +1,5 @@
 import React from 'react';
+import { useWaveform } from '../contexts/WaveformContext';
 
 export interface WaveformSVGProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -18,8 +19,19 @@ export const WaveformSVG: React.FC<WaveformSVGProps> = ({
   isClient,
   svgAttributes,
 }) => {
+  const { transitionDuration } = useWaveform();
+
+  // Extract existing style if any
+  const { style: existingStyle, ...otherAttributes } = svgAttributes;
+
+  // Merge existing style with our CSS variable
+  const mergedStyle = {
+    ...existingStyle,
+    '--wavo-transition-duration': `${transitionDuration}s`,
+  } as React.CSSProperties;
+
   return (
-    <svg ref={svgRef} {...svgAttributes}>
+    <svg ref={svgRef} {...otherAttributes} style={mergedStyle}>
       {/* Only render children if the component is visible and the SVG is mounted. */}
       {isClient && shouldRender && children}
     </svg>
