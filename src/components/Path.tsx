@@ -283,7 +283,7 @@ export const Path: React.FC<PathProps> = ({
   gap = 1,
   radius = 2,
   curvature = 0,
-  smooth = false,
+  smooth = true,
   className,
 }) => {
   const { dataPoints: _dataPoints, svgRef, hasProgress, id } = useWaveform();

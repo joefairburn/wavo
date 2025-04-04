@@ -13,7 +13,7 @@ const WavoExample = () => {
     color: '#f23d75',
     radius: 2 as BarRadius,
     type: 'bar' as RenderType,
-    smooth: false,
+    smooth: true,
     transitionDuration: 2,
     easing: [0.1, 0.9, 0.2, 1.0] as EasingFunction,
   });
