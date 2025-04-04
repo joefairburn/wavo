@@ -1,14 +1,11 @@
 import { dataPoints, musicFile } from '@docs/fixtures/data';
 import React, { useRef, useState } from 'react';
-import Waveform, { type EasingFunction } from 'wavo';
+import Waveform, { type EasingFunction, type RenderType, type BarRadius } from 'wavo';
 import ResizableContainer from '../../../components/ResizableContainer';
 
 const WavoExample = () => {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
-  type RenderType = 'bar' | 'line';
 
   const [controls, setControls] = useState({
     gap: 2,
@@ -16,6 +13,7 @@ const WavoExample = () => {
     color: '#f23d75',
     radius: 2 as BarRadius,
     type: 'bar' as RenderType,
+    smooth: false,
     transitionDuration: 2,
     easing: [0.1, 0.9, 0.2, 1.0] as EasingFunction,
   });
@@ -87,7 +85,13 @@ const WavoExample = () => {
             <Waveform.Bars width={controls.width} gap={controls.gap} radius={controls.radius} />
           )}
           {controls.type === 'line' && (
-            <Waveform.Path type={controls.type} width={controls.width} gap={controls.gap} radius={controls.radius} />
+            <Waveform.Path
+              type={controls.type}
+              width={controls.width}
+              gap={controls.gap}
+              radius={controls.radius}
+              smooth={controls.smooth}
+            />
           )}
           <Waveform.Progress progress={progress} color={controls.color} />
         </Waveform.Container>
@@ -166,6 +170,19 @@ const WavoExample = () => {
             disabled={controls.type === 'line'}
           />
         </div>
+
+        {controls.type === 'line' && (
+          <div className="flex flex-row gap-2 items-center">
+            <label className="text-sm font-medium" htmlFor="smooth">
+              Smooth
+            </label>
+            <input
+              type="checkbox"
+              checked={controls.smooth}
+              onChange={e => setControls({ ...controls, smooth: e.target.checked })}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
