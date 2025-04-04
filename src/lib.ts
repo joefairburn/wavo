@@ -1,5 +1,19 @@
 import { NormalizedAmplitude, WaveformData } from './Waveform';
 
+/**
+ * Finds the nearest valid amplitude value in a specified direction
+ *
+ * Searches through the dataPoints array starting from startIndex, moving in the direction
+ * specified by increment, until reaching endCondition. Returns the first non-NaN value found.
+ *
+ * @param dataPoints - Array of amplitude values to search through
+ * @param startIndex - Index position to start the search from
+ * @param increment - Direction to search: positive for forward, negative for backward
+ * @param endCondition - Stop searching when reaching this index
+ * @returns The first valid amplitude value found, or NaN if none exists
+ *
+ * @internal Used by calculateSegmentAverage to handle gaps in data
+ */
 const findNeighborValue = (
   dataPoints: readonly NormalizedAmplitude[],
   startIndex: number,
@@ -13,6 +27,19 @@ const findNeighborValue = (
   return NaN;
 };
 
+/**
+ * Calculates the average amplitude for a segment of the waveform data
+ *
+ * Takes a slice of the dataPoints array and calculates the average of valid values.
+ * If no valid values exist, attempts to infer a value based on neighboring segments.
+ *
+ * @param dataPoints - Array of amplitude values
+ * @param startIndex - Start index of the segment (inclusive)
+ * @param endIndex - End index of the segment (exclusive)
+ * @returns The average amplitude for the segment
+ *
+ * @internal Used by calculateReducedDataPoints to reduce data resolution
+ */
 const calculateSegmentAverage = (
   dataPoints: readonly NormalizedAmplitude[],
   startIndex: number,
@@ -44,6 +71,22 @@ const calculateSegmentAverage = (
   return 0;
 };
 
+/**
+ * Reduces a large dataset to a specified number of points
+ *
+ * Divides the input data into segments and calculates the average value for each segment.
+ * This allows for rendering a waveform with fewer points while preserving the overall shape.
+ *
+ * @param barCount - Number of bars/points to generate in the output
+ * @param dataPoints - Original high-resolution waveform data
+ * @returns An array of averaged amplitude values with length equal to barCount
+ *
+ * @example
+ * ```ts
+ * // Reduce 10,000 data points to just 100 bars for display
+ * const reducedData = calculateReducedDataPoints(100, originalAudioData);
+ * ```
+ */
 export const calculateReducedDataPoints = (barCount: number, dataPoints: WaveformData): number[] => {
   if (barCount === 0) return [];
 
@@ -56,8 +99,15 @@ export const calculateReducedDataPoints = (barCount: number, dataPoints: Wavefor
 };
 
 /**
- * Memoized version of calculateReducedDataPoints to avoid unnecessary recalculations
- * when the inputs haven't changed.
+ * Creates a memoized version of calculateReducedDataPoints for better performance
+ *
+ * Returns a function that caches results based on input parameters to avoid
+ * unnecessary recalculations when inputs haven't changed. This is particularly
+ * useful for large waveforms where the reduction calculation is expensive.
+ *
+ * @returns A memoized function with the same signature as calculateReducedDataPoints
+ *
+ * @internal Used to create the singleton getReducedDataPoints function
  */
 export const memoizedReducedDataPoints = () => {
   // Use a Map to store results
@@ -92,11 +142,34 @@ export const memoizedReducedDataPoints = () => {
   };
 };
 
-// Create a singleton instance for the app to use
+/**
+ * Singleton instance of the memoized data reduction function
+ *
+ * This pre-initialized function provides efficient waveform data reduction
+ * with built-in caching. Use this throughout the application instead of
+ * calling calculateReducedDataPoints directly.
+ *
+ * @param barCount - Number of bars/points to generate
+ * @param dataPoints - Original high-resolution waveform data
+ * @returns An array of averaged amplitude values with length equal to barCount
+ *
+ * @example
+ * ```ts
+ * // In a component:
+ * const reducedData = getReducedDataPoints(100, originalAudioData);
+ * ```
+ */
 export const getReducedDataPoints = memoizedReducedDataPoints();
 
 /**
- * Utility function to handle requestIdleCallback with fallback
+ * Cross-browser implementation of requestIdleCallback
+ *
+ * Schedules a callback to be called during browser idle periods.
+ * Falls back to setTimeout for browsers that don't support requestIdleCallback.
+ *
+ * @param callback - Function to call during idle period
+ * @param timeout - Maximum delay before the callback is invoked regardless of idle state
+ * @returns Numeric ID that can be used to cancel the callback
  */
 export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
   if ('requestIdleCallback' in window) {
@@ -108,6 +181,24 @@ export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
 
 /**
  * Creates a debounced version of a function
+ *
+ * Returns a function that will only execute after the specified delay
+ * has passed without the function being called again. Useful for handling
+ * rapid events like resize or scroll.
+ *
+ * @param callback - Function to debounce
+ * @param delay - Delay in milliseconds before executing the function
+ * @returns Debounced function
+ *
+ * @example
+ * ```ts
+ * // Create a debounced resize handler
+ * const handleResize = createDebouncedFunction((width) => {
+ *   console.log(`Window resized to ${width}px`);
+ * }, 100);
+ *
+ * window.addEventListener('resize', () => handleResize(window.innerWidth));
+ * ```
  */
 export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 30) => {
   let timeoutId: NodeJS.Timeout;

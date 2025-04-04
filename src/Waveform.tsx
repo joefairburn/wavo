@@ -9,11 +9,27 @@ import { useLazyLoad } from './hooks/useLazyLoad';
 import { hasProgressComponent } from './utils/componentUtils';
 import WaveformSVG from './components/WaveformSVG';
 
-// Type representing normalized audio amplitude values between 0 and 1
+/**
+ * Type representing normalized audio amplitude values between 0 and 1
+ */
 export type NormalizedAmplitude = number;
+
+/**
+ * Array of normalized amplitude values representing waveform data
+ * Each value should be between 0 and 1, where 0 represents silence and 1 represents maximum amplitude
+ */
 export type WaveformData = readonly NormalizedAmplitude[];
 
-// Available easing function types
+/**
+ * Available easing function types for animations
+ * - 'linear': Constant speed
+ * - 'ease': Slow start, then fast, then slow end (default)
+ * - 'ease-in': Slow start, then fast end
+ * - 'ease-out': Fast start, then slow end
+ * - 'ease-in-out': Slow start and end, fast middle
+ * - 'cubic-bezier': Custom curve defined by four parameters
+ * - [number, number, number, number]: Direct cubic-bezier parameters (x1, y1, x2, y2)
+ */
 export type EasingFunction =
   | 'linear'
   | 'ease'
@@ -23,24 +39,132 @@ export type EasingFunction =
   | 'cubic-bezier'
   | [number, number, number, number]; // cubic-bezier parameters: x1, y1, x2, y2
 
+/**
+ * Props for the Waveform container component
+ */
 export interface WaveformProps {
+  /**
+   * Array of normalized amplitude values (0-1) representing the audio waveform
+   */
   dataPoints: WaveformData;
+
+  /**
+   * Percentage of the waveform that has been rendered (0-100)
+   * Useful for progressive loading animations
+   * @deprecated Use progress instead
+   */
   completionPercentage?: number;
+
+  /**
+   * Enable lazy loading of the waveform - only renders when visible in viewport
+   * @default false
+   */
   lazyLoad?: boolean;
+
+  /**
+   * Duration in seconds for the transition/animation effects
+   * @default 1
+   */
   transitionDuration?: number;
+
+  /**
+   * Easing function to use for animations
+   * @default [0.1, 0.9, 0.2, 1.0] (snappy cubic-bezier)
+   */
   easing?: EasingFunction;
+
+  /**
+   * Current playback progress between 0 and 1
+   * Used for progress visualization and accessibility
+   * @default 0
+   */
   progress?: number;
+
+  /**
+   * Callback when the waveform is clicked
+   * @param percentage - Position clicked as percentage (0-1)
+   * @param event - Original mouse event
+   */
   onClick?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+
+  /**
+   * Callback during drag operations on the waveform
+   * @param percentage - Current drag position as percentage (0-1)
+   * @param event - Original mouse event
+   */
   onDrag?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+
+  /**
+   * Callback when drag operation starts
+   * @param event - Original mouse event
+   */
   onDragStart?: (event: React.MouseEvent<SVGSVGElement>) => void;
+
+  /**
+   * Callback when drag operation ends
+   * @param event - Original mouse event
+   */
   onDragEnd?: (event: React.MouseEvent<SVGSVGElement>) => void;
+
+  /**
+   * CSS class name to apply to the SVG element
+   */
   className?: string;
+
+  /**
+   * Whether animation should be enabled
+   * @default true
+   */
   shouldAnimate?: boolean;
+
+  /**
+   * Keyboard event handler for accessibility
+   * @param event - Original keyboard event
+   */
   onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
+
+  /**
+   * When true, default styles are not applied
+   * @default false
+   */
   unstyled?: boolean;
+
+  /**
+   * Child components to render inside the waveform
+   * Should include Bars, Path, or Progress components
+   */
   children: React.ReactNode;
 }
 
+/**
+ * Waveform container component
+ *
+ * Renders an SVG-based audio waveform visualization with customizable appearance and behaviors.
+ * This is the main container that manages waveform data, interactions, and rendering context.
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <Waveform dataPoints={audioData}>
+ *   <Bars />
+ * </Waveform>
+ *
+ * // With progress indicator
+ * <Waveform
+ *   dataPoints={audioData}
+ *   progress={0.5}
+ *   onClick={(position) => setProgress(position)}
+ * >
+ *   <Bars />
+ *   <Progress />
+ * </Waveform>
+ *
+ * // With path-based rendering instead of bars
+ * <Waveform dataPoints={audioData}>
+ *   <Path type="line" smooth={true} />
+ * </Waveform>
+ * ```
+ */
 const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
   (
     {

@@ -1,19 +1,45 @@
 import { useInsertionEffect } from 'react';
 import { EasingFunction } from '../Waveform';
 
-// Define CSS variables for consistent behavior
+/**
+ * CSS variable names used throughout the component for consistent styling
+ * These variables control the appearance and animation of waveform elements
+ */
 export const cssVariables = {
+  /** Width of individual bars in pixels */
   BAR_WIDTH: '--wavo-bar-width',
+
+  /** Gap between bars in pixels */
   BAR_GAP: '--wavo-bar-gap',
+
+  /** Default color for waveform bars */
   BAR_COLOR: '--wavo-bar-color',
+
+  /** Color for the "played" portion of the waveform */
   BAR_COLOR_PROGRESS: '--wavo-bar-color-progress',
+
+  /** Duration of transitions/animations in seconds */
   TRANSITION_DURATION: '--wavo-transition-duration',
+
+  /** CSS timing function for animations */
   EASING_FUNCTION: '--wavo-easing-function',
 };
 
 /**
  * Converts an easing value to a valid CSS timing function
- * Handles both string values and cubic-bezier parameter arrays
+ *
+ * Takes the easing specification (either a named value or cubic-bezier parameters)
+ * and converts it to a valid CSS timing function string that can be used in
+ * transition or animation properties.
+ *
+ * @param easing - Easing function specification (string name or cubic-bezier parameters)
+ * @returns A valid CSS timing function string
+ *
+ * @example
+ * ```ts
+ * getEasingFunction('ease-in') // Returns 'ease-in'
+ * getEasingFunction([0.42, 0, 0.58, 1]) // Returns 'cubic-bezier(0.42, 0, 0.58, 1)'
+ * ```
  */
 export const getEasingFunction = (easing: EasingFunction): string => {
   // If easing is an array, treat it as cubic-bezier parameters
@@ -34,7 +60,16 @@ export const getEasingFunction = (easing: EasingFunction): string => {
   return easing as string;
 };
 
-// Define the styles as a string template
+/**
+ * Creates CSS styles for waveform animations
+ *
+ * Generates the CSS required for smooth transitions and animations
+ * of the waveform elements, with appropriate performance optimizations
+ * and motion reduction handling.
+ *
+ * @param easing - Easing function to use for animations
+ * @returns A CSS string containing all animation styles
+ */
 export const createWaveformStyles = (easing: EasingFunction) => {
   const easingValue = getEasingFunction(easing);
 
@@ -83,15 +118,61 @@ export const createWaveformStyles = (easing: EasingFunction) => {
 // Using a string that won't conflict with user's code
 const STYLE_ATTRIBUTE_ID = 'data-wavo-styles';
 
-export function useStyles({
-  unstyled = false,
-  transitionDuration = 1,
-  easing = 'ease-in-out',
-}: {
+/**
+ * Options for the useStyles hook
+ */
+interface StyleOptions {
+  /**
+   * When true, no styles will be injected (for custom styling)
+   * @default false
+   */
   unstyled?: boolean;
+
+  /**
+   * Duration in seconds for transitions and animations
+   * @default 1
+   */
   transitionDuration?: number;
+
+  /**
+   * Easing function for animations
+   * @default 'ease-in-out'
+   */
   easing?: EasingFunction;
-} = {}) {
+}
+
+/**
+ * Hook that manages dynamic styles for waveform components
+ *
+ * Handles the injection and cleanup of CSS styles needed for animations
+ * and transitions in the waveform visualization. Uses React's useInsertionEffect
+ * for optimal style injection timing. Includes performance considerations and
+ * accessibility features like respecting reduced motion preferences.
+ *
+ * Features:
+ * - SSR-compatible (no style injection during server rendering)
+ * - Dynamic style updates when props change
+ * - Proper cleanup on unmount to prevent style leaks
+ * - Hardware capability detection to disable animations on low-end devices
+ * - Respect for user motion preferences
+ * - Option to disable all styling for custom themes
+ *
+ * @param options - Styling configuration options
+ * @returns Object containing cssVariables for reference
+ *
+ * @example
+ * ```tsx
+ * function WaveformContainer() {
+ *   useStyles({
+ *     transitionDuration: 0.5,
+ *     easing: 'ease-out'
+ *   });
+ *
+ *   return <Waveform>...</Waveform>;
+ * }
+ * ```
+ */
+export function useStyles({ unstyled = false, transitionDuration = 1, easing = 'ease-in-out' }: StyleOptions = {}) {
   useInsertionEffect(() => {
     // Skip in SSR context
     if (typeof document === 'undefined') return;

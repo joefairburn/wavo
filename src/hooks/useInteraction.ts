@@ -1,27 +1,118 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+/**
+ * Options for configuring element interactions
+ *
+ * @template ElementType - The type of DOM element being interacted with
+ */
 export interface InteractionOptions<ElementType extends HTMLElement | SVGElement> {
+  /**
+   * Reference to the DOM element that will receive the interaction events
+   */
   elementRef: React.RefObject<ElementType>;
+
+  /**
+   * Callback fired when the element is clicked
+   * @param percentage - Position as a percentage (0-1) from left edge
+   * @param event - The original mouse event
+   */
   onClick?: (percentage: number, event: React.MouseEvent<ElementType>) => void;
+
+  /**
+   * Callback fired during drag operations
+   * @param percentage - Current position as a percentage (0-1) from left edge
+   * @param event - The original mouse event
+   */
   onDrag?: (percentage: number, event: React.MouseEvent<ElementType>) => void;
+
+  /**
+   * Callback fired when a drag operation starts
+   * @param event - The original mouse event
+   */
   onDragStart?: (event: React.MouseEvent<ElementType>) => void;
+
+  /**
+   * Callback fired when a drag operation ends
+   * @param event - A synthetic mouse event based on the original event
+   */
   onDragEnd?: (event: React.MouseEvent<ElementType>) => void;
+
+  /**
+   * Callback fired for keyboard events (for accessibility)
+   * @param event - The original keyboard event
+   */
   onKeyDown?: React.KeyboardEventHandler<ElementType>;
 }
 
+/**
+ * Result returned by the useInteraction hook
+ *
+ * @template ElementType - The type of DOM element being interacted with
+ */
 export interface InteractionResult<ElementType extends HTMLElement | SVGElement> {
+  /**
+   * Event handlers to be spread onto the target element
+   */
   eventHandlers: {
+    /**
+     * Handler for click events
+     */
     onClick: React.MouseEventHandler<ElementType>;
+
+    /**
+     * Handler for mousedown events (initiates drag operations)
+     */
     onMouseDown: React.MouseEventHandler<ElementType>;
+
+    /**
+     * Handler for keyboard events (passed through from options)
+     */
     onKeyDown: React.KeyboardEventHandler<ElementType> | undefined;
   };
+
+  /**
+   * Whether a drag operation is currently in progress
+   */
   isDragging: boolean;
+
+  /**
+   * Whether the element has any interactive behaviors
+   * Used to determine if accessibility attributes should be added
+   */
   hasInteractions: boolean;
 }
 
 /**
- * A hook that handles mouse and keyboard interactions for elements that
- * support click, drag, and keyboard events.
+ * Hook that manages mouse and keyboard interactions for interactive elements
+ *
+ * Provides a unified way to handle click, drag, and keyboard events with proper
+ * lifecycle management. Particularly useful for slider-like components such as
+ * audio seekers, progress bars, or waveform visualizations.
+ *
+ * Features:
+ * - Click handling with percentage calculation
+ * - Drag operations with start/progress/end callbacks
+ * - Automatic event listener cleanup
+ * - Cross-element drag support (can drag outside the target element)
+ * - Accessibility support with keyboard event handling
+ *
+ * @template ElementType - The DOM element type (defaults to SVGSVGElement)
+ * @param options - Configuration options for the interactions
+ * @returns Event handlers and state information
+ *
+ * @example
+ * ```tsx
+ * function AudioSeeker() {
+ *   const ref = useRef<SVGSVGElement>(null);
+ *   const { eventHandlers } = useInteraction({
+ *     elementRef: ref,
+ *     onClick: (percentage) => setPlaybackPosition(percentage * duration),
+ *     onDrag: (percentage) => updateSeekPreview(percentage * duration),
+ *   });
+ *
+ *   return <svg ref={ref} {...eventHandlers} />;
+ * }
+ * ```
  */
 export function useInteraction<ElementType extends HTMLElement | SVGElement = SVGSVGElement>({
   elementRef,
@@ -39,7 +130,10 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     [onClick, onDrag, onKeyDown, onDragStart, onDragEnd],
   );
 
-  // Calculate percentage from mouse event
+  /**
+   * Calculates the relative position as a percentage (0-1) based on a mouse event
+   * Ensures the value is clamped between 0 and 1
+   */
   const calculatePercentageFromEvent = useCallback(
     (event: MouseEvent | React.MouseEvent) => {
       if (!elementRef.current) return 0;
@@ -50,7 +144,10 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     [elementRef],
   );
 
-  // Handle click events
+  /**
+   * Handles click events on the target element
+   * Calculates the click position and invokes the onClick callback
+   */
   const handleClick = useCallback(
     (event: React.MouseEvent<ElementType>) => {
       if (!elementRef.current || !onClick) return;
@@ -59,7 +156,10 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     [onClick, calculatePercentageFromEvent, elementRef],
   );
 
-  // Handle mouse down events
+  /**
+   * Handles mousedown events on the target element
+   * Initiates drag operations and calls the onDragStart callback
+   */
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<ElementType>) => {
       if (!elementRef.current) return;
@@ -76,7 +176,10 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     [elementRef, onDrag, onDragStart, calculatePercentageFromEvent],
   );
 
-  // Handle mouse up events
+  /**
+   * Handles mouseup events (end of drag operations)
+   * This is attached to the document to catch events outside the target element
+   */
   const handleMouseUp = useCallback(
     (event: MouseEvent) => {
       setIsDragging(prev => {
@@ -99,7 +202,10 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     [onDragEnd, elementRef],
   );
 
-  // Handle mouse move events
+  /**
+   * Handles mousemove events during drag operations
+   * This is attached to the document to track movement outside the target element
+   */
   const handleGlobalMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!isDragging || !elementRef.current || !onDrag) return;
@@ -117,7 +223,7 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
     [isDragging, onDrag, calculatePercentageFromEvent, elementRef],
   );
 
-  // Add and remove event listeners
+  // Add and remove global event listeners for drag operations
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleGlobalMouseMove);

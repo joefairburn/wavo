@@ -3,10 +3,17 @@ import { useWaveform } from '../contexts/WaveformContext';
 import { getReducedDataPoints } from '../lib';
 import { WaveformData } from '../Waveform';
 
-// Type for radius with constraints
+/**
+ * Type for corner radius with constrained values
+ * Higher values create more rounded corners on waveform bars
+ */
 export type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
 
-// Available rendering types
+/**
+ * Rendering mode for the Path component
+ * - 'bar': Renders individual bars like the Bars component but as a single path
+ * - 'line': Renders a continuous line connecting all data points
+ */
 export type RenderType = 'bar' | 'line';
 
 // CSS variable names
@@ -242,40 +249,100 @@ const createSmoothPath = (points: [number, number][], tensionFactor: number): st
 
 /**
  * Props for the Path component
- *
- * @property type - Type of waveform to render ('bar' or 'line')
- * @property width - Width of each bar/segment in pixels
- * @property gap - Gap between bars/segments in pixels
- * @property progress - Current playback progress (0-1)
- * @property radius - Radius for bar corners (0-5, only used for 'bar' type)
- * @property curvature - Smoothness of lines (0-1, only used for 'line' type)
- * @property smooth - If true, applies a light smoothing effect (curvature of 0.1) to lines
- * @property className - CSS class to apply to the path
- * @property dataPoints - Optional override for waveform data points
  */
 export interface PathProps {
+  /**
+   * Rendering type for the waveform visualization
+   * - 'bar': Individual bars (similar to Bars component but as a single path)
+   * - 'line': Continuous line connecting points
+   * @default 'bar'
+   */
   type?: RenderType;
+
+  /**
+   * Width of each segment in pixels
+   * @default 3
+   */
   width?: number;
+
+  /**
+   * Gap between segments in pixels
+   * @default 1
+   */
   gap?: number;
+
+  /**
+   * Current progress value (0-1) for playback indication
+   * Used in conjunction with the Progress component
+   */
   progress?: number;
+
+  /**
+   * Corner radius for bars when type='bar'
+   * @default 2
+   */
   radius?: BarRadius;
+
+  /**
+   * Smoothness factor for curves when type='line'
+   * 0 = jagged lines, 1 = very smooth curves
+   * @default 0
+   */
   curvature?: number;
+
+  /**
+   * Whether to use smooth curves (when type='line')
+   * @default true
+   */
   smooth?: boolean;
+
+  /**
+   * CSS class for styling the path
+   */
   className?: string;
+
+  /**
+   * Optional custom dataPoints to use instead of those from context
+   * Generally not needed as dataPoints are provided by the Waveform container
+   */
   dataPoints?: WaveformData;
 }
 
 /**
- * Component that renders the waveform using SVG paths instead of individual rect elements
- * for better performance with large datasets.
+ * Path-based waveform visualization component
  *
- * This component:
- * 1. Calculates the number of segments based on available width
- * 2. Reduces the data points to match the number of segments
- * 3. Observes size changes to adjust the segment count
- * 4. Uses CSS variables from the parent SVG for styling if available
- * 5. Creates a single path element with all segments instead of multiple elements
- * 6. Supports different rendering types (bars or lines with variable smoothness)
+ * Renders the waveform as a single SVG path element, which provides better performance
+ * for larger waveforms than the Bars component, which creates many individual elements.
+ *
+ * Supports two rendering modes:
+ * 1. 'bar' - Similar appearance to Bars but as a single optimized path element
+ * 2. 'line' - Continuous line/curve connecting all data points
+ *
+ * Features:
+ * - Better performance for large waveforms (uses single path vs. many elements)
+ * - Support for both bar and line/curve rendering modes
+ * - Automatic data point reduction for optimal rendering
+ * - Responsive to container size changes
+ * - Compatible with Progress component for partial coloring
+ *
+ * @example
+ * ```tsx
+ * // Basic bar-type path (better performance than Bars for large datasets)
+ * <Waveform dataPoints={audioData}>
+ *   <Path type="bar" width={2} gap={1} radius={3} />
+ * </Waveform>
+ *
+ * // Continuous line visualization
+ * <Waveform dataPoints={audioData}>
+ *   <Path type="line" smooth={true} curvature={0.5} />
+ * </Waveform>
+ *
+ * // With progress indicator
+ * <Waveform dataPoints={audioData} progress={0.5}>
+ *   <Path type="line" />
+ *   <Progress progress={0.5} color="#f00" />
+ * </Waveform>
+ * ```
  */
 export const Path: React.FC<PathProps> = ({
   type = 'bar',
@@ -385,4 +452,5 @@ export const Path: React.FC<PathProps> = ({
   );
 };
 
+// Add default export for the Path component
 export default Path;
