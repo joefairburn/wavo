@@ -1,6 +1,6 @@
 import { dataPoints, musicFile } from '@docs/fixtures/data';
 import React, { useRef, useState } from 'react';
-import Waveform, { type EasingFunction, type RenderType, type BarRadius } from 'wavo';
+import { Waveform, type EasingFunction, type RenderType, type BarRadius } from 'wavo';
 import ResizableContainer from '../../../components/ResizableContainer';
 
 const WavoExample = () => {

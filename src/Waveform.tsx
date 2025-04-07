@@ -165,7 +165,7 @@ export interface WaveformProps {
  * </Waveform>
  * ```
  */
-const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
+export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
   (
     {
       dataPoints,
@@ -255,5 +255,3 @@ const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
 );
 
 Waveform.displayName = 'Waveform';
-
-export default Waveform;
