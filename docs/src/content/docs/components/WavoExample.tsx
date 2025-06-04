@@ -97,6 +97,32 @@ const WavoExample = () => {
         </Waveform.Container>
       </ResizableContainer>
 
+      <ResizableContainer initialWidth={700} initialHeight={100}>
+        <Waveform.Container
+          className="w-full !h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75 rounded-lg"
+          dataPoints={dataPoints}
+          lazyLoad={true}
+          progress={progress}
+          onClick={handleClick}
+          onDrag={handleClick}
+          onDragStart={() => audioRef.current?.pause()}
+          onDragEnd={() => audioRef.current?.play()}
+          onKeyDown={handleKeyDown}
+          transitionDuration={controls.transitionDuration}
+          easing={controls.easing}
+        >
+
+            <Waveform.Path
+              type={controls.type}
+              width={controls.width}
+              gap={controls.gap}
+              radius={controls.radius}
+              smooth={controls.smooth}
+            />
+          <Waveform.Progress progress={progress} color={controls.color} />
+        </Waveform.Container>
+      </ResizableContainer>
+
       <div className="flex flex-row flex-wrap justify-center items-center gap-4 mt-4">
         <div className="flex flex-row gap-2 items-center">
           <label className="text-sm font-medium" htmlFor="type">

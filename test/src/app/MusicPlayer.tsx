@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Waveform from 'wavo';
+import { Waveform } from 'wavo';
 
 export default function MusicPlayer({ src, waveformJson, id }: { src: string; waveformJson: string; id: string }) {
   const [progress, setProgress] = useState(0);

@@ -119,7 +119,8 @@ export const memoizedReducedDataPoints = () => {
       return calculateReducedDataPoints(barCount, dataPoints);
     }
 
-    const key = `${barCount}:${dataPoints.length}`;
+    // Create a unique key that includes data content
+    const key = `${barCount}:${dataPoints.length}:${dataPoints.toString()}`;
 
     if (cache.has(key)) {
       const cachedResult = cache.get(key);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { dataPoints } from '@docs/fixtures/data';
-import Wave from 'wavo';
+import { Waveform } from 'wavo';
 
 const WaveformWithProgress = () => {
   const [progress, setProgress] = useState(0);
@@ -27,16 +27,16 @@ const WaveformWithProgress = () => {
   };
 
   return (
-    <Wave.Container
+    <Waveform.Container
       className="w-full text-neutral-400"
       dataPoints={dataPoints}
       onClick={handleProgressChange}
       onDrag={handleProgressChange}
       onKeyDown={handleKeyDown}
     >
-      <Wave.Bars gap={1} width={2} />
-      <Wave.Progress progress={progress} color="#FFF" />
-    </Wave.Container>
+      <Waveform.Bars gap={1} width={2} />
+      <Waveform.Progress progress={progress} color="#FFF" />
+    </Waveform.Container>
   );
 };
 

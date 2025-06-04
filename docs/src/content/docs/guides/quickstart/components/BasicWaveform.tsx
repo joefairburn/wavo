@@ -1,12 +1,12 @@
 import React from 'react';
-import Wave from 'wavo';
+import { Waveform } from 'wavo';
 import { dataPoints } from '@docs/fixtures/data';
 
 const BasicWaveform = () => {
   return (
-    <Wave.Container className="w-full text-neutral-400" dataPoints={dataPoints}>
-      <Wave.Bars gap={1} width={2} />
-    </Wave.Container>
+    <Waveform.Container className="w-full text-neutral-400" dataPoints={dataPoints}>
+      <Waveform.Bars gap={1} width={2} />
+    </Waveform.Container>
   );
 };
 
