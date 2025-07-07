@@ -13,10 +13,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com" rel="preconnect" />
+        <link
+          crossOrigin="anonymous"
+          href="https://fonts.gstatic.com"
+          rel="preconnect"
+        />
       </head>
-      <body className="antialiased text-9xl text-neutral-500 fill-green-500">{children}</body>
+      <body className="fill-green-500 text-9xl text-neutral-500 antialiased">
+        {children}
+      </body>
     </html>
   );
 }

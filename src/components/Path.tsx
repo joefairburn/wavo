@@ -1,7 +1,8 @@
-import React, { useLayoutEffect, useMemo, useState, useCallback } from 'react';
-import { useWaveform } from '../contexts/WaveformContext';
+import type React from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { useWaveform } from '../contexts/waveform-context';
 import { getReducedDataPoints } from '../lib';
-import { WaveformData } from '../Waveform';
+import type { WaveformData } from '../waveform';
 
 /**
  * Type for corner radius with constrained values
@@ -29,8 +30,15 @@ const CSS_VAR_BAR_GAP = '--wavo-bar-gap';
  * @param radius - Radius for bar corners
  * @returns A path string for SVG
  */
-const createBarPath = (dataPoints: number[], width: number, gap: number, radius: BarRadius): string => {
-  if (!dataPoints.length) return '';
+const createBarPath = (
+  dataPoints: number[],
+  width: number,
+  gap: number,
+  radius: BarRadius
+): string => {
+  if (!dataPoints.length) {
+    return '';
+  }
 
   const paths: string[] = [];
 
@@ -50,11 +58,13 @@ const createBarPath = (dataPoints: number[], width: number, gap: number, radius:
     const normalizedRadius = Math.min(
       radius,
       width < radius * 2 ? width / 2 : radius,
-      heightInPixels < radius * 2 ? heightInPixels / 2 : radius,
+      heightInPixels < radius * 2 ? heightInPixels / 2 : radius
     );
 
     // Skip path creation for zero height bars
-    if (barHeight <= 0) return;
+    if (barHeight <= 0) {
+      return;
+    }
 
     // Create path for a rounded rectangle
     if (normalizedRadius > 0) {
@@ -63,19 +73,27 @@ const createBarPath = (dataPoints: number[], width: number, gap: number, radius:
 
       // Top edge and top-right corner
       paths.push(`H${x + width - normalizedRadius}`);
-      paths.push(`A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width},${yTop + normalizedRadius}`);
+      paths.push(
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width},${yTop + normalizedRadius}`
+      );
 
       // Right edge and bottom-right corner
       paths.push(`V${yBottom - normalizedRadius}`);
-      paths.push(`A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width - normalizedRadius},${yBottom}`);
+      paths.push(
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width - normalizedRadius},${yBottom}`
+      );
 
       // Bottom edge and bottom-left corner
       paths.push(`H${x + normalizedRadius}`);
-      paths.push(`A${normalizedRadius},${normalizedRadius} 0 0 1 ${x},${yBottom - normalizedRadius}`);
+      paths.push(
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x},${yBottom - normalizedRadius}`
+      );
 
       // Left edge and close the path
       paths.push(`V${yTop + normalizedRadius}`);
-      paths.push(`A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + normalizedRadius},${yTop}`);
+      paths.push(
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + normalizedRadius},${yTop}`
+      );
       paths.push('Z');
     } else {
       // Simple rectangle without rounded corners
@@ -101,8 +119,15 @@ const createBarPath = (dataPoints: number[], width: number, gap: number, radius:
  * @param curvature - Smoothness of the curve (0 = jagged lines, 1 = very smooth)
  * @returns A path string for SVG
  */
-const createLinePath = (dataPoints: number[], width: number, gap: number, curvature: number = 0): string => {
-  if (!dataPoints.length) return '';
+const createLinePath = (
+  dataPoints: number[],
+  width: number,
+  gap: number,
+  curvature = 0
+): string => {
+  if (!dataPoints.length) {
+    return '';
+  }
 
   // If curvature is zero or very low, create a traditional jagged line path
   if (curvature <= 0.05) {
@@ -121,8 +146,14 @@ const createLinePath = (dataPoints: number[], width: number, gap: number, curvat
  * @param gap - Gap between segments
  * @returns A path string for SVG
  */
-const createJaggedLinePath = (dataPoints: number[], width: number, gap: number): string => {
-  if (!dataPoints.length) return '';
+const createJaggedLinePath = (
+  dataPoints: number[],
+  width: number,
+  gap: number
+): string => {
+  if (!dataPoints.length) {
+    return '';
+  }
 
   const totalWidth = width + gap;
   let path = '';
@@ -165,9 +196,18 @@ const createJaggedLinePath = (dataPoints: number[], width: number, gap: number):
  * @param curvature - Smoothness of the curve (0-1)
  * @returns A path string for SVG
  */
-const createSmoothLinePath = (dataPoints: number[], width: number, gap: number, curvature: number): string => {
-  if (!dataPoints.length) return '';
-  if (dataPoints.length < 3) return createJaggedLinePath(dataPoints, width, gap); // Fallback to line path for few points
+const createSmoothLinePath = (
+  dataPoints: number[],
+  width: number,
+  gap: number,
+  curvature: number
+): string => {
+  if (!dataPoints.length) {
+    return '';
+  }
+  if (dataPoints.length < 3) {
+    return createJaggedLinePath(dataPoints, width, gap); // Fallback to line path for few points
+  }
 
   // Clamp curvature between 0 and 1
   const tensionFactor = Math.min(Math.max(curvature, 0), 1);
@@ -210,8 +250,13 @@ const createSmoothLinePath = (dataPoints: number[], width: number, gap: number, 
  * @param tensionFactor - How smooth the curve should be (0-1)
  * @returns SVG path string
  */
-const createSmoothPath = (points: [number, number][], tensionFactor: number): string => {
-  if (points.length < 2) return '';
+const createSmoothPath = (
+  points: [number, number][],
+  tensionFactor: number
+): string => {
+  if (points.length < 2) {
+    return '';
+  }
 
   let path = `M${points[0][0]},${points[0][1]} `;
 
@@ -366,51 +411,77 @@ export const Path: React.FC<PathProps> = ({
 
   // Calculate segment width and gap using CSS variables if available
   const cssBarWidth = useMemo(() => {
-    if (!svgRef?.current) return width;
+    if (!svgRef?.current) {
+      return width;
+    }
 
     const style = window.getComputedStyle(svgRef.current);
     const cssWidth = style.getPropertyValue(CSS_VAR_BAR_WIDTH);
-    return cssWidth ? parseInt(cssWidth, 10) : width;
+    return cssWidth ? Number.parseInt(cssWidth, 10) : width;
   }, [svgRef, width]);
 
   const cssBarGap = useMemo(() => {
-    if (!svgRef?.current) return gap;
+    if (!svgRef?.current) {
+      return gap;
+    }
 
     const style = window.getComputedStyle(svgRef.current);
     const cssGap = style.getPropertyValue(CSS_VAR_BAR_GAP);
-    return cssGap ? parseInt(cssGap, 10) : gap;
+    return cssGap ? Number.parseInt(cssGap, 10) : gap;
   }, [svgRef, gap]);
 
   // Calculate segment count based on SVG width and dimensions
   const segmentCount = useMemo(() => {
-    if (!svgWidth) return 0;
+    if (!svgWidth) {
+      return 0;
+    }
     return Math.floor(svgWidth / (cssBarWidth + cssBarGap));
   }, [svgWidth, cssBarWidth, cssBarGap]);
 
   // Use the memoized version for better performance with large datasets
   const reducedDataPoints = useMemo(() => {
-    if (!segmentCount) return [];
+    if (!segmentCount) {
+      return [];
+    }
     return getReducedDataPoints(segmentCount, _dataPoints);
   }, [segmentCount, _dataPoints]);
 
   // Generate the path string
   const pathString = useMemo(() => {
-    if (!reducedDataPoints.length) return '';
+    if (!reducedDataPoints.length) {
+      return '';
+    }
 
     if (type === 'bar') {
       return createBarPath(reducedDataPoints, cssBarWidth, cssBarGap, radius);
-    } else if (type === 'line') {
+    }
+    if (type === 'line') {
       // Use 0.1 curvature if smooth is true, otherwise use the provided curvature
       const smoothingValue = smooth ? 0.1 : curvature;
-      return createLinePath(reducedDataPoints, cssBarWidth, cssBarGap, smoothingValue);
+      return createLinePath(
+        reducedDataPoints,
+        cssBarWidth,
+        cssBarGap,
+        smoothingValue
+      );
     }
 
     return '';
-  }, [reducedDataPoints, cssBarWidth, cssBarGap, radius, type, curvature, smooth]);
+  }, [
+    reducedDataPoints,
+    cssBarWidth,
+    cssBarGap,
+    radius,
+    type,
+    curvature,
+    smooth,
+  ]);
 
   // Calculate the viewBox to ensure the path scales properly with the container
   const viewBox = useMemo(() => {
-    if (!svgWidth) return '0 0 100 100';
+    if (!svgWidth) {
+      return '0 0 100 100';
+    }
 
     // Width is just the full svg width to allow all bars to be visible
     const totalWidth = segmentCount * (cssBarWidth + cssBarGap);
@@ -421,7 +492,9 @@ export const Path: React.FC<PathProps> = ({
 
   // Set up resize observer and initial measurement
   useLayoutEffect(() => {
-    if (!svgRef?.current) return;
+    if (!svgRef?.current) {
+      return;
+    }
 
     // Initial measurement
     updateSvgDimensions();
@@ -436,16 +509,29 @@ export const Path: React.FC<PathProps> = ({
   }, [svgRef, updateSvgDimensions]);
 
   // Return null if there are no datapoints
-  if (!reducedDataPoints.length || !pathString) return null;
+  if (!(reducedDataPoints.length && pathString)) {
+    return null;
+  }
 
   return (
     // Use an svg element to apply proper scaling within the parent SVG
-    <svg width="100%" height="100%" preserveAspectRatio="none" viewBox={viewBox} style={{ overflow: 'visible' }}>
+    <svg
+      aria-hidden="true"
+      height="100%"
+      preserveAspectRatio="none"
+      style={{ overflow: 'visible' }}
+      viewBox={viewBox}
+      width="100%"
+    >
       <path
-        d={pathString}
-        fill={hasProgress ? `url(#gradient-${id})` : 'var(--wavo-bar-color, currentColor)'}
         className={className}
+        d={pathString}
         data-wavo-path={type}
+        fill={
+          hasProgress
+            ? `url(#gradient-${id})`
+            : 'var(--wavo-bar-color, currentColor)'
+        }
         style={{ willChange: 'none' }} // Prevent CSS animations from targeting this element
       />
     </svg>

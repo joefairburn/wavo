@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, type RefObject } from 'react';
+import { type RefObject, useCallback, useEffect, useState } from 'react';
 
 interface ResizableOptions {
   minWidth?: number;
@@ -42,9 +42,15 @@ interface ResizableReturn {
  */
 export const useResizable = (
   containerRef: RefObject<HTMLDivElement>,
-  options: ResizableOptions = {},
+  options: ResizableOptions = {}
 ): ResizableReturn => {
-  const { minWidth = 200, minHeight = 100, aspectRatio, initialWidth = 700, initialHeight = 200 } = options;
+  const {
+    minWidth = 200,
+    minHeight = 100,
+    aspectRatio,
+    initialWidth = 700,
+    initialHeight = 200,
+  } = options;
 
   const [state, setState] = useState<ResizeState>({
     width: initialWidth,
@@ -55,9 +61,15 @@ export const useResizable = (
   });
 
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
-  const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
+  const [originalDimensions, setOriginalDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
   // Track the original container position
-  const [originalPosition, setOriginalPosition] = useState({ left: 0, top: 0 });
+  const [_originalPosition, setOriginalPosition] = useState({
+    left: 0,
+    top: 0,
+  });
 
   // Define cursor styles for different resize directions
   const cursors = {
@@ -91,20 +103,23 @@ export const useResizable = (
           top: rect.top,
         });
 
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isDragging: true,
           resizeDirection: direction,
         }));
       }
     },
-    [containerRef],
+    [containerRef]
   );
 
   // Handle mouse movement during resize
   const handleMouseMove = useCallback(
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Complex drag interaction logic is necessary
     (e: MouseEvent) => {
-      if (!state.isDragging || !state.resizeDirection) return;
+      if (!(state.isDragging && state.resizeDirection)) {
+        return;
+      }
 
       const deltaX = e.clientX - dragStartPos.x;
       const deltaY = e.clientY - dragStartPos.y;
@@ -125,20 +140,27 @@ export const useResizable = (
       }
       if (state.resizeDirection.includes('w')) {
         // West (left) - adjust width and position
-        const widthChange = originalDimensions.width - Math.max(minWidth, originalDimensions.width - deltaX);
+        const widthChange =
+          originalDimensions.width -
+          Math.max(minWidth, originalDimensions.width - deltaX);
         newWidth = originalDimensions.width - widthChange;
         newLeft = state.position.left + widthChange;
       }
       if (state.resizeDirection.includes('n')) {
         // North (top) - adjust height and position
-        const heightChange = originalDimensions.height - Math.max(minHeight, originalDimensions.height - deltaY);
+        const heightChange =
+          originalDimensions.height -
+          Math.max(minHeight, originalDimensions.height - deltaY);
         newHeight = originalDimensions.height - heightChange;
         newTop = state.position.top + heightChange;
       }
 
       // Maintain aspect ratio if specified
       if (aspectRatio) {
-        if (state.resizeDirection.includes('n') || state.resizeDirection.includes('s')) {
+        if (
+          state.resizeDirection.includes('n') ||
+          state.resizeDirection.includes('s')
+        ) {
           // When adjusting height, calculate width based on aspect ratio
           const newWidthFromAspect = newHeight * aspectRatio;
 
@@ -164,7 +186,7 @@ export const useResizable = (
       }
 
       // Update state with new dimensions and position
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         width: newWidth,
         height: newHeight,
@@ -182,17 +204,16 @@ export const useResizable = (
       state.position,
       dragStartPos,
       originalDimensions,
-      originalPosition,
       minWidth,
       minHeight,
       aspectRatio,
-    ],
+    ]
   );
 
   // End resize operation
   const handleMouseUp = useCallback(() => {
     if (state.isDragging) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isDragging: false,
         resizeDirection: null,
@@ -222,18 +243,22 @@ export const useResizable = (
       const width = containerRef.current.offsetWidth || initialWidth;
       const height = containerRef.current.offsetHeight || initialHeight;
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         width,
         height,
       }));
     }
-  }, [initialWidth, initialHeight]);
+  }, [initialWidth, initialHeight, containerRef.current]);
 
   // Determine cursor class based on drag state
   const getCursorClass = (): string => {
-    if (!state.isDragging) return '';
-    if (!state.resizeDirection) return 'cursor-move';
+    if (!state.isDragging) {
+      return '';
+    }
+    if (!state.resizeDirection) {
+      return 'cursor-move';
+    }
     return cursors[state.resizeDirection as keyof typeof cursors] || '';
   };
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { useWaveform } from '../contexts/WaveformContext';
+import type React from 'react';
+import { useWaveform } from '../contexts/waveform-context';
 
 /**
  * Props for the Progress component
@@ -52,13 +52,13 @@ export const Progress: React.FC<ProgressProps> = ({ progress, color }) => {
   return (
     <defs>
       <linearGradient
+        data-wavo-gradient
+        gradientUnits="userSpaceOnUse"
         id={`gradient-${id}`}
         x1="0"
-        y1="0"
         x2={progressPercentage}
+        y1="0"
         y2="0"
-        gradientUnits="userSpaceOnUse"
-        data-wavo-gradient
       >
         <stop offset="50%" stopColor={color} />
         <stop offset="50%" stopColor="currentColor" />

@@ -1,5 +1,5 @@
-import React from 'react';
-import { useWaveform } from '../contexts/WaveformContext';
+import type React from 'react';
+import { useWaveform } from '../contexts/waveform-context';
 
 /**
  * Props for the WaveformSVG component
@@ -84,7 +84,9 @@ export const WaveformSVG: React.FC<WaveformSVGProps> = ({
   } as React.CSSProperties;
 
   return (
+    // Note: Accessibility attributes (aria-label, role, etc.) are provided via otherAttributes from parent Waveform component
     <svg ref={svgRef} {...otherAttributes} style={mergedStyle}>
+      <title>Waveform visualization</title>
       {/* Only render children if the component is visible and the SVG is mounted. */}
       {isClient && shouldRender && children}
     </svg>

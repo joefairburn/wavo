@@ -3,13 +3,22 @@
 import { useRef, useState } from 'react';
 import { Waveform } from 'wavo';
 
-export default function MusicPlayer({ src, waveformJson, id }: { src: string; waveformJson: string; id: string }) {
+export default function MusicPlayer({
+  src,
+  waveformJson,
+  id,
+}: {
+  src: string;
+  waveformJson: string;
+  id: string;
+}) {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      const percentage = audioRef.current.currentTime / audioRef.current.duration;
+      const percentage =
+        audioRef.current.currentTime / audioRef.current.duration;
       setProgress(percentage);
     }
   };
@@ -40,30 +49,43 @@ export default function MusicPlayer({ src, waveformJson, id }: { src: string; wa
           audioRef.current?.pause();
         }
         break;
+      default:
+        // No action needed for other keys
+        break;
     }
   };
 
   return (
     <div
+      className="flex h-24 w-full flex-row items-center justify-center gap-4 p-4"
       data-testid="music-player"
-      className="h-24 w-full flex flex-row items-center justify-center gap-4 p-4"
       key={id}
       style={{ '--wavo-progress-color': '#f23d75' } as React.CSSProperties}
     >
-      <audio ref={audioRef} controls className="mb-2" src={src} onTimeUpdate={handleTimeUpdate} />
+      {/* biome-ignore lint/a11y/useMediaCaption: Test music file doesn't need captions */}
+      <audio
+        className="mb-2"
+        controls
+        onTimeUpdate={handleTimeUpdate}
+        ref={audioRef}
+        src={src}
+      />
       <Waveform.Container
-        className="w-full h-full focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 rounded-lg"
+        className="h-full w-full rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300"
         dataPoints={JSON.parse(waveformJson)}
         lazyLoad={true}
-        progress={progress}
         onClick={handleClick}
         onDrag={handleClick}
-        onDragStart={() => audioRef.current?.pause()}
         onDragEnd={() => audioRef.current?.play()}
+        onDragStart={() => audioRef.current?.pause()}
         onKeyDown={handleKeyDown}
+        progress={progress}
       >
-        <Waveform.Bars width={2} gap={2} />
-        <Waveform.Progress color="var(--wavo-progress-color)" progress={progress} />
+        <Waveform.Bars gap={2} width={2} />
+        <Waveform.Progress
+          color="var(--wavo-progress-color)"
+          progress={progress}
+        />
       </Waveform.Container>
     </div>
   );

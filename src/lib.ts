@@ -1,4 +1,4 @@
-import { NormalizedAmplitude, WaveformData } from './Waveform';
+import type { NormalizedAmplitude, WaveformData } from './Waveform';
 
 /**
  * Finds the nearest valid amplitude value in a specified direction
@@ -18,13 +18,19 @@ const findNeighborValue = (
   dataPoints: readonly NormalizedAmplitude[],
   startIndex: number,
   increment: number,
-  endCondition: number,
+  endCondition: number
 ): number => {
-  for (let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment) {
-    if (!isNaN(dataPoints[i])) return dataPoints[i];
+  for (
+    let i = startIndex;
+    increment > 0 ? i < endCondition : i >= endCondition;
+    i += increment
+  ) {
+    if (!Number.isNaN(dataPoints[i])) {
+      return dataPoints[i];
+    }
   }
 
-  return NaN;
+  return Number.NaN;
 };
 
 /**
@@ -43,31 +49,44 @@ const findNeighborValue = (
 const calculateSegmentAverage = (
   dataPoints: readonly NormalizedAmplitude[],
   startIndex: number,
-  endIndex: number,
+  endIndex: number
 ): number => {
   // Calculate average using reduce
   const segment = dataPoints.slice(startIndex, endIndex);
   const { sum, count } = segment.reduce(
     (acc, val) => {
-      if (!isNaN(val)) {
+      if (!Number.isNaN(val)) {
         acc.sum += val;
         acc.count++;
       }
       return acc;
     },
-    { sum: 0, count: 0 },
+    { sum: 0, count: 0 }
   );
 
-  if (count > 0) return sum / count;
+  if (count > 0) {
+    return sum / count;
+  }
 
   // If no valid points, search for neighbors
   const prevValue = findNeighborValue(dataPoints, startIndex - 1, -1, 0);
-  const nextValue = findNeighborValue(dataPoints, endIndex, 1, dataPoints.length);
+  const nextValue = findNeighborValue(
+    dataPoints,
+    endIndex,
+    1,
+    dataPoints.length
+  );
 
   // Calculate final value based on available neighbors
-  if (!isNaN(prevValue) && !isNaN(nextValue)) return (prevValue + nextValue) / 2;
-  if (!isNaN(prevValue)) return prevValue;
-  if (!isNaN(nextValue)) return nextValue;
+  if (!(Number.isNaN(prevValue) || Number.isNaN(nextValue))) {
+    return (prevValue + nextValue) / 2;
+  }
+  if (!Number.isNaN(prevValue)) {
+    return prevValue;
+  }
+  if (!Number.isNaN(nextValue)) {
+    return nextValue;
+  }
   return 0;
 };
 
@@ -87,8 +106,13 @@ const calculateSegmentAverage = (
  * const reducedData = calculateReducedDataPoints(100, originalAudioData);
  * ```
  */
-export const calculateReducedDataPoints = (barCount: number, dataPoints: WaveformData): number[] => {
-  if (barCount === 0) return [];
+export const calculateReducedDataPoints = (
+  barCount: number,
+  dataPoints: WaveformData
+): number[] => {
+  if (barCount === 0) {
+    return [];
+  }
 
   const length = dataPoints.length; // Cache length
   return Array.from({ length: barCount }, (_, barIndex) => {
@@ -124,7 +148,9 @@ export const memoizedReducedDataPoints = () => {
 
     if (cache.has(key)) {
       const cachedResult = cache.get(key);
-      if (cachedResult) return cachedResult;
+      if (cachedResult) {
+        return cachedResult;
+      }
     }
 
     const result = calculateReducedDataPoints(barCount, dataPoints);
@@ -201,7 +227,10 @@ export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
  * window.addEventListener('resize', () => handleResize(window.innerWidth));
  * ```
  */
-export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 30) => {
+export const createDebouncedFunction = <T>(
+  callback: (value: T) => void,
+  delay = 30
+) => {
   let timeoutId: NodeJS.Timeout;
 
   return (value: T) => {

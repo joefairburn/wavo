@@ -23,9 +23,10 @@ Wavo is a React library for rendering audio waveforms as SVG components. The lib
 - `pnpm build:docs` - Build documentation site
 
 ### Code Quality
-- `pnpm lint` - Run ESLint with auto-fix
-- `pnpm lint:fix` - Run ESLint and Prettier with auto-fix
-- `pnpm format` - Format code with Prettier
+- `pnpm lint` - Run Ultracite linter (uses Biome internally)
+- `pnpm lint:fix` - Run Ultracite format (lint + format with auto-fix)
+- `pnpm format` - Format code with Ultracite
+- `pnpm check` - Run Ultracite linter without auto-fix
 
 ## Architecture
 

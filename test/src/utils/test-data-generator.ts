@@ -17,7 +17,11 @@ export function generateTestData(count: number): TrackData[] {
     const uniqueId = 1000 + i; // Simple unique ID generation
 
     // Generate unique waveform data for each track inside the loop
-    const uniqueWaveformJson = JSON.stringify(Array.from({ length: 100 }, () => parseFloat(Math.random().toFixed(4))));
+    const uniqueWaveformJson = JSON.stringify(
+      Array.from({ length: 100 }, () =>
+        Number.parseFloat(Math.random().toFixed(4))
+      )
+    );
 
     const newItem: TrackData = {
       id: uniqueId,

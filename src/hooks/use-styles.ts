@@ -1,5 +1,5 @@
 import { useInsertionEffect } from 'react';
-import { EasingFunction } from '../Waveform';
+import type { EasingFunction } from '../Waveform';
 
 /**
  * CSS variable names used throughout the component for consistent styling
@@ -172,23 +172,35 @@ interface StyleOptions {
  * }
  * ```
  */
-export function useStyles({ unstyled = false, transitionDuration = 1, easing = 'ease-in-out' }: StyleOptions = {}) {
+export function useStyles({
+  unstyled = false,
+  transitionDuration = 1,
+  easing = 'ease-in-out',
+}: StyleOptions = {}) {
   useInsertionEffect(() => {
     // Skip in SSR context
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') {
+      return;
+    }
 
     // Return early if using the unstyled prop
-    if (unstyled) return;
+    if (unstyled) {
+      return;
+    }
 
     // Remove any existing styles (in case transition duration or easing changed)
-    const existingStyle = document.querySelector(`style[${STYLE_ATTRIBUTE_ID}]`);
+    const existingStyle = document.querySelector(
+      `style[${STYLE_ATTRIBUTE_ID}]`
+    );
     if (existingStyle) {
       existingStyle.parentNode?.removeChild(existingStyle);
     }
 
     // Only show animations on higher performance devices
     const isHighPerformance = navigator.hardwareConcurrency >= 4;
-    if (!isHighPerformance) return;
+    if (!isHighPerformance) {
+      return;
+    }
 
     // Convert the easing function to a valid CSS value
     const easingValue = getEasingFunction(easing);
@@ -200,16 +212,26 @@ export function useStyles({ unstyled = false, transitionDuration = 1, easing = '
     document.head.appendChild(style);
 
     // Set CSS variables
-    document.documentElement.style.setProperty(cssVariables.TRANSITION_DURATION, `${transitionDuration}s`);
-    document.documentElement.style.setProperty(cssVariables.EASING_FUNCTION, easingValue);
+    document.documentElement.style.setProperty(
+      cssVariables.TRANSITION_DURATION,
+      `${transitionDuration}s`
+    );
+    document.documentElement.style.setProperty(
+      cssVariables.EASING_FUNCTION,
+      easingValue
+    );
 
     // Cleanup function
     return () => {
       if (style.parentNode) {
         style.parentNode.removeChild(style);
       }
-      document.documentElement.style.removeProperty(cssVariables.TRANSITION_DURATION);
-      document.documentElement.style.removeProperty(cssVariables.EASING_FUNCTION);
+      document.documentElement.style.removeProperty(
+        cssVariables.TRANSITION_DURATION
+      );
+      document.documentElement.style.removeProperty(
+        cssVariables.EASING_FUNCTION
+      );
     };
   }, [unstyled, transitionDuration, easing]);
 

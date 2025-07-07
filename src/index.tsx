@@ -1,8 +1,9 @@
 // Export components directly (don't import from exports.ts)
-import { Waveform as WaveformComponent } from './Waveform';
-import { Bars } from './components/Bars';
-import { Progress } from './components/Progress';
-import { default as Path } from './components/Path';
+
+import { Bars } from './components/bars';
+import { default as Path } from './components/path';
+import { Progress } from './components/progress';
+import { Waveform as WaveformComponent } from './waveform';
 
 export const Waveform = {
   Container: WaveformComponent,
@@ -11,7 +12,7 @@ export const Waveform = {
   Path,
 };
 
+export type { BarsProps } from './components/bars';
+export type { BarRadius, PathProps, RenderType } from './components/path';
 // Export types explicitly
-export type { EasingFunction, WaveformData, WaveformProps } from './Waveform';
-export type { BarsProps } from './components/Bars';
-export type { BarRadius, PathProps, RenderType } from './components/Path';
+export type { EasingFunction, WaveformData, WaveformProps } from './waveform';

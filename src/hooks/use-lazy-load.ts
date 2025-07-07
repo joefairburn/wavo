@@ -88,29 +88,29 @@ export const useLazyLoad = ({
 
   useEffect(() => {
     // Skip observer setup if lazy loading is disabled or element ref is not available
-    if (!enabled || !elementRef.current) return;
+    if (!(enabled && elementRef.current)) {
+      return;
+    }
 
     // Create an intersection observer to watch for visibility changes
     const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
+      (entries) => {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             // When element becomes visible, update state and flag
             hasBeenVisible.current = true;
             setShouldRender(true);
-          } else {
+          } else if (hasBeenVisible.current) {
             // When element is no longer visible, update state only if it was visible before
-            if (hasBeenVisible.current) {
-              setShouldRender(false);
-            }
+            setShouldRender(false);
           }
-        });
+        }
       },
       {
         root: null, // Use viewport as root
         rootMargin,
         threshold,
-      },
+      }
     );
 
     // Start observing the target element

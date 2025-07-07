@@ -1,68 +1,71 @@
 {
-	"name": "wavo",
-	"version": "0.1.51",
-	"description": "A small library for drawing waveforms in React.",
-	"type": "module",
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	],
-	"sideEffects": false,
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs",
-			"default": "./dist/index.js"
-		}
-	},
-	"scripts": {
-		"type-check": "tsc --noEmit",
-		"build": "pnpm type-check && bunchee",
-		"dev": "bunchee --watch",
-		"dev:test": "turbo run dev --filter=test...",
-		"build:test": "turbo run build --filter=test...",
-		"dev:docs": "turbo run dev --filter=docs...",
-		"build:docs": "turbo run build --filter=docs...",
-		"format": "prettier --write .",
-		"lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-		"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix && prettier --write .",
-		"test": "playwright test"
-	},
-	"keywords": [
-		"react",
-		"waveform"
-	],
-	"author": "Joe Fairburn <joe.fairburn1@gmail.com>",
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/joefairburn/wavo.git"
-	},
-	"devDependencies": {
-		"@playwright/test": "^1.42.1",
-		"@types/node": "^20.11.28",
-		"@types/react": "^18.2.66",
-		"@types/react-dom": "^18.2.22",
-		"@typescript-eslint/eslint-plugin": "^7.2.0",
-		"@typescript-eslint/parser": "^7.2.0",
-		"bunchee": "^4.4.8",
-		"eslint": "^8.57.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-prettier": "^5.2.1",
-		"prettier": "^3.4.2",
-		"prettier-eslint": "^16.3.0",
-		"turbo": "~2.3.3",
-		"typescript": "^5.4.2"
-	},
-	"peerDependencies": {
-		"react": "^16.8 || ^17.0 || ^18.0 || ^19.0",
-		"react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0"
-	},
-	"packageManager": "pnpm@8.8.0",
-	"dependencies": {
-		"eslint-plugin-react": "^7.34.0"
-	}
+  "name": "wavo",
+  "version": "0.1.51",
+  "description": "A small library for drawing waveforms in React.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "build": "pnpm type-check && bunchee",
+    "dev": "bunchee --watch",
+    "dev:test": "turbo run dev --filter=test...",
+    "build:test": "turbo run build --filter=test...",
+    "dev:docs": "turbo run dev --filter=docs...",
+    "build:docs": "turbo run build --filter=docs...",
+    "format": "ultracite format",
+    "lint": "ultracite lint",
+    "lint:fix": "ultracite format",
+    "check": "ultracite lint",
+    "test": "playwright test"
+  },
+  "keywords": [
+    "react",
+    "waveform"
+  ],
+  "author": "Joe Fairburn <joe.fairburn1@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joefairburn/wavo.git"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.6",
+    "@playwright/test": "^1.42.1",
+    "@types/node": "^20.11.28",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "bunchee": "^4.4.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "turbo": "~2.3.3",
+    "typescript": "^5.4.2",
+    "ultracite": "^5.0.32"
+  },
+  "peerDependencies": {
+    "react": "^16.8 || ^17.0 || ^18.0 || ^19.0",
+    "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0"
+  },
+  "packageManager": "pnpm@8.8.0",
+  "dependencies": {
+    "eslint-plugin-react": "^7.34.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "npx ultracite format"
+    ]
+  }
 }

@@ -1,13 +1,13 @@
 'use client';
 
 import React, { forwardRef, useRef } from 'react';
-import { WaveformProvider } from './contexts/WaveformContext';
-import useIsClient from './hooks/useIsClient';
-import { useStyles } from './hooks/useStyles';
-import { useInteraction } from './hooks/useInteraction';
-import { useLazyLoad } from './hooks/useLazyLoad';
-import { hasProgressComponent } from './utils/componentUtils';
-import WaveformSVG from './components/WaveformSVG';
+import WaveformSVG from './components/waveform-svg';
+import { WaveformProvider } from './contexts/waveform-context';
+import { useInteraction } from './hooks/use-interaction';
+import useIsClient from './hooks/use-is-client';
+import { useLazyLoad } from './hooks/use-lazy-load';
+import { useStyles } from './hooks/use-styles';
+import { hasProgressComponent } from './utils/component-utils';
 
 /**
  * Type representing normalized audio amplitude values between 0 and 1
@@ -85,7 +85,10 @@ export interface WaveformProps {
    * @param percentage - Position clicked as percentage (0-1)
    * @param event - Original mouse event
    */
-  onClick?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+  onClick?: (
+    percentage: number,
+    event: React.MouseEvent<SVGSVGElement>
+  ) => void;
 
   /**
    * Callback during drag operations on the waveform
@@ -183,10 +186,11 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       easing = [0.1, 0.9, 0.2, 1.0],
       children,
     },
-    forwardedRef,
+    forwardedRef
   ) => {
     // If the component is used with a ref, use that ref, otherwise use an internal ref
-    const hasForwardedRef = typeof forwardedRef === 'object' && forwardedRef !== null;
+    const hasForwardedRef =
+      typeof forwardedRef === 'object' && forwardedRef !== null;
     const _internalRef = useRef<SVGSVGElement>(null);
     const svgRef = hasForwardedRef ? forwardedRef : _internalRef;
     const isClient = useIsClient();
@@ -211,7 +215,10 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     useStyles({ unstyled, transitionDuration, easing });
 
     // Check if there is a Progress component
-    const hasProgress = React.useMemo(() => hasProgressComponent(children), [children]);
+    const hasProgress = React.useMemo(
+      () => hasProgressComponent(children),
+      [children]
+    );
 
     // Memoize SVG attributes to reduce prop calculations on each render
     const svgAttributes = React.useMemo(
@@ -228,7 +235,14 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         'aria-label': 'Audio progress',
         ...eventHandlers,
       }),
-      [className, eventHandlers, isClient, shouldRender, hasInteractions, progress],
+      [
+        className,
+        eventHandlers,
+        isClient,
+        shouldRender,
+        hasInteractions,
+        progress,
+      ]
     );
 
     // Memoize WaveformProvider props to reduce prop calculations on each render
@@ -241,17 +255,22 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         transitionDuration,
         easing,
       }),
-      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing],
+      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing]
     );
 
     return (
       <WaveformProvider {...providerProps}>
-        <WaveformSVG svgRef={svgRef} svgAttributes={svgAttributes} shouldRender={shouldRender} isClient={isClient}>
+        <WaveformSVG
+          isClient={isClient}
+          shouldRender={shouldRender}
+          svgAttributes={svgAttributes}
+          svgRef={svgRef}
+        >
           {children}
         </WaveformSVG>
       </WaveformProvider>
     );
-  },
+  }
 );
 
 Waveform.displayName = 'Waveform';

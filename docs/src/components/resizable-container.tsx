@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
-import { useResizable } from '../hooks/useResizable';
+import type React from 'react';
+import { useRef } from 'react';
+import { useResizable } from '../hooks/use-resizable';
 
 interface ResizableContainerProps {
   className?: string;
@@ -30,13 +31,14 @@ export const ResizableContainer: React.FC<ResizableContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { width, height, resizableProps, resizeHandleProps, wrapperClassName } = useResizable(containerRef, {
-    initialWidth,
-    initialHeight,
-    minWidth,
-    minHeight,
-    aspectRatio,
-  });
+  const { width, height, resizableProps, resizeHandleProps, wrapperClassName } =
+    useResizable(containerRef, {
+      initialWidth,
+      initialHeight,
+      minWidth,
+      minHeight,
+      aspectRatio,
+    });
 
   // Only use the southeast (bottom-right) handle
   const direction = 'se';
@@ -48,7 +50,7 @@ export const ResizableContainer: React.FC<ResizableContainerProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex w-full flex-col items-center">
       {/* Container wrapper with style for dynamic height instead of invalid Tailwind classes */}
       <div className={`${wrapperClassName} mb-4`} style={wrapperStyle}>
         <div
@@ -68,14 +70,21 @@ export const ResizableContainer: React.FC<ResizableContainerProps> = ({
               <div key={direction} {...handleProps} className={handleClassName}>
                 {/* Simple half square icon indicating resize functionality */}
                 <svg
-                  width="10"
+                  aria-label="Resize handle"
+                  className="opacity-70"
+                  fill="none"
                   height="10"
                   viewBox="0 0 10 10"
-                  fill="none"
+                  width="10"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="opacity-70"
                 >
-                  <path d="M9 1v8H1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  <title>Resize handle</title>
+                  <path
+                    d="M9 1v8H1"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeWidth="1.5"
+                  />
                 </svg>
               </div>
             );
@@ -87,7 +96,7 @@ export const ResizableContainer: React.FC<ResizableContainerProps> = ({
 
       {/* Dimensions display */}
       {showDimensions && (
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="mt-2 text-gray-500 text-sm">
           {Math.round(width)} × {Math.round(height)} px (drag corner to resize)
         </div>
       )}

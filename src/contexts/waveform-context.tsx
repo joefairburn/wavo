@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useId } from 'react';
-import { WaveformData, EasingFunction } from '../Waveform';
+import type React from 'react';
+import { createContext, useContext, useId } from 'react';
+import type { EasingFunction, WaveformData } from '../waveform';
 
 /**
  * Props for the WaveformContext provider component
@@ -142,7 +143,17 @@ export function WaveformProvider({
   const id = useId().replace(/:/g, '');
 
   return (
-    <WaveformContext.Provider value={{ dataPoints, id, svgRef, hasProgress, isStyled, transitionDuration, easing }}>
+    <WaveformContext.Provider
+      value={{
+        dataPoints,
+        id,
+        svgRef,
+        hasProgress,
+        isStyled,
+        transitionDuration,
+        easing,
+      }}
+    >
       {children}
     </WaveformContext.Provider>
   );

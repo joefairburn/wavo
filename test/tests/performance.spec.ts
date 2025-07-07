@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 const NUMBER_OF_WAVEFORMS = 100;
-const INITIAL_RENDER_TIME_THRESHOLD_MS = 10000; // Increased initial budget to 10s
+const INITIAL_RENDER_TIME_THRESHOLD_MS = 10_000; // Increased initial budget to 10s
 const RESIZE_TIME_THRESHOLD_MS = 3000; // 3 seconds budget for resize - adjust
-const TEST_TIMEOUT_MS = 120000; // 2 minutes overall timeout for waits
+const TEST_TIMEOUT_MS = 120_000; // 2 minutes overall timeout for waits
 
 // Define specific viewport sizes
 const DESKTOP_VIEWPORT = { width: 1280, height: 720 };
@@ -30,7 +30,9 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
 
     // Measure time from navigation start until last element is visible
     // Note: This uses navigation timing API for a slightly different perspective
-    const navigationTimingJson = await page.evaluate(() => JSON.stringify(performance.getEntriesByType('navigation')));
+    const navigationTimingJson = await page.evaluate(() =>
+      JSON.stringify(performance.getEntriesByType('navigation'))
+    );
     const navigationTiming = JSON.parse(navigationTimingJson);
     const navigationStart = navigationTiming[0]?.startTime ?? 0; // Use 0 if unavailable
     const loadEventEnd = navigationTiming[0]?.loadEventEnd ?? performance.now(); // Fallback to now
@@ -40,9 +42,7 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
     // For a more precise initial render measure *after* navigation, startTime could be set *after* page.goto
     const renderTime = loadEventEnd - navigationStart;
 
-    console.log(
-      `Initial rendering of ${NUMBER_OF_WAVEFORMS} waveforms took approx ${renderTime.toFixed(2)} ms (based on navigation)`,
-    );
+    // Log render time to test annotations instead of console
 
     test.info().annotations.push({
       type: 'initial-render-time-ms',
@@ -53,10 +53,12 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
     expect(renderTime).toBeLessThanOrEqual(INITIAL_RENDER_TIME_THRESHOLD_MS);
   });
 
-  test(`should resize from Desktop to Mobile within ${RESIZE_TIME_THRESHOLD_MS}ms`, async ({ page }) => {
+  test(`should resize from Desktop to Mobile within ${RESIZE_TIME_THRESHOLD_MS}ms`, async ({
+    page,
+  }) => {
     test.setTimeout(TEST_TIMEOUT_MS); // Set timeout for this specific test
 
-    console.log(`Resizing from ${JSON.stringify(DESKTOP_VIEWPORT)} to ${JSON.stringify(MOBILE_VIEWPORT)}`);
+    // Test resizing performance between desktop and mobile viewports
 
     const startTime = performance.now();
 
@@ -74,7 +76,7 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
     const endTime = performance.now();
     const resizeTime = endTime - startTime;
 
-    console.log(`Resizing and stabilization took ${resizeTime.toFixed(2)} ms`);
+    // Record resize time in test annotations instead of console
 
     test.info().annotations.push({
       type: 'resize-desktop-to-mobile-time-ms',

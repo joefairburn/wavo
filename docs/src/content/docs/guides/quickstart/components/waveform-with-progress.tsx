@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 import { dataPoints } from '@docs/fixtures/data';
+import type React from 'react';
+import { useState } from 'react';
 import { Waveform } from 'wavo';
 
 const WaveformWithProgress = () => {
@@ -23,6 +24,9 @@ const WaveformWithProgress = () => {
       case ' ':
         event.preventDefault();
         break;
+      default:
+        // No action needed for other keys
+        break;
     }
   };
 
@@ -35,7 +39,7 @@ const WaveformWithProgress = () => {
       onKeyDown={handleKeyDown}
     >
       <Waveform.Bars gap={1} width={2} />
-      <Waveform.Progress progress={progress} color="#FFF" />
+      <Waveform.Progress color="#FFF" progress={progress} />
     </Waveform.Container>
   );
 };
