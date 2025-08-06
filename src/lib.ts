@@ -1,4 +1,4 @@
-import type { NormalizedAmplitude, WaveformData } from './Waveform';
+import type { NormalizedAmplitude, WaveformData } from './waveform';
 
 /**
  * Finds the nearest valid amplitude value in a specified direction

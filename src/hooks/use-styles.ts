@@ -1,5 +1,5 @@
 import { useInsertionEffect } from 'react';
-import type { EasingFunction } from '../Waveform';
+import type { EasingFunction } from '../waveform';
 
 /**
  * CSS variable names used throughout the component for consistent styling
