@@ -45,10 +45,15 @@ export interface ProgressProps {
  * ```
  */
 export const Progress: React.FC<ProgressProps> = ({ progress, color }) => {
-  const { id } = useWaveform();
+  const { id, svgRef } = useWaveform();
 
-  // 0px doesn't render correctly in Safari so we use 0.01px instead.
-  const progressPercentage = progress === 0 ? '0.01px' : `${progress * 200}%`;
+  // Ensure progress is between 0 and 1
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  
+  // Get SVG width for absolute coordinates
+  const svgWidth = svgRef.current?.getBoundingClientRect().width || 1000;
+  const progressX = svgWidth * clampedProgress;
+  
   return (
     <defs>
       <linearGradient
@@ -56,12 +61,12 @@ export const Progress: React.FC<ProgressProps> = ({ progress, color }) => {
         gradientUnits="userSpaceOnUse"
         id={`gradient-${id}`}
         x1="0"
-        x2={progressPercentage}
+        x2={svgWidth.toString()}
         y1="0"
         y2="0"
       >
-        <stop offset="50%" stopColor={color} />
-        <stop offset="50%" stopColor="currentColor" />
+        <stop offset={`${clampedProgress * 100}%`} stopColor={color} />
+        <stop offset={`${clampedProgress * 100}%`} stopColor="currentColor" />
       </linearGradient>
     </defs>
   );
