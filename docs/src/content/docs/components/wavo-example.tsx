@@ -4,7 +4,9 @@ import { useRef, useState } from 'react';
 import {
   type BarRadius,
   type EasingFunction,
+  type ProgressHandle,
   type RenderType,
+  useAudioProgress,
   Waveform,
 } from 'wavo';
 import ResizableContainer from '../../../components/resizable-container';
@@ -12,6 +14,8 @@ import ResizableContainer from '../../../components/resizable-container';
 const WavoExample = () => {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef1 = useRef<ProgressHandle>(null);
+  const progressRef2 = useRef<ProgressHandle>(null);
 
   const [controls, setControls] = useState({
     gap: 2,
@@ -24,17 +28,24 @@ const WavoExample = () => {
     easing: [0.1, 0.9, 0.2, 1.0] as EasingFunction,
   });
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      const percentage =
-        audioRef.current.currentTime / audioRef.current.duration;
-      setProgress(percentage);
-    }
-  };
+  // Use the audio progress hooks for 60fps updates (one per progress component)
+  const updateProgress1 = useAudioProgress({
+    audioRef,
+    progressRef: progressRef1,
+    onProgressUpdate: setProgress,
+  });
+
+  const updateProgress2 = useAudioProgress({
+    audioRef,
+    progressRef: progressRef2,
+  });
 
   const handleClick = (percentage: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = audioRef.current.duration * percentage;
+      // Use the manual update functions for responsive seeking
+      updateProgress1(percentage);
+      updateProgress2(percentage);
     }
   };
 
@@ -83,7 +94,6 @@ const WavoExample = () => {
         aria-label="Background music for waveform demo (no captions needed)"
         className="hidden"
         controls
-        onTimeUpdate={handleTimeUpdate}
         ref={audioRef}
         src={musicFile}
       />
@@ -118,7 +128,7 @@ const WavoExample = () => {
               width={controls.width}
             />
           )}
-          <Waveform.Progress color={controls.color} progress={progress} />
+          <Waveform.Progress color={controls.color} ref={progressRef1} />
         </Waveform.Container>
       </ResizableContainer>
 
@@ -143,7 +153,7 @@ const WavoExample = () => {
             type={controls.type}
             width={controls.width}
           />
-          <Waveform.Progress color={controls.color} progress={progress} />
+          <Waveform.Progress color={controls.color} ref={progressRef2} />
         </Waveform.Container>
       </ResizableContainer>
 

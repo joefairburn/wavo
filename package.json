@@ -21,7 +21,7 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "build": "pnpm type-check && bunchee",
-    "dev": "turbo run dev",
+    "dev": "bunchee --watch",
     "dev:test": "turbo run dev --filter=test...",
     "build:test": "turbo run build --filter=test...",
     "dev:docs": "turbo run dev --filter=docs...",

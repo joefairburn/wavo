@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Waveform } from 'wavo';
+import { Waveform, type ProgressHandle } from 'wavo';
 
 export default function MusicPlayer({
   src,
@@ -14,12 +14,15 @@ export default function MusicPlayer({
 }) {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       const percentage =
         audioRef.current.currentTime / audioRef.current.duration;
       setProgress(percentage);
+      // Update progress via ref for better performance
+      progressRef.current?.setProgress(percentage);
     }
   };
 
@@ -83,8 +86,8 @@ export default function MusicPlayer({
       >
         <Waveform.Bars gap={2} width={2} />
         <Waveform.Progress
+          ref={progressRef}
           color="var(--wavo-progress-color)"
-          progress={progress}
         />
       </Waveform.Container>
     </div>
