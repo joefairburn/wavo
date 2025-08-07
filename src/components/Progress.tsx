@@ -84,9 +84,9 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
         lastProgressRef.current = roundedProgress;
         const stops = gradientRef.current.querySelectorAll('stop');
         const offsetValue = `${roundedProgress}%`;
-        stops.forEach((stop) => {
+        for (const stop of stops) {
           stop.setAttribute('offset', offsetValue);
-        });
+        }
       }
     }, []);
 

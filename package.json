@@ -30,7 +30,8 @@
     "lint": "ultracite lint",
     "lint:fix": "ultracite format",
     "check": "ultracite lint",
-    "test": "playwright test"
+    "test": "playwright test",
+    "prepare": "husky"
   },
   "keywords": [
     "react",

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useWaveform } from '../contexts/waveform-context';
 import { getReducedDataPoints } from '../lib';
 import type { WaveformData } from '../waveform';
@@ -59,7 +53,7 @@ interface SingleBarProps {
  *
  * @param props - Properties for the bar
  */
-export const SingleBar = React.memo(function SingleBar({
+export const SingleBar = React.memo(function SingleBarComponent({
   x,
   width,
   point,
@@ -140,7 +134,7 @@ export interface BarsProps {
  *
  * @private
  */
-const BarsRenderer = React.memo(function BarsRenderer({
+const BarsRenderer = React.memo(function BarsRendererComponent({
   width = 3,
   gap = 1,
   radius = 2,
@@ -153,7 +147,8 @@ const BarsRenderer = React.memo(function BarsRenderer({
   const bars = useMemo(() => {
     return dataPoints.map((point, index) => (
       <SingleBar
-        key={index}
+        // biome-ignore lint/suspicious/noArrayIndexKey: Waveform data points have stable positions
+        key={`bar-${index}`}
         point={point}
         radius={radius}
         width={width}
@@ -215,11 +210,11 @@ export const Bars: React.FC<BarsProps> = ({
 
   // Computation function for reducing data points
   const computeReducedDataPoints = useCallback(
-    (barCount: number, dataPoints: WaveformData): readonly number[] => {
-      if (barCount === 0) {
+    (currentBarCount: number, sourceData: WaveformData): readonly number[] => {
+      if (currentBarCount === 0) {
         return [];
       }
-      return getReducedDataPoints(barCount, dataPoints);
+      return getReducedDataPoints(currentBarCount, sourceData);
     },
     []
   );

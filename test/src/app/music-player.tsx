@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Waveform, type ProgressHandle } from 'wavo';
+import { type ProgressHandle, Waveform } from 'wavo';
 
 export default function MusicPlayer({
   src,
@@ -86,8 +86,8 @@ export default function MusicPlayer({
       >
         <Waveform.Bars gap={2} width={2} />
         <Waveform.Progress
-          ref={progressRef}
           color="var(--wavo-progress-color)"
+          ref={progressRef}
         />
       </Waveform.Container>
     </div>
