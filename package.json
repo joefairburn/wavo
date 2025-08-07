@@ -30,7 +30,7 @@
     "lint": "ultracite lint",
     "lint:fix": "ultracite format",
     "check": "ultracite lint",
-    "test": "playwright test",
+    "test": "cd test && playwright test",
     "prepare": "husky"
   },
   "keywords": [
