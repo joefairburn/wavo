@@ -85,8 +85,8 @@ export const WaveformSVG: React.FC<WaveformSVGProps> = ({
 
   return (
     // Note: Accessibility attributes (aria-label, role, etc.) are provided via otherAttributes from parent Waveform component
+    // biome-ignore lint/a11y/noSvgWithoutTitle: Waveform serves as visual decoration - title would provide no meaningful accessibility value and creates unwanted hover behavior.
     <svg ref={svgRef} {...otherAttributes} style={mergedStyle}>
-      <title>Waveform visualization</title>
       {/* Only render children if the component is visible and the SVG is mounted. */}
       {isClient && shouldRender && children}
     </svg>
