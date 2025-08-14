@@ -1,6 +1,6 @@
 {
   "name": "wavo",
-  "version": "0.1.53",
+  "version": "0.1.54",
   "description": "A small library for drawing waveforms in React.",
   "type": "module",
   "main": "./dist/index.cjs",
