@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useWaveform } from '../contexts/waveform-context';
+import { getEasingFunction } from '../hooks/use-styles';
 
 /**
  * Props for the WaveformSVG component
@@ -72,15 +73,16 @@ export const WaveformSVG: React.FC<WaveformSVGProps> = ({
   isClient,
   svgAttributes,
 }) => {
-  const { transitionDuration } = useWaveform();
+  const { transitionDuration, easing } = useWaveform();
 
   // Extract existing style if any
   const { style: existingStyle, ...otherAttributes } = svgAttributes;
 
-  // Merge existing style with our CSS variable
+  // Merge existing style with our CSS variables
   const mergedStyle = {
     ...existingStyle,
     '--wavo-transition-duration': `${transitionDuration}s`,
+    '--wavo-easing-function': getEasingFunction(easing),
   } as React.CSSProperties;
 
   return (

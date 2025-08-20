@@ -118,6 +118,10 @@ export const createWaveformStyles = (easing: EasingFunction) => {
 // Using a string that won't conflict with user's code
 const STYLE_ATTRIBUTE_ID = 'data-wavo-styles';
 
+// Global flag to track if styles have been injected
+// Resets on each server request, persists on client
+let stylesInjected = false;
+
 /**
  * Options for the useStyles hook
  */
@@ -174,7 +178,6 @@ interface StyleOptions {
  */
 export function useStyles({
   unstyled = false,
-  transitionDuration = 1,
   easing = 'ease-in-out',
 }: StyleOptions = {}) {
   useInsertionEffect(() => {
@@ -188,52 +191,18 @@ export function useStyles({
       return;
     }
 
-    // Remove any existing styles (in case transition duration or easing changed)
-    const existingStyle = document.querySelector(
-      `style[${STYLE_ATTRIBUTE_ID}]`
-    );
-    if (existingStyle) {
-      existingStyle.parentNode?.removeChild(existingStyle);
+    // Only inject styles once globally
+    if (!stylesInjected) {
+      // Create and insert the style element
+      const style = document.createElement('style');
+      style.setAttribute(STYLE_ATTRIBUTE_ID, '');
+      style.innerHTML = createWaveformStyles(easing);
+      document.head.appendChild(style);
+
+      stylesInjected = true;
     }
-
-    // Only show animations on higher performance devices
-    const isHighPerformance = navigator.hardwareConcurrency >= 4;
-    if (!isHighPerformance) {
-      return;
-    }
-
-    // Convert the easing function to a valid CSS value
-    const easingValue = getEasingFunction(easing);
-
-    // Create and insert the style element with the appropriate transition duration and easing
-    const style = document.createElement('style');
-    style.setAttribute(STYLE_ATTRIBUTE_ID, '');
-    style.innerHTML = createWaveformStyles(easing);
-    document.head.appendChild(style);
-
-    // Set CSS variables
-    document.documentElement.style.setProperty(
-      cssVariables.TRANSITION_DURATION,
-      `${transitionDuration}s`
-    );
-    document.documentElement.style.setProperty(
-      cssVariables.EASING_FUNCTION,
-      easingValue
-    );
-
-    // Cleanup function
-    return () => {
-      if (style.parentNode) {
-        style.parentNode.removeChild(style);
-      }
-      document.documentElement.style.removeProperty(
-        cssVariables.TRANSITION_DURATION
-      );
-      document.documentElement.style.removeProperty(
-        cssVariables.EASING_FUNCTION
-      );
-    };
-  }, [unstyled, transitionDuration, easing]);
+    // No cleanup needed - styles persist for the session
+  }, [unstyled, easing]);
 
   return { cssVariables };
 }

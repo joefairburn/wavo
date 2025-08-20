@@ -212,7 +212,7 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     });
 
     // Handle styles
-    useStyles({ unstyled, transitionDuration, easing });
+    useStyles({ unstyled, easing });
 
     // Check if there is a Progress component
     const hasProgress = React.useMemo(
