@@ -1,0 +1,14 @@
+---
+import { siteConfig } from "../config/site";
+---
+
+<footer class="border-t border-border-dark pt-8 pb-12 mt-16">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-muted text-sm">
+    <p>&copy; {new Date().getFullYear()} {siteConfig.name}</p>
+    <div class="flex gap-6">
+      <a href={siteConfig.github} class="hover:text-white transition-colors">GitHub</a>
+      <a href={siteConfig.npm} class="hover:text-white transition-colors">NPM</a>
+      <a href={`${siteConfig.github}/blob/main/LICENSE`} class="hover:text-white transition-colors">License</a>
+    </div>
+  </div>
+</footer>

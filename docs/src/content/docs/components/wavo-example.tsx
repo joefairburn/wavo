@@ -4,12 +4,20 @@ import { useRef, useState } from "react";
 import {
   type BarRadius,
   type EasingFunction,
+  type GradientStop,
   type ProgressHandle,
   type RenderType,
   useAudioProgress,
   Waveform,
 } from "wavo";
 import ResizableContainer from "../../../components/resizable-container";
+
+// Define a subtle gradient - gentle warmth variation
+const wavoGradient: GradientStop[] = [
+  { offset: "0%", color: "#f25f04" },
+  { offset: "50%", color: "#f96706" },
+  { offset: "100%", color: "#ff7010" },
+];
 
 const WavoExample = () => {
   const [progress, setProgress] = useState(0);
@@ -18,14 +26,15 @@ const WavoExample = () => {
   const progressRef2 = useRef<ProgressHandle>(null);
 
   const [controls, setControls] = useState({
-    gap: 2,
-    width: 2,
-    color: "#f23d75",
-    radius: 2 as BarRadius,
+    gap: 4,
+    width: 5,
+    color: "#f96706",
+    radius: 0 as BarRadius,
     type: "bar" as RenderType,
     smooth: true,
     transitionDuration: 2,
     easing: [0.1, 0.9, 0.2, 1.0] as EasingFunction,
+    useGradient: true,
   });
 
   // Use the audio progress hooks for 60fps updates (one per progress component)
@@ -77,7 +86,7 @@ const WavoExample = () => {
 
   // Define all CSS variables needed
   const cssVariables = {
-    "--wavo-bar-color": "#333333",
+    "--wavo-bar-color": "#3a2f27",
     "--wavo-bar-color-progress": controls.color,
     "--wavo-bar-width": `${controls.width}px`,
     "--wavo-bar-gap": `${controls.gap}px`,
@@ -100,7 +109,7 @@ const WavoExample = () => {
 
       <ResizableContainer initialHeight={100} initialWidth={700}>
         <Waveform.Container
-          className="!h-full w-full rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75"
+          className="!h-full w-full rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-400 focus-visible:ring-opacity-75"
           dataPoints={dataPoints}
           easing={controls.easing}
           lazyLoad={true}
@@ -124,13 +133,17 @@ const WavoExample = () => {
               width={controls.width}
             />
           )}
-          <Waveform.Progress color={controls.color} ref={progressRef1} />
+          {controls.useGradient ? (
+            <Waveform.Progress gradient={wavoGradient} ref={progressRef1} />
+          ) : (
+            <Waveform.Progress color={controls.color} ref={progressRef1} />
+          )}
         </Waveform.Container>
       </ResizableContainer>
 
       <ResizableContainer initialHeight={100} initialWidth={700}>
         <Waveform.Container
-          className="!h-full w-full rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300 focus-visible:ring-opacity-75"
+          className="!h-full w-full rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-400 focus-visible:ring-opacity-75"
           dataPoints={dataPoints}
           easing={controls.easing}
           lazyLoad={true}
@@ -149,7 +162,11 @@ const WavoExample = () => {
             type={controls.type}
             width={controls.width}
           />
-          <Waveform.Progress color={controls.color} ref={progressRef2} />
+          {controls.useGradient ? (
+            <Waveform.Progress gradient={wavoGradient} ref={progressRef2} />
+          ) : (
+            <Waveform.Progress color={controls.color} ref={progressRef2} />
+          )}
         </Waveform.Container>
       </ResizableContainer>
 
@@ -169,16 +186,29 @@ const WavoExample = () => {
         </div>
 
         <div className="flex flex-row items-center gap-2">
-          <label className="font-medium text-sm" htmlFor="color">
-            Color
+          <label className="font-medium text-sm" htmlFor="gradient">
+            Gradient
           </label>
           <input
-            className="w-16"
-            onChange={(e) => setControls({ ...controls, color: e.target.value })}
-            type="color"
-            value={controls.color}
+            checked={controls.useGradient}
+            onChange={(e) => setControls({ ...controls, useGradient: e.target.checked })}
+            type="checkbox"
           />
         </div>
+
+        {!controls.useGradient && (
+          <div className="flex flex-row items-center gap-2">
+            <label className="font-medium text-sm" htmlFor="color">
+              Color
+            </label>
+            <input
+              className="w-16"
+              onChange={(e) => setControls({ ...controls, color: e.target.value })}
+              type="color"
+              value={controls.color}
+            />
+          </div>
+        )}
 
         <div className="flex flex-row items-center gap-2">
           <label className="font-medium text-sm" htmlFor="gap">

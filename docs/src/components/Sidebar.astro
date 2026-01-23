@@ -1,0 +1,79 @@
+---
+import { sidebar } from "../config/navigation";
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = "" } = Astro.props;
+
+function isActive(href: string, current: string): boolean {
+  // Normalize paths - remove trailing slashes
+  const normalizedHref = href.replace(/\/$/, "");
+  const normalizedCurrent = current.replace(/\/$/, "");
+
+  // Exact match for index page
+  if (normalizedHref === "/docs" && normalizedCurrent === "/docs") {
+    return true;
+  }
+
+  // For other pages, check exact match
+  return normalizedCurrent === normalizedHref;
+}
+---
+
+<aside
+  class="w-64 border-r border-border-dark bg-background-dark flex flex-col overflow-y-auto no-scrollbar hidden lg:flex shrink-0 lg:sticky lg:top-16 lg:h-[calc(100vh-64px)]"
+>
+  <nav class="p-6 space-y-6">
+    {
+      sidebar.map((section) => (
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-muted mb-4">{section.label}</h3>
+          <ul class="space-y-1">
+            {section.items.map((item) => {
+              const active = isActive(item.href, currentPath);
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    class:list={[
+                      "flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-colors",
+                      active
+                        ? "bg-primary/10 text-primary border-r-2 border-primary"
+                        : "text-muted hover:bg-surface hover:text-white",
+                    ]}
+                  >
+                    {item.icon && (
+                      <span class="material-symbols-outlined text-[18px]">{item.icon}</span>
+                    )}
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))
+    }
+  </nav>
+  <div class="p-6 mt-auto border-t border-border-dark">
+    <a
+      href="https://github.com/joefairburn/wavo/issues"
+      class="flex items-center gap-3 text-muted hover:text-primary transition-colors text-xs font-mono uppercase tracking-widest"
+    >
+      <span class="material-symbols-outlined text-base">bug_report</span>
+      Report Issue
+    </a>
+  </div>
+</aside>
+
+<style>
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>

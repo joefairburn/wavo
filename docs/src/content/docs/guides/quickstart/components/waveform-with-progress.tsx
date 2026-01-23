@@ -41,14 +41,14 @@ const WaveformWithProgress = () => {
 
   return (
     <Waveform.Container
-      className="w-full text-neutral-400"
+      className="w-full text-[#3a2f27]"
       dataPoints={dataPoints}
       onClick={handleProgressChange}
       onDrag={handleProgressChange}
       onKeyDown={handleKeyDown}
     >
       <Waveform.Bars gap={1} width={2} />
-      <Waveform.Progress color="#FFF" ref={progressRef} />
+      <Waveform.Progress color="#f96706" ref={progressRef} />
     </Waveform.Container>
   );
 };
