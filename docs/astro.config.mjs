@@ -2,26 +2,21 @@
 
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
-import tailwind from "@astrojs/tailwind";
 import { defineConfig } from "astro/config";
 import starlightThemeRapide from "starlight-theme-rapide";
 // https://astro.build/config
 export default defineConfig({
   integrations: [
     react({ experimentalReactChildren: true }),
-    tailwind({
-      // Disable the default base styles:
-      applyBaseStyles: true,
-    }),
     starlight({
       plugins: [starlightThemeRapide()],
       title: "wavo",
       description: "A small library for drawing waveforms in React",
       customCss: ["./src/styles.css"],
 
-      social: {
-        github: "https://github.com/joefairburn/wavo",
-      },
+      social: [
+        { icon: "github", label: "GitHub", href: "https://github.com/joefairburn/wavo" },
+      ],
       defaultLocale: "root",
       locales: {
         root: {

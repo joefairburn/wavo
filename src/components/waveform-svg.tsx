@@ -10,7 +10,7 @@ export interface WaveformSVGProps {
    * Reference to the SVG element
    * Used for measurements and interactions
    */
-  svgRef: React.RefObject<SVGSVGElement>;
+  svgRef: React.RefObject<SVGSVGElement | null>;
 
   /**
    * Child components to render inside the SVG

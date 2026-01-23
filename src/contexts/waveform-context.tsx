@@ -14,7 +14,7 @@ export interface WaveformContextProps {
   /**
    * Reference to the SVG element that contains the waveform
    */
-  svgRef: React.RefObject<SVGSVGElement>;
+  svgRef: React.RefObject<SVGSVGElement | null>;
 
   /**
    * Whether a Progress component is present as a child
@@ -56,7 +56,7 @@ interface WaveformContextType {
   /**
    * Reference to the SVG element that contains the waveform
    */
-  svgRef: React.RefObject<SVGSVGElement>;
+  svgRef: React.RefObject<SVGSVGElement | null>;
 
   /**
    * Whether a Progress component is present as a child
@@ -102,7 +102,7 @@ interface WaveformProviderProps {
   /**
    * Reference to the SVG element that contains the waveform
    */
-  svgRef: React.RefObject<SVGSVGElement>;
+  svgRef: React.RefObject<SVGSVGElement | null>;
 
   /**
    * Whether a Progress component is present as a child

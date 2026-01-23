@@ -18,7 +18,7 @@ export interface UseAudioProgressOptions {
   /**
    * Audio element reference (HTMLAudioElement)
    */
-  audioRef?: React.RefObject<HTMLAudioElement>;
+  audioRef?: React.RefObject<HTMLAudioElement | null>;
 
   /**
    * Custom audio source (for Web Audio API, etc.)
@@ -29,7 +29,7 @@ export interface UseAudioProgressOptions {
   /**
    * Progress component reference to update
    */
-  progressRef: React.RefObject<ProgressHandle>;
+  progressRef: React.RefObject<ProgressHandle | null>;
 
   /**
    * Optional callback for progress updates (for state synchronization)
@@ -85,7 +85,7 @@ export function useAudioProgress({
   enableHighFrequency = true,
   isPlaying,
 }: UseAudioProgressOptions) {
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   // 60fps progress update loop using requestAnimationFrame
   const updateProgress = useCallback(() => {
