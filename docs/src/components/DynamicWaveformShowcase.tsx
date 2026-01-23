@@ -28,14 +28,21 @@ function applyWaveEffect(
 }
 
 /**
- * Generate static waveform data for reduced motion preference
+ * Generate random waveform data for reduced motion preference.
+ * Uses a seeded pseudo-random approach for consistent results.
  */
-function generateStaticWaveform(length: number): number[] {
+function generateRandomWaveform(length: number): number[] {
   const data: number[] = [];
+  // Use a simple seeded random for consistent results across renders
+  let seed = 42;
+  const random = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+
   for (let i = 0; i < length; i++) {
-    // Create a gentle curve that looks natural
-    const normalized = i / length;
-    const value = 0.3 + 0.4 * Math.sin(normalized * Math.PI);
+    // Generate random values that look like audio waveform data
+    const value = 0.1 + random() * 0.8;
     data.push(value);
   }
   return data;
@@ -67,7 +74,7 @@ function usePrefersReducedMotion(): boolean {
 const DynamicWaveformShowcase = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [dataPoints, setDataPoints] = useState<number[]>(() =>
-    prefersReducedMotion ? generateStaticWaveform(BAR_COUNT) : applyWaveEffect(BAR_COUNT, 0),
+    prefersReducedMotion ? generateRandomWaveform(BAR_COUNT) : applyWaveEffect(BAR_COUNT, 0),
   );
 
   const rafRef = useRef<number>(0);
@@ -77,7 +84,7 @@ const DynamicWaveformShowcase = () => {
   useEffect(() => {
     // Skip animation if user prefers reduced motion
     if (prefersReducedMotion) {
-      setDataPoints(generateStaticWaveform(BAR_COUNT));
+      setDataPoints(generateRandomWaveform(BAR_COUNT));
       return;
     }
 
