@@ -15,6 +15,11 @@ coverage
 out/
 build
 
+# editor configs
+.vscode
+.zed
+.cursor
+
 # misc
 .DS_Store
 *.pem
