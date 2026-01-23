@@ -67,7 +67,7 @@ export const ResizableContainer: React.FC<ResizableContainerProps> = ({
           {(() => {
             const handleProps = resizeHandleProps(direction);
             // Make the handle more visible with additional styles
-            const handleClassName = `${handleProps.className} bg-black bg-opacity-5 hover:bg-opacity-10 transition-colors flex items-center justify-center`;
+            const handleClassName = `${handleProps.className} hover:bg-black/10 transition-colors flex items-center justify-center`;
             return (
               <div key={direction} {...handleProps} className={handleClassName}>
                 {/* Simple half square icon indicating resize functionality */}

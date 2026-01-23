@@ -240,8 +240,9 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         isStyled: !unstyled,
         transitionDuration,
         easing,
+        progress,
       }),
-      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing],
+      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing, progress],
     );
 
     return (

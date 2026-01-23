@@ -77,6 +77,11 @@ interface WaveformContextType {
    * Easing function to use for animations
    */
   easing: EasingFunction;
+
+  /**
+   * Current playback progress between 0 and 1
+   */
+  progress: number;
 }
 
 /**
@@ -123,6 +128,11 @@ interface WaveformProviderProps {
    * Easing function to use for animations
    */
   easing: EasingFunction;
+
+  /**
+   * Current playback progress between 0 and 1
+   */
+  progress: number;
 }
 
 /**
@@ -138,6 +148,7 @@ export function WaveformProvider({
   isStyled,
   transitionDuration,
   easing,
+  progress,
 }: WaveformProviderProps) {
   // Generate a unique ID for gradient references without colons (which are invalid in SVG IDs)
   const id = useId().replace(/:/g, "");
@@ -152,6 +163,7 @@ export function WaveformProvider({
         isStyled,
         transitionDuration,
         easing,
+        progress,
       }}
     >
       {children}
