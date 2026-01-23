@@ -37,9 +37,6 @@ yarn-error.log*
 .env.production.local
 .envrc
 
-# workspace
-conductor.json
-
 # turbo
 .turbo
 /test-results/
