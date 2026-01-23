@@ -77,12 +77,12 @@
     {
       "name": "ESM bundle",
       "path": "dist/index.mjs",
-      "limit": "15 kB"
+      "limit": "5 kB"
     },
     {
       "name": "CJS bundle",
       "path": "dist/index.cjs",
-      "limit": "15 kB"
+      "limit": "5 kB"
     }
   ],
   "engines": {
