@@ -14,9 +14,7 @@ export default defineConfig({
       description: "A small library for drawing waveforms in React",
       customCss: ["./src/styles.css"],
 
-      social: [
-        { icon: "github", label: "GitHub", href: "https://github.com/joefairburn/wavo" },
-      ],
+      social: [{ icon: "github", label: "GitHub", href: "https://github.com/joefairburn/wavo" }],
       defaultLocale: "root",
       locales: {
         root: {
