@@ -1,6 +1,5 @@
 ---
-// biome-ignore lint/correctness/noUnusedImports: Code is used in Astro template below
-import { Code } from '@astrojs/starlight/components';
+import { Code } from "astro-expressive-code/components";
 
 interface Props {
   code?: string;
@@ -8,13 +7,18 @@ interface Props {
   title?: string;
 }
 
-// Note: props and Code are used in the template below
-const _props = Astro.props as Props;
+const { code, lang = "tsx", title } = Astro.props;
 ---
 
-<div class="demo-card rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
-  <div class="mx-4">
+<div class="demo-card border-2 border-[#3a2f27] bg-[#181411]">
+  <div class="p-4 border-b border-[#3a2f27] bg-[#231b15]">
     <slot />
   </div>
-  {_props.code && <Code code={_props.code} lang={_props.lang} title={_props.title} frame="code" />}
+  {code && <Code code={code} lang={lang} title={title} />}
 </div>
+
+<style>
+  .demo-card {
+    margin: 1.5rem 0;
+  }
+</style>

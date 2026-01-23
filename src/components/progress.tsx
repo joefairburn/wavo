@@ -2,6 +2,35 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 
 import { useWaveform } from "../contexts/waveform-context";
 
 /**
+ * Scale a gradient stop offset based on progress.
+ * @param offset - Original offset as percentage string (e.g., "50%")
+ * @param progress - Progress value between 0 and 1
+ * @returns Scaled offset as percentage string
+ */
+function scaleGradientOffset(offset: string, progress: number): string {
+  const numericOffset = Number.parseFloat(offset);
+  const scaled = numericOffset * progress;
+  return `${scaled}%`;
+}
+
+/**
+ * A single color stop in a gradient
+ */
+export interface GradientStop {
+  /**
+   * Position of the color stop as a percentage (0-100) or CSS value
+   * @example "0%", "50%", "100%"
+   */
+  offset: string;
+
+  /**
+   * CSS color value for this stop
+   * @example "#f96706", "rgba(255, 0, 0, 0.8)", "currentColor"
+   */
+  color: string;
+}
+
+/**
  * Props for the Progress component
  */
 export interface ProgressProps {
@@ -12,10 +41,34 @@ export interface ProgressProps {
   progress?: number;
 
   /**
-   * Color for the played portion of the waveform
+   * Color for the played portion of the waveform.
+   * Used when no gradient is specified.
    * @default "currentColor"
    */
-  color: string;
+  color?: string;
+
+  /**
+   * Multi-color gradient stops for the waveform.
+   * When provided, creates a gradient across the entire waveform.
+   * The progress indicator will reveal this gradient as playback advances.
+   *
+   * @example
+   * ```tsx
+   * // Orange to yellow gradient
+   * gradient={[
+   *   { offset: "0%", color: "#f96706" },
+   *   { offset: "100%", color: "#ffd93d" }
+   * ]}
+   *
+   * // Three-color gradient
+   * gradient={[
+   *   { offset: "0%", color: "#f96706" },
+   *   { offset: "50%", color: "#ff9a3c" },
+   *   { offset: "100%", color: "#ffd93d" }
+   * ]}
+   * ```
+   */
+  gradient?: GradientStop[];
 }
 
 /**
@@ -61,28 +114,51 @@ export interface ProgressHandle {
  * ```
  */
 export const Progress = forwardRef<ProgressHandle, ProgressProps>(
-  ({ progress: propProgress = 0, color }, ref) => {
+  ({ progress: propProgress = 0, color = "currentColor", gradient }, ref) => {
     const { id } = useWaveform();
     const gradientRef = useRef<SVGLinearGradientElement>(null);
     const lastProgressRef = useRef(-1); // Track last update to avoid unnecessary DOM changes
 
     // Helper to update progress by directly updating gradient stops
-    const updateProgress = useCallback((value: number) => {
-      const clampedProgress = Math.max(0, Math.min(1, value));
+    const updateProgress = useCallback(
+      (value: number) => {
+        const clampedProgress = Math.max(0, Math.min(1, value));
 
-      // Round to 2 decimal places to avoid floating point precision issues
-      const roundedProgress = Math.round(clampedProgress * 10_000) / 100;
+        // Round to 4 decimal places to avoid floating point precision issues
+        const roundedProgress = Math.round(clampedProgress * 10_000) / 10_000;
 
-      // Only update DOM if progress actually changed
-      if (roundedProgress !== lastProgressRef.current && gradientRef.current) {
-        lastProgressRef.current = roundedProgress;
-        const stops = gradientRef.current.querySelectorAll("stop");
-        const offsetValue = `${roundedProgress}%`;
-        for (const stop of stops) {
-          stop.setAttribute("offset", offsetValue);
+        // Only update DOM if progress actually changed
+        if (roundedProgress !== lastProgressRef.current && gradientRef.current) {
+          lastProgressRef.current = roundedProgress;
+          const stops = gradientRef.current.querySelectorAll("stop");
+
+          if (gradient) {
+            // For multi-color gradients, scale all stops proportionally
+            const gradientStopCount = gradient.length;
+            for (let i = 0; i < stops.length; i++) {
+              const stop = stops[i];
+              if (i < gradientStopCount) {
+                // Scale gradient stops to fit within progress
+                stop.setAttribute(
+                  "offset",
+                  scaleGradientOffset(gradient[i].offset, roundedProgress),
+                );
+              } else {
+                // The final stop (unplayed color) sits at the progress position
+                stop.setAttribute("offset", `${roundedProgress * 100}%`);
+              }
+            }
+          } else {
+            // Original behavior for single color
+            const offsetValue = `${roundedProgress * 100}%`;
+            for (const stop of stops) {
+              stop.setAttribute("offset", offsetValue);
+            }
+          }
         }
-      }
-    }, []);
+      },
+      [gradient],
+    );
 
     // Update DOM when prop changes
     useEffect(() => {
@@ -98,6 +174,33 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
       [updateProgress],
     );
 
+    // Render gradient stops
+    const renderStops = (): React.ReactNode => {
+      if (gradient) {
+        // Multi-color gradient: render all gradient stops + final unplayed stop
+        return (
+          <>
+            {gradient.map((gradientStop) => (
+              <stop
+                key={gradientStop.offset}
+                offset={scaleGradientOffset(gradientStop.offset, propProgress)}
+                stopColor={gradientStop.color}
+              />
+            ))}
+            <stop offset={`${propProgress * 100}%`} stopColor="currentColor" />
+          </>
+        );
+      }
+
+      // Single color: original two-stop gradient
+      return (
+        <>
+          <stop offset="0%" stopColor={color} />
+          <stop offset="0%" stopColor="currentColor" />
+        </>
+      );
+    };
+
     return (
       <defs>
         <linearGradient
@@ -110,8 +213,7 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
           y1="0"
           y2="0"
         >
-          <stop offset="0%" stopColor={color} />
-          <stop offset="0%" stopColor="currentColor" />
+          {renderStops()}
         </linearGradient>
       </defs>
     );
