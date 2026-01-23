@@ -1,13 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
+    "lint": {},
+    "format": {},
+    "format:check": {},
     "dev": {
       "cache": false,
       "persistent": true

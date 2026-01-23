@@ -1,6 +1,6 @@
-import { dataPoints, musicFile } from '@docs/fixtures/data';
-import type React from 'react';
-import { useRef, useState } from 'react';
+import { dataPoints, musicFile } from "@docs/fixtures/data";
+import type React from "react";
+import { useRef, useState } from "react";
 import {
   type BarRadius,
   type EasingFunction,
@@ -8,8 +8,8 @@ import {
   type RenderType,
   useAudioProgress,
   Waveform,
-} from 'wavo';
-import ResizableContainer from '../../../components/resizable-container';
+} from "wavo";
+import ResizableContainer from "../../../components/resizable-container";
 
 const WavoExample = () => {
   const [progress, setProgress] = useState(0);
@@ -20,9 +20,9 @@ const WavoExample = () => {
   const [controls, setControls] = useState({
     gap: 2,
     width: 2,
-    color: '#f23d75',
+    color: "#f23d75",
     radius: 2 as BarRadius,
-    type: 'bar' as RenderType,
+    type: "bar" as RenderType,
     smooth: true,
     transitionDuration: 2,
     easing: [0.1, 0.9, 0.2, 1.0] as EasingFunction,
@@ -53,15 +53,15 @@ const WavoExample = () => {
     const STEP = 0.05; // 5% increment/decrement
 
     switch (event.key) {
-      case 'ArrowLeft':
+      case "ArrowLeft":
         handleClick(Math.max(0, progress - STEP));
         event.preventDefault();
         break;
-      case 'ArrowRight':
+      case "ArrowRight":
         handleClick(Math.min(1, progress + STEP));
         event.preventDefault();
         break;
-      case ' ':
+      case " ":
         event.preventDefault();
         if (audioRef.current?.paused) {
           audioRef.current.play();
@@ -77,11 +77,11 @@ const WavoExample = () => {
 
   // Define all CSS variables needed
   const cssVariables = {
-    '--wavo-bar-color': '#333333',
-    '--wavo-bar-color-progress': controls.color,
-    '--wavo-bar-width': `${controls.width}px`,
-    '--wavo-bar-gap': `${controls.gap}px`,
-    '--wavo-transition-duration': `${controls.transitionDuration}s`,
+    "--wavo-bar-color": "#333333",
+    "--wavo-bar-color-progress": controls.color,
+    "--wavo-bar-width": `${controls.width}px`,
+    "--wavo-bar-gap": `${controls.gap}px`,
+    "--wavo-transition-duration": `${controls.transitionDuration}s`,
   } as React.CSSProperties;
 
   return (
@@ -112,14 +112,10 @@ const WavoExample = () => {
           progress={progress}
           transitionDuration={controls.transitionDuration}
         >
-          {controls.type === 'bar' && (
-            <Waveform.Bars
-              gap={controls.gap}
-              radius={controls.radius}
-              width={controls.width}
-            />
+          {controls.type === "bar" && (
+            <Waveform.Bars gap={controls.gap} radius={controls.radius} width={controls.width} />
           )}
-          {controls.type === 'line' && (
+          {controls.type === "line" && (
             <Waveform.Path
               gap={controls.gap}
               radius={controls.radius}
@@ -164,9 +160,7 @@ const WavoExample = () => {
           </label>
           <select
             className="w-20 rounded border p-1 text-sm"
-            onChange={(e) =>
-              setControls({ ...controls, type: e.target.value as RenderType })
-            }
+            onChange={(e) => setControls({ ...controls, type: e.target.value as RenderType })}
             value={controls.type}
           >
             <option value="bar">Bar</option>
@@ -180,9 +174,7 @@ const WavoExample = () => {
           </label>
           <input
             className="w-16"
-            onChange={(e) =>
-              setControls({ ...controls, color: e.target.value })
-            }
+            onChange={(e) => setControls({ ...controls, color: e.target.value })}
             type="color"
             value={controls.color}
           />
@@ -232,14 +224,12 @@ const WavoExample = () => {
           </label>
           <input
             className="w-16"
-            disabled={controls.type === 'line'}
+            disabled={controls.type === "line"}
             max="5"
             min="0"
             onChange={(e) => {
               const value = Number.parseInt(e.target.value, 10);
-              const radius = (
-                value >= 0 && value <= 5 ? value : 2
-              ) as BarRadius;
+              const radius = (value >= 0 && value <= 5 ? value : 2) as BarRadius;
               setControls({ ...controls, radius });
             }}
             type="range"
@@ -247,16 +237,14 @@ const WavoExample = () => {
           />
         </div>
 
-        {controls.type === 'line' && (
+        {controls.type === "line" && (
           <div className="flex flex-row items-center gap-2">
             <label className="font-medium text-sm" htmlFor="smooth">
               Smooth
             </label>
             <input
               checked={controls.smooth}
-              onChange={(e) =>
-                setControls({ ...controls, smooth: e.target.checked })
-              }
+              onChange={(e) => setControls({ ...controls, smooth: e.target.checked })}
               type="checkbox"
             />
           </div>

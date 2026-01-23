@@ -1,5 +1,5 @@
-import { useInsertionEffect } from 'react';
-import type { EasingFunction } from '../waveform';
+import { useInsertionEffect } from "react";
+import type { EasingFunction } from "../waveform";
 
 /**
  * CSS variable names used throughout the component for consistent styling
@@ -7,22 +7,22 @@ import type { EasingFunction } from '../waveform';
  */
 export const cssVariables = {
   /** Width of individual bars in pixels */
-  BAR_WIDTH: '--wavo-bar-width',
+  BAR_WIDTH: "--wavo-bar-width",
 
   /** Gap between bars in pixels */
-  BAR_GAP: '--wavo-bar-gap',
+  BAR_GAP: "--wavo-bar-gap",
 
   /** Default color for waveform bars */
-  BAR_COLOR: '--wavo-bar-color',
+  BAR_COLOR: "--wavo-bar-color",
 
   /** Color for the "played" portion of the waveform */
-  BAR_COLOR_PROGRESS: '--wavo-bar-color-progress',
+  BAR_COLOR_PROGRESS: "--wavo-bar-color-progress",
 
   /** Duration of transitions/animations in seconds */
-  TRANSITION_DURATION: '--wavo-transition-duration',
+  TRANSITION_DURATION: "--wavo-transition-duration",
 
   /** CSS timing function for animations */
-  EASING_FUNCTION: '--wavo-easing-function',
+  EASING_FUNCTION: "--wavo-easing-function",
 };
 
 /**
@@ -52,8 +52,8 @@ export const getEasingFunction = (easing: EasingFunction): string => {
   }
 
   // If it's 'cubic-bezier' without parameters, use a default
-  if (easing === 'cubic-bezier') {
-    return 'cubic-bezier(0.42, 0, 0.58, 1)'; // Default cubic-bezier (same as 'ease')
+  if (easing === "cubic-bezier") {
+    return "cubic-bezier(0.42, 0, 0.58, 1)"; // Default cubic-bezier (same as 'ease')
   }
 
   // Return the string value as-is
@@ -116,7 +116,7 @@ export const createWaveformStyles = (easing: EasingFunction) => {
 
 // Define a global identifier for tracking style insertion
 // Using a string that won't conflict with user's code
-const STYLE_ATTRIBUTE_ID = 'data-wavo-styles';
+const STYLE_ATTRIBUTE_ID = "data-wavo-styles";
 
 // Global flag to track if styles have been injected
 // Resets on each server request, persists on client
@@ -176,13 +176,10 @@ interface StyleOptions {
  * }
  * ```
  */
-export function useStyles({
-  unstyled = false,
-  easing = 'ease-in-out',
-}: StyleOptions = {}) {
+export function useStyles({ unstyled = false, easing = "ease-in-out" }: StyleOptions = {}) {
   useInsertionEffect(() => {
     // Skip in SSR context
-    if (typeof document === 'undefined') {
+    if (typeof document === "undefined") {
       return;
     }
 
@@ -194,8 +191,8 @@ export function useStyles({
     // Only inject styles once globally
     if (!stylesInjected) {
       // Create and insert the style element
-      const style = document.createElement('style');
-      style.setAttribute(STYLE_ATTRIBUTE_ID, '');
+      const style = document.createElement("style");
+      style.setAttribute(STYLE_ATTRIBUTE_ID, "");
       style.innerHTML = createWaveformStyles(easing);
       document.head.appendChild(style);
 

@@ -1,4 +1,4 @@
-import type { NormalizedAmplitude, WaveformData } from './waveform';
+import type { NormalizedAmplitude, WaveformData } from "./waveform";
 
 /**
  * Finds the nearest valid amplitude value in a specified direction
@@ -18,13 +18,9 @@ const findNeighborValue = (
   dataPoints: readonly NormalizedAmplitude[],
   startIndex: number,
   increment: number,
-  endCondition: number
+  endCondition: number,
 ): number => {
-  for (
-    let i = startIndex;
-    increment > 0 ? i < endCondition : i >= endCondition;
-    i += increment
-  ) {
+  for (let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment) {
     if (!Number.isNaN(dataPoints[i])) {
       return dataPoints[i];
     }
@@ -49,7 +45,7 @@ const findNeighborValue = (
 const calculateSegmentAverage = (
   dataPoints: readonly NormalizedAmplitude[],
   startIndex: number,
-  endIndex: number
+  endIndex: number,
 ): number => {
   // Calculate average using reduce
   const segment = dataPoints.slice(startIndex, endIndex);
@@ -61,7 +57,7 @@ const calculateSegmentAverage = (
       }
       return acc;
     },
-    { sum: 0, count: 0 }
+    { sum: 0, count: 0 },
   );
 
   if (count > 0) {
@@ -70,12 +66,7 @@ const calculateSegmentAverage = (
 
   // If no valid points, search for neighbors
   const prevValue = findNeighborValue(dataPoints, startIndex - 1, -1, 0);
-  const nextValue = findNeighborValue(
-    dataPoints,
-    endIndex,
-    1,
-    dataPoints.length
-  );
+  const nextValue = findNeighborValue(dataPoints, endIndex, 1, dataPoints.length);
 
   // Calculate final value based on available neighbors
   if (!(Number.isNaN(prevValue) || Number.isNaN(nextValue))) {
@@ -108,7 +99,7 @@ const calculateSegmentAverage = (
  */
 export const calculateReducedDataPoints = (
   barCount: number,
-  dataPoints: WaveformData
+  dataPoints: WaveformData,
 ): number[] => {
   if (barCount === 0) {
     return [];
@@ -199,7 +190,7 @@ export const getReducedDataPoints = memoizedReducedDataPoints();
  * @returns Numeric ID that can be used to cancel the callback
  */
 export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
-  if ('requestIdleCallback' in window) {
+  if ("requestIdleCallback" in window) {
     return window.requestIdleCallback(callback, { timeout });
   }
   // Fallback for browsers that don't support requestIdleCallback
@@ -227,10 +218,7 @@ export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
  * window.addEventListener('resize', () => handleResize(window.innerWidth));
  * ```
  */
-export const createDebouncedFunction = <T>(
-  callback: (value: T) => void,
-  delay = 30
-) => {
+export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 30) => {
   let timeoutId: NodeJS.Timeout;
 
   return (value: T) => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Options for configuring the lazy loading behavior
@@ -78,7 +78,7 @@ export interface LazyLoadResult {
 export const useLazyLoad = ({
   elementRef,
   enabled,
-  rootMargin = '50px',
+  rootMargin = "50px",
   threshold = 0,
 }: LazyLoadOptions): LazyLoadResult => {
   // If lazy loading is disabled, shouldRender is always true
@@ -110,7 +110,7 @@ export const useLazyLoad = ({
         root: null, // Use viewport as root
         rootMargin,
         threshold,
-      }
+      },
     );
 
     // Start observing the target element

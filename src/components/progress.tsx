@@ -1,11 +1,5 @@
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from 'react';
-import { useWaveform } from '../contexts/waveform-context';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
+import { useWaveform } from "../contexts/waveform-context";
 
 /**
  * Props for the Progress component
@@ -82,10 +76,10 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
       // Only update DOM if progress actually changed
       if (roundedProgress !== lastProgressRef.current && gradientRef.current) {
         lastProgressRef.current = roundedProgress;
-        const stops = gradientRef.current.querySelectorAll('stop');
+        const stops = gradientRef.current.querySelectorAll("stop");
         const offsetValue = `${roundedProgress}%`;
         for (const stop of stops) {
-          stop.setAttribute('offset', offsetValue);
+          stop.setAttribute("offset", offsetValue);
         }
       }
     }, []);
@@ -101,7 +95,7 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
       () => ({
         setProgress: updateProgress,
       }),
-      [updateProgress]
+      [updateProgress],
     );
 
     return (
@@ -121,7 +115,7 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
         </linearGradient>
       </defs>
     );
-  }
+  },
 );
 
-Progress.displayName = 'Progress';
+Progress.displayName = "Progress";

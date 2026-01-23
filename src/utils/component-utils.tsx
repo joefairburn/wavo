@@ -1,15 +1,15 @@
-import React from 'react';
-import { Progress } from '../components/progress';
+import React from "react";
+import { Progress } from "../components/progress";
 
 /**
  * Detects if children contain a specific component type
  */
 export const hasComponentType = <P extends object>(
   children: React.ReactNode,
-  componentType: React.ComponentType<P>
+  componentType: React.ComponentType<P>,
 ): boolean => {
   return React.Children.toArray(children).some(
-    (child) => React.isValidElement(child) && child.type === componentType
+    (child) => React.isValidElement(child) && child.type === componentType,
   );
 };
 

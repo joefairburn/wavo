@@ -1,8 +1,8 @@
-import type React from 'react';
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { useWaveform } from '../contexts/waveform-context';
-import { getReducedDataPoints } from '../lib';
-import type { WaveformData } from '../waveform';
+import type React from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useWaveform } from "../contexts/waveform-context";
+import { getReducedDataPoints } from "../lib";
+import type { WaveformData } from "../waveform";
 
 /**
  * Type for corner radius with constrained values
@@ -15,11 +15,11 @@ export type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
  * - 'bar': Renders individual bars like the Bars component but as a single path
  * - 'line': Renders a continuous line connecting all data points
  */
-export type RenderType = 'bar' | 'line';
+export type RenderType = "bar" | "line";
 
 // CSS variable names
-const CSS_VAR_BAR_WIDTH = '--wavo-bar-width';
-const CSS_VAR_BAR_GAP = '--wavo-bar-gap';
+const CSS_VAR_BAR_WIDTH = "--wavo-bar-width";
+const CSS_VAR_BAR_GAP = "--wavo-bar-gap";
 
 /**
  * Creates a path string for a series of bars with rounded corners
@@ -34,10 +34,10 @@ const createBarPath = (
   dataPoints: number[],
   width: number,
   gap: number,
-  radius: BarRadius
+  radius: BarRadius,
 ): string => {
   if (!dataPoints.length) {
-    return '';
+    return "";
   }
 
   const paths: string[] = [];
@@ -58,7 +58,7 @@ const createBarPath = (
     const normalizedRadius = Math.min(
       radius,
       width < radius * 2 ? width / 2 : radius,
-      heightInPixels < radius * 2 ? heightInPixels / 2 : radius
+      heightInPixels < radius * 2 ? heightInPixels / 2 : radius,
     );
 
     // Skip path creation for zero height bars
@@ -74,27 +74,25 @@ const createBarPath = (
       // Top edge and top-right corner
       paths.push(`H${x + width - normalizedRadius}`);
       paths.push(
-        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width},${yTop + normalizedRadius}`
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width},${yTop + normalizedRadius}`,
       );
 
       // Right edge and bottom-right corner
       paths.push(`V${yBottom - normalizedRadius}`);
       paths.push(
-        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width - normalizedRadius},${yBottom}`
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + width - normalizedRadius},${yBottom}`,
       );
 
       // Bottom edge and bottom-left corner
       paths.push(`H${x + normalizedRadius}`);
       paths.push(
-        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x},${yBottom - normalizedRadius}`
+        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x},${yBottom - normalizedRadius}`,
       );
 
       // Left edge and close the path
       paths.push(`V${yTop + normalizedRadius}`);
-      paths.push(
-        `A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + normalizedRadius},${yTop}`
-      );
-      paths.push('Z');
+      paths.push(`A${normalizedRadius},${normalizedRadius} 0 0 1 ${x + normalizedRadius},${yTop}`);
+      paths.push("Z");
     } else {
       // Simple rectangle without rounded corners
       paths.push(`M${x},${yTop}`);
@@ -102,11 +100,11 @@ const createBarPath = (
       paths.push(`V${yBottom}`);
       paths.push(`H${x}`);
       paths.push(`V${yTop}`);
-      paths.push('Z');
+      paths.push("Z");
     }
   });
 
-  return paths.join(' ');
+  return paths.join(" ");
 };
 
 /**
@@ -123,10 +121,10 @@ const createLinePath = (
   dataPoints: number[],
   width: number,
   gap: number,
-  curvature = 0
+  curvature = 0,
 ): string => {
   if (!dataPoints.length) {
-    return '';
+    return "";
   }
 
   // If curvature is zero or very low, create a traditional jagged line path
@@ -146,20 +144,16 @@ const createLinePath = (
  * @param gap - Gap between segments
  * @returns A path string for SVG
  */
-const createJaggedLinePath = (
-  dataPoints: number[],
-  width: number,
-  gap: number
-): string => {
+const createJaggedLinePath = (dataPoints: number[], width: number, gap: number): string => {
   if (!dataPoints.length) {
-    return '';
+    return "";
   }
 
   const totalWidth = width + gap;
-  let path = '';
+  let path = "";
 
   // Create the top half of the waveform
-  path += 'M0,50 '; // Start at the middle
+  path += "M0,50 "; // Start at the middle
 
   dataPoints.forEach((point, index) => {
     const barHeight = Math.max(1, point * 50);
@@ -181,7 +175,7 @@ const createJaggedLinePath = (
   }
 
   // Close the path
-  path += 'L0,50 Z';
+  path += "L0,50 Z";
 
   return path;
 };
@@ -200,10 +194,10 @@ const createSmoothLinePath = (
   dataPoints: number[],
   width: number,
   gap: number,
-  curvature: number
+  curvature: number,
 ): string => {
   if (!dataPoints.length) {
-    return '';
+    return "";
   }
   if (dataPoints.length < 3) {
     return createJaggedLinePath(dataPoints, width, gap); // Fallback to line path for few points
@@ -250,12 +244,9 @@ const createSmoothLinePath = (
  * @param tensionFactor - How smooth the curve should be (0-1)
  * @returns SVG path string
  */
-const createSmoothPath = (
-  points: [number, number][],
-  tensionFactor: number
-): string => {
+const createSmoothPath = (points: [number, number][], tensionFactor: number): string => {
   if (points.length < 2) {
-    return '';
+    return "";
   }
 
   let path = `M${points[0][0]},${points[0][1]} `;
@@ -287,7 +278,7 @@ const createSmoothPath = (
   }
 
   // Close the path
-  path += 'Z';
+  path += "Z";
 
   return path;
 };
@@ -390,7 +381,7 @@ export interface PathProps {
  * ```
  */
 export const Path: React.FC<PathProps> = ({
-  type = 'bar',
+  type = "bar",
   width = 3,
   gap = 1,
   radius = 2,
@@ -449,38 +440,25 @@ export const Path: React.FC<PathProps> = ({
   // Generate the path string
   const pathString = useMemo(() => {
     if (!reducedDataPoints.length) {
-      return '';
+      return "";
     }
 
-    if (type === 'bar') {
+    if (type === "bar") {
       return createBarPath(reducedDataPoints, cssBarWidth, cssBarGap, radius);
     }
-    if (type === 'line') {
+    if (type === "line") {
       // Use 0.1 curvature if smooth is true, otherwise use the provided curvature
       const smoothingValue = smooth ? 0.1 : curvature;
-      return createLinePath(
-        reducedDataPoints,
-        cssBarWidth,
-        cssBarGap,
-        smoothingValue
-      );
+      return createLinePath(reducedDataPoints, cssBarWidth, cssBarGap, smoothingValue);
     }
 
-    return '';
-  }, [
-    reducedDataPoints,
-    cssBarWidth,
-    cssBarGap,
-    radius,
-    type,
-    curvature,
-    smooth,
-  ]);
+    return "";
+  }, [reducedDataPoints, cssBarWidth, cssBarGap, radius, type, curvature, smooth]);
 
   // Calculate the viewBox to ensure the path scales properly with the container
   const viewBox = useMemo(() => {
     if (!svgWidth) {
-      return '0 0 100 100';
+      return "0 0 100 100";
     }
 
     // Width is just the full svg width to allow all bars to be visible
@@ -519,7 +497,7 @@ export const Path: React.FC<PathProps> = ({
       aria-hidden="true"
       height="100%"
       preserveAspectRatio="none"
-      style={{ overflow: 'visible' }}
+      style={{ overflow: "visible" }}
       viewBox={viewBox}
       width="100%"
     >
@@ -527,12 +505,8 @@ export const Path: React.FC<PathProps> = ({
         className={className}
         d={pathString}
         data-wavo-path={type}
-        fill={
-          hasProgress
-            ? `url(#gradient-${id})`
-            : 'var(--wavo-bar-color, currentColor)'
-        }
-        style={{ willChange: 'none' }} // Prevent CSS animations from targeting this element
+        fill={hasProgress ? `url(#gradient-${id})` : "var(--wavo-bar-color, currentColor)"}
+        style={{ willChange: "none" }} // Prevent CSS animations from targeting this element
       />
     </svg>
   );
