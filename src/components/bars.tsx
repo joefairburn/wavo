@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useWaveform } from "../contexts/waveform-context";
 import { getReducedDataPoints } from "../lib";
 import type { WaveformData } from "../waveform";
+import { Path } from "./path";
 
 /**
  * Type for bar corner radius with constrained values
@@ -124,6 +125,13 @@ export interface BarsProps {
    * Generally not needed as dataPoints are provided by the Waveform container
    */
   dataPoints?: WaveformData;
+
+  /**
+   * When true, renders bars as a single optimized SVG path instead of individual rect elements.
+   * This provides better performance for large waveforms.
+   * @default false
+   */
+  optimized?: boolean;
 }
 
 /**
@@ -165,35 +173,15 @@ const BarsRenderer = React.memo(function BarsRendererComponent({
 });
 
 /**
- * Bar-based waveform visualization component
- *
- * Renders the waveform as a series of vertical bars, with heights proportional to
- * the amplitude values. Automatically adjusts the number of bars based on available
- * width and handles resizing for responsive layouts.
- *
- * Features:
- * - Automatic bar count calculation based on container width
- * - Responsive resizing with ResizeObserver
- * - Optimized rendering with memoization
- * - Visual distinction between playing and non-playing sections (when used with Progress)
- * - Customizable bar width, gap, and corner radius
- *
- * @example
- * ```tsx
- * // Basic usage within a Waveform container
- * <Waveform dataPoints={audioData}>
- *   <Bars />
- * </Waveform>
- *
- * // Customized appearance
- * <Waveform dataPoints={audioData}>
- *   <Bars width={2} gap={1} radius={3} className="custom-bars" />
- *   <Progress />
- * </Waveform>
- *
- * ```
+ * Internal component for rendering bars as individual rect elements
+ * @private
  */
-export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, className }) => {
+const BarsRects: React.FC<Omit<BarsProps, "optimized">> = ({
+  width = 3,
+  gap = 1,
+  radius = 2,
+  className,
+}) => {
   const [svgWidth, setSvgWidth] = useState<number>(0); // Initialize with 0 or a sensible default
   const [computedDataPoints, setComputedDataPoints] = useState<readonly number[]>([]);
   const { dataPoints: _dataPoints, svgRef } = useWaveform();
@@ -267,6 +255,55 @@ export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, clas
       width={width}
     />
   );
+};
+
+/**
+ * Bar-based waveform visualization component
+ *
+ * Renders the waveform as a series of vertical bars, with heights proportional to
+ * the amplitude values. Automatically adjusts the number of bars based on available
+ * width and handles resizing for responsive layouts.
+ *
+ * Features:
+ * - Automatic bar count calculation based on container width
+ * - Responsive resizing with ResizeObserver
+ * - Optimized rendering with memoization
+ * - Visual distinction between playing and non-playing sections (when used with Progress)
+ * - Customizable bar width, gap, and corner radius
+ * - Optional optimized mode using single SVG path for better performance
+ *
+ * @example
+ * ```tsx
+ * // Basic usage within a Waveform container
+ * <Waveform dataPoints={audioData}>
+ *   <Bars />
+ * </Waveform>
+ *
+ * // Customized appearance
+ * <Waveform dataPoints={audioData}>
+ *   <Bars width={2} gap={1} radius={3} className="custom-bars" />
+ *   <Progress />
+ * </Waveform>
+ *
+ * // Optimized mode for large datasets
+ * <Waveform dataPoints={audioData}>
+ *   <Bars optimized />
+ * </Waveform>
+ * ```
+ */
+export const Bars: React.FC<BarsProps> = ({
+  width = 3,
+  gap = 1,
+  radius = 2,
+  className,
+  optimized = false,
+}) => {
+  // If optimized, delegate to Path component with type="bar"
+  if (optimized) {
+    return <Path type="bar" width={width} gap={gap} radius={radius} className={className} />;
+  }
+
+  return <BarsRects width={width} gap={gap} radius={radius} className={className} />;
 };
 
 /**

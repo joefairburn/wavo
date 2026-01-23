@@ -13,6 +13,7 @@ export type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
 /**
  * Rendering mode for the Path component
  * - 'bar': Renders individual bars like the Bars component but as a single path
+ *   @deprecated Use `<Bars optimized />` instead for bar-style rendering
  * - 'line': Renders a continuous line connecting all data points
  */
 export type RenderType = "bar" | "line";
@@ -290,8 +291,9 @@ export interface PathProps {
   /**
    * Rendering type for the waveform visualization
    * - 'bar': Individual bars (similar to Bars component but as a single path)
+   *   @deprecated Use `<Bars optimized />` instead for bar-style rendering
    * - 'line': Continuous line connecting points
-   * @default 'bar'
+   * @default 'line'
    */
   type?: RenderType;
 
@@ -347,41 +349,41 @@ export interface PathProps {
 /**
  * Path-based waveform visualization component
  *
- * Renders the waveform as a single SVG path element, which provides better performance
- * for larger waveforms than the Bars component, which creates many individual elements.
- *
- * Supports two rendering modes:
- * 1. 'bar' - Similar appearance to Bars but as a single optimized path element
- * 2. 'line' - Continuous line/curve connecting all data points
+ * Renders the waveform as a single SVG path element for line/curve visualizations.
  *
  * Features:
  * - Better performance for large waveforms (uses single path vs. many elements)
- * - Support for both bar and line/curve rendering modes
+ * - Smooth curve or jagged line rendering modes
  * - Automatic data point reduction for optimal rendering
  * - Responsive to container size changes
  * - Compatible with Progress component for partial coloring
  *
  * @example
  * ```tsx
- * // Basic bar-type path (better performance than Bars for large datasets)
+ * // Continuous line visualization (default)
  * <Waveform dataPoints={audioData}>
- *   <Path type="bar" width={2} gap={1} radius={3} />
+ *   <Path smooth={true} />
  * </Waveform>
  *
- * // Continuous line visualization
+ * // Jagged line visualization
  * <Waveform dataPoints={audioData}>
- *   <Path type="line" smooth={true} curvature={0.5} />
+ *   <Path smooth={false} />
  * </Waveform>
  *
  * // With progress indicator
  * <Waveform dataPoints={audioData} progress={0.5}>
- *   <Path type="line" />
+ *   <Path />
  *   <Progress progress={0.5} color="#f00" />
+ * </Waveform>
+ *
+ * // For bar-style rendering, use Bars with optimized prop instead:
+ * <Waveform dataPoints={audioData}>
+ *   <Bars optimized />
  * </Waveform>
  * ```
  */
 export const Path: React.FC<PathProps> = ({
-  type = "bar",
+  type = "line",
   width = 3,
   gap = 1,
   radius = 2,

@@ -1,4 +1,11 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { useWaveform } from "../contexts/waveform-context";
 
 /**
@@ -93,15 +100,17 @@ export interface ProgressHandle {
  * progress position, creating a clear visual distinction between played content
  * (using the specified color) and unplayed content (using the inherited color).
  *
+ * Progress reads automatically from the parent Waveform.Container's `progress` prop.
+ *
  * @example
  * ```tsx
- * // Basic usage with progress prop
- * <Waveform dataPoints={audioData}>
+ * // Basic usage - progress is set on the Container
+ * <Waveform dataPoints={audioData} progress={0.5}>
  *   <Bars />
- *   <Progress progress={0.5} color="#f00" />
+ *   <Progress color="#f00" />
  * </Waveform>
  *
- * // Using ref for performance (prevents re-renders)
+ * // Using ref for high-frequency updates (e.g., 60fps audio playback)
  * const progressRef = useRef<ProgressHandle>(null);
  *
  * // Update progress without re-rendering
@@ -114,56 +123,70 @@ export interface ProgressHandle {
  * ```
  */
 export const Progress = forwardRef<ProgressHandle, ProgressProps>(
-  ({ progress: propProgress = 0, color = "currentColor", gradient }, ref) => {
-    const { id } = useWaveform();
+  ({ progress: propProgress, color = "currentColor", gradient }, ref) => {
+    const { id, progress: contextProgress } = useWaveform();
+    // Use prop if provided, otherwise fall back to context value
+    const progress = propProgress ?? contextProgress;
     const gradientRef = useRef<SVGLinearGradientElement>(null);
     const lastProgressRef = useRef(-1); // Track last update to avoid unnecessary DOM changes
+    // Store gradient in a ref to avoid recreating updateProgress when gradient reference changes
+    const gradientDataRef = useRef(gradient);
+
+    // Sync gradient ref when gradient prop changes (idiomatic React pattern)
+    useEffect(() => {
+      gradientDataRef.current = gradient;
+    }, [gradient]);
 
     // Helper to update progress by directly updating gradient stops
-    const updateProgress = useCallback(
-      (value: number) => {
-        const clampedProgress = Math.max(0, Math.min(1, value));
+    // Uses gradientDataRef to avoid dependency on gradient prop reference
+    const updateProgress = useCallback((value: number) => {
+      const clampedProgress = Math.max(0, Math.min(1, value));
 
-        // Round to 4 decimal places to avoid floating point precision issues
-        const roundedProgress = Math.round(clampedProgress * 10_000) / 10_000;
+      // Round to 4 decimal places to avoid floating point precision issues
+      const roundedProgress = Math.round(clampedProgress * 10_000) / 10_000;
 
-        // Only update DOM if progress actually changed
-        if (roundedProgress !== lastProgressRef.current && gradientRef.current) {
-          lastProgressRef.current = roundedProgress;
-          const stops = gradientRef.current.querySelectorAll("stop");
+      // Only update DOM if progress actually changed
+      if (roundedProgress !== lastProgressRef.current && gradientRef.current) {
+        lastProgressRef.current = roundedProgress;
+        const stops = gradientRef.current.querySelectorAll("stop");
+        const currentGradient = gradientDataRef.current;
 
-          if (gradient) {
-            // For multi-color gradients, scale all stops proportionally
-            const gradientStopCount = gradient.length;
-            for (let i = 0; i < stops.length; i++) {
-              const stop = stops[i];
-              if (i < gradientStopCount) {
-                // Scale gradient stops to fit within progress
-                stop.setAttribute(
-                  "offset",
-                  scaleGradientOffset(gradient[i].offset, roundedProgress),
-                );
-              } else {
-                // The final stop (unplayed color) sits at the progress position
-                stop.setAttribute("offset", `${roundedProgress * 100}%`);
-              }
-            }
-          } else {
-            // Original behavior for single color
-            const offsetValue = `${roundedProgress * 100}%`;
-            for (const stop of stops) {
-              stop.setAttribute("offset", offsetValue);
+        if (currentGradient) {
+          // For multi-color gradients, scale all stops proportionally
+          const gradientStopCount = currentGradient.length;
+          for (let i = 0; i < stops.length; i++) {
+            const stop = stops[i];
+            if (i < gradientStopCount) {
+              // Scale gradient stops to fit within progress
+              stop.setAttribute(
+                "offset",
+                scaleGradientOffset(currentGradient[i].offset, roundedProgress),
+              );
+            } else {
+              // The final stop (unplayed color) sits at the progress position
+              stop.setAttribute("offset", `${roundedProgress * 100}%`);
             }
           }
+        } else {
+          // Original behavior for single color
+          const offsetValue = `${roundedProgress * 100}%`;
+          for (const stop of stops) {
+            stop.setAttribute("offset", offsetValue);
+          }
         }
-      },
-      [gradient],
-    );
+      }
+    }, []);
 
-    // Update DOM when prop changes
-    useEffect(() => {
-      updateProgress(propProgress);
-    }, [propProgress, updateProgress]);
+    // Update DOM when progress changes - useLayoutEffect ensures update before paint
+    useLayoutEffect(() => {
+      updateProgress(progress);
+    }, [progress, updateProgress]);
+
+    // Reset the guard when gradient structure changes so offsets get recalculated
+    useLayoutEffect(() => {
+      lastProgressRef.current = -1;
+      updateProgress(progress);
+    }, [gradient?.length, updateProgress, progress]);
 
     // Expose imperative API
     useImperativeHandle(
@@ -174,20 +197,23 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
       [updateProgress],
     );
 
-    // Render gradient stops
+    // Render gradient stops with fixed initial offsets.
+    // updateProgress() handles all dynamic offset changes imperatively.
     const renderStops = (): React.ReactNode => {
       if (gradient) {
         // Multi-color gradient: render all gradient stops + final unplayed stop
+        // All stops start at 0%, updateProgress() will set actual scaled values
         return (
           <>
-            {gradient.map((gradientStop) => (
+            {gradient.map((gradientStop, index) => (
               <stop
-                key={gradientStop.offset}
-                offset={scaleGradientOffset(gradientStop.offset, propProgress)}
+                // biome-ignore lint/suspicious/noArrayIndexKey: gradient stops have stable positions
+                key={index}
+                offset="0%"
                 stopColor={gradientStop.color}
               />
             ))}
-            <stop offset={`${propProgress * 100}%`} stopColor="currentColor" />
+            <stop offset="0%" stopColor="currentColor" />
           </>
         );
       }
