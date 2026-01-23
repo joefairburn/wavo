@@ -27,16 +27,60 @@ function applyWaveEffect(
   return data;
 }
 
+/**
+ * Generate static waveform data for reduced motion preference
+ */
+function generateStaticWaveform(length: number): number[] {
+  const data: number[] = [];
+  for (let i = 0; i < length; i++) {
+    // Create a gentle curve that looks natural
+    const normalized = i / length;
+    const value = 0.3 + 0.4 * Math.sin(normalized * Math.PI);
+    data.push(value);
+  }
+  return data;
+}
+
 const BAR_COUNT = 100;
 
+/**
+ * Hook to check if user prefers reduced motion
+ */
+function usePrefersReducedMotion(): boolean {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  return prefersReducedMotion;
+}
+
 const DynamicWaveformShowcase = () => {
-  const [dataPoints, setDataPoints] = useState<number[]>(() => applyWaveEffect(BAR_COUNT, 0));
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [dataPoints, setDataPoints] = useState<number[]>(() =>
+    prefersReducedMotion ? generateStaticWaveform(BAR_COUNT) : applyWaveEffect(BAR_COUNT, 0),
+  );
 
   const rafRef = useRef<number>(0);
   const startTimeRef = useRef<number>(performance.now());
 
   // Animation loop using requestAnimationFrame
   useEffect(() => {
+    // Skip animation if user prefers reduced motion
+    if (prefersReducedMotion) {
+      setDataPoints(generateStaticWaveform(BAR_COUNT));
+      return;
+    }
+
     const animate = (currentTime: number) => {
       const elapsed = (currentTime - startTimeRef.current) / 1000;
       setDataPoints(applyWaveEffect(BAR_COUNT, elapsed));
@@ -48,7 +92,7 @@ const DynamicWaveformShowcase = () => {
     return () => {
       cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <div className="relative h-32 bg-black flex items-center justify-center overflow-hidden">
@@ -74,10 +118,14 @@ const DynamicWaveformShowcase = () => {
         </Waveform.Container>
       </div>
 
-      {/* Live indicator */}
+      {/* Live indicator - hide pulse animation for reduced motion */}
       <div className="absolute top-3 right-3 flex items-center gap-2">
-        <span className="size-2 rounded-full bg-[#f96706] animate-pulse" />
-        <span className="text-[9px] font-mono uppercase tracking-widest text-[#f96706]">Live</span>
+        <span
+          className={`size-2 rounded-full bg-[#f96706] ${prefersReducedMotion ? "" : "animate-pulse"}`}
+        />
+        <span className="text-[9px] font-mono uppercase tracking-widest text-[#f96706]">
+          {prefersReducedMotion ? "Static" : "Live"}
+        </span>
       </div>
     </div>
   );
