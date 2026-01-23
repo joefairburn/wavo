@@ -9,7 +9,7 @@ export interface InteractionOptions<ElementType extends HTMLElement | SVGElement
   /**
    * Reference to the DOM element that will receive the interaction events
    */
-  elementRef: React.RefObject<ElementType>;
+  elementRef: React.RefObject<ElementType | null>;
 
   /**
    * Callback fired when the element is clicked

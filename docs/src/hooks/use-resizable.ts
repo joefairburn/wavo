@@ -24,7 +24,7 @@ interface ResizableReturn {
   resizableProps: {
     style: React.CSSProperties;
     className: string;
-    ref: RefObject<HTMLDivElement>;
+    ref: RefObject<HTMLDivElement | null>;
   };
   resizeHandleProps: (direction: string) => {
     className: string;
@@ -41,7 +41,7 @@ interface ResizableReturn {
  * @returns Object with state and props for resizable functionality
  */
 export const useResizable = (
-  containerRef: RefObject<HTMLDivElement>,
+  containerRef: RefObject<HTMLDivElement | null>,
   options: ResizableOptions = {},
 ): ResizableReturn => {
   const {

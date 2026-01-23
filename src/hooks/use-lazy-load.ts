@@ -7,7 +7,7 @@ export interface LazyLoadOptions {
   /**
    * Reference to the element that should be observed for visibility
    */
-  elementRef: React.RefObject<HTMLElement | SVGElement>;
+  elementRef: React.RefObject<HTMLElement | SVGElement | null>;
 
   /**
    * Whether lazy loading is enabled
