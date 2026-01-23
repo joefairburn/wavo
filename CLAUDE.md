@@ -82,5 +82,6 @@ Tests include rendering performance and interaction scenarios.
 - **Bundler**: tsdown (powered by Rolldown) for fast library bundling
 - **Linter**: oxlint for high-performance linting
 - **Formatter**: oxfmt for fast code formatting
+- **Git Hooks**: lefthook for pre-commit formatting
 - **Monorepo**: Turbo for coordinated builds across packages
 - **TypeScript**: Strict type checking required before builds
