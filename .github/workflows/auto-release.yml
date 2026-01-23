@@ -3,7 +3,7 @@ name: Auto Release
 on:
   push:
     branches: [main]
-    paths: ['package.json']
+    paths: ["package.json"]
 
 jobs:
   check-version:
@@ -22,15 +22,15 @@ jobs:
         run: |
           # Get current version
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-          
+
           # Get previous version
           git checkout HEAD~1 -- package.json
           PREVIOUS_VERSION=$(node -p "require('./package.json').version")
           git checkout HEAD -- package.json
-          
+
           echo "Previous version: $PREVIOUS_VERSION"
           echo "Current version: $CURRENT_VERSION"
-          
+
           if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
             echo "Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION"
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -51,8 +51,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -92,7 +92,7 @@ jobs:
         id: npm-tag
         run: |
           VERSION="${{ needs.check-version.outputs.new-version }}"
-          
+
           if [[ $VERSION =~ -alpha ]]; then
             echo "tag=alpha" >> $GITHUB_OUTPUT
           elif [[ $VERSION =~ -beta ]]; then
@@ -102,7 +102,7 @@ jobs:
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
           fi
-          
+
           echo "Publishing version $VERSION with tag: $(cat $GITHUB_OUTPUT | grep tag= | cut -d'=' -f2)"
 
       - name: Publish to NPM
@@ -119,18 +119,18 @@ jobs:
           name: Release v${{ needs.check-version.outputs.new-version }}
           body: |
             ## 🚀 Auto-release v${{ needs.check-version.outputs.new-version }}
-            
+
             This release was automatically created when the version in `package.json` was updated.
-            
+
             **NPM Tag:** `${{ steps.npm-tag.outputs.tag }}`
-            
+
             ### Install
             ```bash
             npm install wavo@${{ steps.npm-tag.outputs.tag }}
             # or specific version
             npm install wavo@${{ needs.check-version.outputs.new-version }}
             ```
-            
+
             ### Changes
             See the commit history for detailed changes since the last release.
           draft: false

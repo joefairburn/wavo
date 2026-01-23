@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
 const NUMBER_OF_WAVEFORMS = 100;
 const INITIAL_RENDER_TIME_THRESHOLD_MS = 10_000; // Increased initial budget to 10s
@@ -9,17 +9,17 @@ const TEST_TIMEOUT_MS = 120_000; // 2 minutes overall timeout for waits
 const DESKTOP_VIEWPORT = { width: 1280, height: 720 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 }; // Example: iPhone 13 Pro
 
-test.describe('Waveform Rendering & Resizing Performance', () => {
+test.describe("Waveform Rendering & Resizing Performance", () => {
   // Load the page and wait for initial render before each test in this suite
   test.beforeEach(async ({ page }) => {
     // Start with the desktop viewport
     await page.setViewportSize(DESKTOP_VIEWPORT);
-    await page.goto('/');
+    await page.goto("/");
     // Ensure initial load is complete before proceeding
     await page
-      .getByTestId('music-player')
+      .getByTestId("music-player")
       .nth(NUMBER_OF_WAVEFORMS - 1)
-      .waitFor({ state: 'visible', timeout: TEST_TIMEOUT_MS });
+      .waitFor({ state: "visible", timeout: TEST_TIMEOUT_MS });
   });
 
   test(`should render ${NUMBER_OF_WAVEFORMS} waveforms within ${INITIAL_RENDER_TIME_THRESHOLD_MS}ms`, async ({
@@ -31,7 +31,7 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
     // Measure time from navigation start until last element is visible
     // Note: This uses navigation timing API for a slightly different perspective
     const navigationTimingJson = await page.evaluate(() =>
-      JSON.stringify(performance.getEntriesByType('navigation'))
+      JSON.stringify(performance.getEntriesByType("navigation")),
     );
     const navigationTiming = JSON.parse(navigationTimingJson);
     const navigationStart = navigationTiming[0]?.startTime ?? 0; // Use 0 if unavailable
@@ -45,7 +45,7 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
     // Log render time to test annotations instead of console
 
     test.info().annotations.push({
-      type: 'initial-render-time-ms',
+      type: "initial-render-time-ms",
       description: renderTime.toFixed(2),
     });
 
@@ -67,9 +67,9 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
 
     // Wait for the last waveform container to signal it has likely re-rendered/stabilized after resize.
     await page
-      .getByTestId('music-player')
+      .getByTestId("music-player")
       .nth(NUMBER_OF_WAVEFORMS - 1)
-      .waitFor({ state: 'visible' });
+      .waitFor({ state: "visible" });
     // Add a small extra wait for good measure
     await page.waitForTimeout(250);
 
@@ -79,7 +79,7 @@ test.describe('Waveform Rendering & Resizing Performance', () => {
     // Record resize time in test annotations instead of console
 
     test.info().annotations.push({
-      type: 'resize-desktop-to-mobile-time-ms',
+      type: "resize-desktop-to-mobile-time-ms",
       description: resizeTime.toFixed(2),
     });
 

@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -42,18 +42,23 @@ jobs:
       - name: Run linter
         run: pnpm lint
 
+      - name: Check formatting
+        run: pnpm format:check
+
       - name: Run type check
         run: pnpm type-check
 
       - name: Build package
         run: pnpm build
 
+      - name: Run unit tests
+        run: pnpm test:unit
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
 
-      - name: Run tests
-        run: pnpm test
-        continue-on-error: true # Continue even if tests fail for now
+      - name: Run E2E tests
+        run: pnpm test:e2e
 
       - name: Build docs
         run: pnpm build:docs
@@ -81,8 +86,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Run linter
+        run: pnpm lint
+
       - name: Run type check
         run: pnpm type-check
 
       - name: Build package
         run: pnpm build
+
+      - name: Run unit tests
+        run: pnpm test:unit

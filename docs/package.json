@@ -1,13 +1,17 @@
 {
   "name": "docs",
-  "type": "module",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check ."
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -21,5 +25,9 @@
     "tailwind": "^4.0.0",
     "typescript": "^5.6.3",
     "wavo": "workspace:*"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.26.0",
+    "oxlint": "^1.41.0"
   }
 }

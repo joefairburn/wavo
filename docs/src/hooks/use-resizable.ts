@@ -1,4 +1,4 @@
-import { type RefObject, useCallback, useEffect, useState } from 'react';
+import { type RefObject, useCallback, useEffect, useState } from "react";
 
 interface ResizableOptions {
   minWidth?: number;
@@ -42,7 +42,7 @@ interface ResizableReturn {
  */
 export const useResizable = (
   containerRef: RefObject<HTMLDivElement>,
-  options: ResizableOptions = {}
+  options: ResizableOptions = {},
 ): ResizableReturn => {
   const {
     minWidth = 200,
@@ -73,14 +73,14 @@ export const useResizable = (
 
   // Define cursor styles for different resize directions
   const cursors = {
-    n: 'cursor-ns-resize',
-    e: 'cursor-ew-resize',
-    s: 'cursor-ns-resize',
-    w: 'cursor-ew-resize',
-    ne: 'cursor-ne-resize',
-    nw: 'cursor-nw-resize',
-    se: 'cursor-se-resize',
-    sw: 'cursor-sw-resize',
+    n: "cursor-ns-resize",
+    e: "cursor-ew-resize",
+    s: "cursor-ns-resize",
+    w: "cursor-ew-resize",
+    ne: "cursor-ne-resize",
+    nw: "cursor-nw-resize",
+    se: "cursor-se-resize",
+    sw: "cursor-sw-resize",
   };
 
   // Start resize operation
@@ -110,7 +110,7 @@ export const useResizable = (
         }));
       }
     },
-    [containerRef]
+    [containerRef],
   );
 
   // Handle mouse movement during resize
@@ -130,42 +130,37 @@ export const useResizable = (
       let newTop = state.position.top;
 
       // Calculate new dimensions based on resize direction
-      if (state.resizeDirection.includes('e')) {
+      if (state.resizeDirection.includes("e")) {
         // East (right) - just adjust width
         newWidth = Math.max(minWidth, originalDimensions.width + deltaX);
       }
-      if (state.resizeDirection.includes('s')) {
+      if (state.resizeDirection.includes("s")) {
         // South (bottom) - just adjust height
         newHeight = Math.max(minHeight, originalDimensions.height + deltaY);
       }
-      if (state.resizeDirection.includes('w')) {
+      if (state.resizeDirection.includes("w")) {
         // West (left) - adjust width and position
         const widthChange =
-          originalDimensions.width -
-          Math.max(minWidth, originalDimensions.width - deltaX);
+          originalDimensions.width - Math.max(minWidth, originalDimensions.width - deltaX);
         newWidth = originalDimensions.width - widthChange;
         newLeft = state.position.left + widthChange;
       }
-      if (state.resizeDirection.includes('n')) {
+      if (state.resizeDirection.includes("n")) {
         // North (top) - adjust height and position
         const heightChange =
-          originalDimensions.height -
-          Math.max(minHeight, originalDimensions.height - deltaY);
+          originalDimensions.height - Math.max(minHeight, originalDimensions.height - deltaY);
         newHeight = originalDimensions.height - heightChange;
         newTop = state.position.top + heightChange;
       }
 
       // Maintain aspect ratio if specified
       if (aspectRatio) {
-        if (
-          state.resizeDirection.includes('n') ||
-          state.resizeDirection.includes('s')
-        ) {
+        if (state.resizeDirection.includes("n") || state.resizeDirection.includes("s")) {
           // When adjusting height, calculate width based on aspect ratio
           const newWidthFromAspect = newHeight * aspectRatio;
 
           // Adjust left position for west-side resizing
-          if (state.resizeDirection.includes('w')) {
+          if (state.resizeDirection.includes("w")) {
             const widthDifference = newWidth - newWidthFromAspect;
             newLeft += widthDifference;
           }
@@ -176,7 +171,7 @@ export const useResizable = (
           const newHeightFromAspect = newWidth / aspectRatio;
 
           // Adjust top position for north-side resizing
-          if (state.resizeDirection.includes('n')) {
+          if (state.resizeDirection.includes("n")) {
             const heightDifference = newHeight - newHeightFromAspect;
             newTop += heightDifference;
           }
@@ -207,7 +202,7 @@ export const useResizable = (
       minWidth,
       minHeight,
       aspectRatio,
-    ]
+    ],
   );
 
   // End resize operation
@@ -224,16 +219,16 @@ export const useResizable = (
   // Set up event listeners
   useEffect(() => {
     if (state.isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
     } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [state.isDragging, handleMouseMove, handleMouseUp]);
 
@@ -254,12 +249,12 @@ export const useResizable = (
   // Determine cursor class based on drag state
   const getCursorClass = (): string => {
     if (!state.isDragging) {
-      return '';
+      return "";
     }
     if (!state.resizeDirection) {
-      return 'cursor-move';
+      return "cursor-move";
     }
-    return cursors[state.resizeDirection as keyof typeof cursors] || '';
+    return cursors[state.resizeDirection as keyof typeof cursors] || "";
   };
 
   // Build container style (only for dynamic values that can't be handled by Tailwind)
@@ -279,29 +274,29 @@ export const useResizable = (
   // Helper function to determine position classes for handles
   const getPositionClasses = (direction: string): string => {
     switch (direction) {
-      case 'n':
-        return 'top-0 left-1/2 w-6 h-4 transform -translate-x-1/2';
-      case 's':
-        return 'bottom-0 left-1/2 w-6 h-4 transform -translate-x-1/2';
-      case 'e':
-        return 'right-0 top-1/2 w-4 h-6 transform -translate-y-1/2';
-      case 'w':
-        return 'left-0 top-1/2 w-4 h-6 transform -translate-y-1/2';
-      case 'ne':
-        return 'top-0 right-0 w-4 h-4';
-      case 'nw':
-        return 'top-0 left-0 w-4 h-4';
-      case 'se':
-        return 'bottom-0 right-0 w-4 h-4';
-      case 'sw':
-        return 'bottom-0 left-0 w-4 h-4';
+      case "n":
+        return "top-0 left-1/2 w-6 h-4 transform -translate-x-1/2";
+      case "s":
+        return "bottom-0 left-1/2 w-6 h-4 transform -translate-x-1/2";
+      case "e":
+        return "right-0 top-1/2 w-4 h-6 transform -translate-y-1/2";
+      case "w":
+        return "left-0 top-1/2 w-4 h-6 transform -translate-y-1/2";
+      case "ne":
+        return "top-0 right-0 w-4 h-4";
+      case "nw":
+        return "top-0 left-0 w-4 h-4";
+      case "se":
+        return "bottom-0 right-0 w-4 h-4";
+      case "sw":
+        return "bottom-0 left-0 w-4 h-4";
       default:
-        return '';
+        return "";
     }
   };
 
   // Common classes for the wrapper
-  const wrapperClassName = 'relative w-full';
+  const wrapperClassName = "relative w-full";
 
   return {
     width: state.width,

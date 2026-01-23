@@ -1,7 +1,7 @@
-import { dataPoints } from '@docs/fixtures/data';
-import type React from 'react';
-import { useRef, useState } from 'react';
-import { type ProgressHandle, Waveform } from 'wavo';
+import { dataPoints } from "@docs/fixtures/data";
+import type React from "react";
+import { useRef, useState } from "react";
+import { type ProgressHandle, Waveform } from "wavo";
 
 const WaveformWithProgress = () => {
   const [progress, setProgress] = useState(0);
@@ -16,21 +16,21 @@ const WaveformWithProgress = () => {
   // Handle keyboard interaction
   const handleKeyDown = (event: React.KeyboardEvent) => {
     switch (event.key) {
-      case 'ArrowRight': {
+      case "ArrowRight": {
         event.preventDefault();
         const newProgressRight = Math.min(1, progress + 0.02);
         setProgress(newProgressRight);
         progressRef.current?.setProgress(newProgressRight);
         break;
       }
-      case 'ArrowLeft': {
+      case "ArrowLeft": {
         event.preventDefault();
         const newProgressLeft = Math.max(0, progress - 0.02);
         setProgress(newProgressLeft);
         progressRef.current?.setProgress(newProgressLeft);
         break;
       }
-      case ' ':
+      case " ":
         event.preventDefault();
         break;
       default:

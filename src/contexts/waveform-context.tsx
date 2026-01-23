@@ -1,6 +1,6 @@
-import type React from 'react';
-import { createContext, useContext, useId } from 'react';
-import type { EasingFunction, WaveformData } from '../waveform';
+import type React from "react";
+import { createContext, useContext, useId } from "react";
+import type { EasingFunction, WaveformData } from "../waveform";
 
 /**
  * Props for the WaveformContext provider component
@@ -140,7 +140,7 @@ export function WaveformProvider({
   easing,
 }: WaveformProviderProps) {
   // Generate a unique ID for gradient references without colons (which are invalid in SVG IDs)
-  const id = useId().replace(/:/g, '');
+  const id = useId().replace(/:/g, "");
 
   return (
     <WaveformContext.Provider
@@ -176,7 +176,7 @@ export function WaveformProvider({
 export function useWaveform() {
   const context = useContext(WaveformContext);
   if (!context) {
-    throw new Error('useWaveform must be used within a WaveformProvider');
+    throw new Error("useWaveform must be used within a WaveformProvider");
   }
   return context;
 }

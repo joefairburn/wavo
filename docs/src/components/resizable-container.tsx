@@ -1,6 +1,6 @@
-import type React from 'react';
-import { useRef } from 'react';
-import { useResizable } from '../hooks/use-resizable';
+import type React from "react";
+import { useRef } from "react";
+import { useResizable } from "../hooks/use-resizable";
 
 interface ResizableContainerProps {
   className?: string;
@@ -19,7 +19,7 @@ interface ResizableContainerProps {
  * via draggable resize handles
  */
 export const ResizableContainer: React.FC<ResizableContainerProps> = ({
-  className = '',
+  className = "",
   children,
   initialWidth = 700,
   initialHeight = 200,
@@ -31,17 +31,19 @@ export const ResizableContainer: React.FC<ResizableContainerProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { width, height, resizableProps, resizeHandleProps, wrapperClassName } =
-    useResizable(containerRef, {
+  const { width, height, resizableProps, resizeHandleProps, wrapperClassName } = useResizable(
+    containerRef,
+    {
       initialWidth,
       initialHeight,
       minWidth,
       minHeight,
       aspectRatio,
-    });
+    },
+  );
 
   // Only use the southeast (bottom-right) handle
-  const direction = 'se';
+  const direction = "se";
 
   // Wrapper style with dynamic height
   const wrapperStyle = {

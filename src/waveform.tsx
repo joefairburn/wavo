@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { forwardRef, useRef } from 'react';
-import WaveformSVG from './components/waveform-svg';
-import { WaveformProvider } from './contexts/waveform-context';
-import { useInteraction } from './hooks/use-interaction';
-import useIsClient from './hooks/use-is-client';
-import { useLazyLoad } from './hooks/use-lazy-load';
-import { useStyles } from './hooks/use-styles';
-import { hasProgressComponent } from './utils/component-utils';
+import React, { forwardRef, useRef } from "react";
+import WaveformSVG from "./components/waveform-svg";
+import { WaveformProvider } from "./contexts/waveform-context";
+import { useInteraction } from "./hooks/use-interaction";
+import useIsClient from "./hooks/use-is-client";
+import { useLazyLoad } from "./hooks/use-lazy-load";
+import { useStyles } from "./hooks/use-styles";
+import { hasProgressComponent } from "./utils/component-utils";
 
 /**
  * Type representing normalized audio amplitude values between 0 and 1
@@ -31,12 +31,12 @@ export type WaveformData = readonly NormalizedAmplitude[];
  * - [number, number, number, number]: Direct cubic-bezier parameters (x1, y1, x2, y2)
  */
 export type EasingFunction =
-  | 'linear'
-  | 'ease'
-  | 'ease-in'
-  | 'ease-out'
-  | 'ease-in-out'
-  | 'cubic-bezier'
+  | "linear"
+  | "ease"
+  | "ease-in"
+  | "ease-out"
+  | "ease-in-out"
+  | "cubic-bezier"
   | [number, number, number, number]; // cubic-bezier parameters: x1, y1, x2, y2
 
 /**
@@ -85,10 +85,7 @@ export interface WaveformProps {
    * @param percentage - Position clicked as percentage (0-1)
    * @param event - Original mouse event
    */
-  onClick?: (
-    percentage: number,
-    event: React.MouseEvent<SVGSVGElement>
-  ) => void;
+  onClick?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
 
   /**
    * Callback during drag operations on the waveform
@@ -186,11 +183,10 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
       easing = [0.1, 0.9, 0.2, 1.0],
       children,
     },
-    forwardedRef
+    forwardedRef,
   ) => {
     // If the component is used with a ref, use that ref, otherwise use an internal ref
-    const hasForwardedRef =
-      typeof forwardedRef === 'object' && forwardedRef !== null;
+    const hasForwardedRef = typeof forwardedRef === "object" && forwardedRef !== null;
     const _internalRef = useRef<SVGSVGElement>(null);
     const svgRef = hasForwardedRef ? forwardedRef : _internalRef;
     const isClient = useIsClient();
@@ -215,34 +211,24 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     useStyles({ unstyled, easing });
 
     // Check if there is a Progress component
-    const hasProgress = React.useMemo(
-      () => hasProgressComponent(children),
-      [children]
-    );
+    const hasProgress = React.useMemo(() => hasProgressComponent(children), [children]);
 
     // Memoize SVG attributes to reduce prop calculations on each render
     const svgAttributes = React.useMemo(
       () => ({
         className,
-        preserveAspectRatio: 'none',
-        'data-wavo-svg': '',
-        'data-wavo-animate': isClient && shouldRender ? 'true' : 'false',
+        preserveAspectRatio: "none",
+        "data-wavo-svg": "",
+        "data-wavo-animate": isClient && shouldRender ? "true" : "false",
         tabIndex: hasInteractions ? 0 : undefined,
-        role: hasInteractions ? 'slider' : undefined,
-        'aria-valuemin': 0,
-        'aria-valuemax': 100,
-        'aria-valuenow': Math.round(progress * 100),
-        'aria-label': 'Audio progress',
+        role: hasInteractions ? "slider" : undefined,
+        "aria-valuemin": 0,
+        "aria-valuemax": 100,
+        "aria-valuenow": Math.round(progress * 100),
+        "aria-label": "Audio progress",
         ...eventHandlers,
       }),
-      [
-        className,
-        eventHandlers,
-        isClient,
-        shouldRender,
-        hasInteractions,
-        progress,
-      ]
+      [className, eventHandlers, isClient, shouldRender, hasInteractions, progress],
     );
 
     // Memoize WaveformProvider props to reduce prop calculations on each render
@@ -255,7 +241,7 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         transitionDuration,
         easing,
       }),
-      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing]
+      [dataPoints, svgRef, hasProgress, unstyled, transitionDuration, easing],
     );
 
     return (
@@ -270,7 +256,7 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
         </WaveformSVG>
       </WaveformProvider>
     );
-  }
+  },
 );
 
-Waveform.displayName = 'Waveform';
+Waveform.displayName = "Waveform";

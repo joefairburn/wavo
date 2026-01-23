@@ -1,6 +1,6 @@
-import type React from 'react';
-import { useWaveform } from '../contexts/waveform-context';
-import { getEasingFunction } from '../hooks/use-styles';
+import type React from "react";
+import { useWaveform } from "../contexts/waveform-context";
+import { getEasingFunction } from "../hooks/use-styles";
 
 /**
  * Props for the WaveformSVG component
@@ -38,13 +38,13 @@ export interface WaveformSVGProps {
     /**
      * Marker attribute for styling and identification
      */
-    'data-wavo-svg'?: string;
+    "data-wavo-svg"?: string;
 
     /**
      * Animation state indicator
      * Used to trigger CSS animations
      */
-    'data-wavo-animate'?: string;
+    "data-wavo-animate"?: string;
   };
 }
 
@@ -81,8 +81,8 @@ export const WaveformSVG: React.FC<WaveformSVGProps> = ({
   // Merge existing style with our CSS variables
   const mergedStyle = {
     ...existingStyle,
-    '--wavo-transition-duration': `${transitionDuration}s`,
-    '--wavo-easing-function': getEasingFunction(easing),
+    "--wavo-transition-duration": `${transitionDuration}s`,
+    "--wavo-easing-function": getEasingFunction(easing),
   } as React.CSSProperties;
 
   return (

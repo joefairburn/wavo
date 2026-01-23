@@ -9,28 +9,36 @@ Wavo is a React library for rendering audio waveforms as SVG components. The lib
 ## Development Commands
 
 ### Build and Development
-- `pnpm build` - Type-check and build the library using bunchee
+
+- `pnpm build` - Type-check and build the library using tsdown (Rolldown)
 - `pnpm dev` - Start development mode with file watching
 - `pnpm type-check` - Run TypeScript type checking
 
 ### Testing
-- `pnpm test` - Run Playwright tests
+
+- `pnpm test` - Run all tests (unit + E2E)
+- `pnpm test:unit` - Run Vitest unit tests
+- `pnpm test:unit:watch` - Run Vitest in watch mode
+- `pnpm test:e2e` - Run Playwright E2E tests
 - Test app: `pnpm dev:test` - Start test application on localhost:3000
 - Test build: `pnpm build:test` - Build test application
 
 ### Documentation
+
 - `pnpm dev:docs` - Start documentation site in development mode
 - `pnpm build:docs` - Build documentation site
 
 ### Code Quality
-- `pnpm lint` - Run Ultracite linter (uses Biome internally)
-- `pnpm lint:fix` - Run Ultracite format (lint + format with auto-fix)
-- `pnpm format` - Format code with Ultracite
-- `pnpm check` - Run Ultracite linter without auto-fix
+
+- `pnpm lint` - Run oxlint
+- `pnpm lint:fix` - Run oxlint with auto-fix
+- `pnpm format` - Format code with oxfmt
+- `pnpm format:check` - Check formatting without modifying files
 
 ## Architecture
 
 ### Core Components Structure
+
 - **Waveform Container** (`src/Waveform.tsx`): Main component that manages state, interactions, and provides context
 - **WaveformContext** (`src/contexts/WaveformContext.tsx`): React context providing shared state to child components
 - **Child Components** (`src/components/`):
@@ -40,6 +48,7 @@ Wavo is a React library for rendering audio waveforms as SVG components. The lib
   - `WaveformSVG.tsx` - SVG wrapper component
 
 ### Hook System
+
 - `useWaveform()` - Access waveform context data
 - `useInteraction()` - Handle mouse/keyboard interactions
 - `useLazyLoad()` - Intersection Observer for lazy loading
@@ -47,6 +56,7 @@ Wavo is a React library for rendering audio waveforms as SVG components. The lib
 - `useIsClient()` - Client-side rendering detection
 
 ### Key Patterns
+
 - **Compound Components**: Use `Waveform.Container`, `Waveform.Bars`, etc.
 - **Context-driven**: Child components access shared state via `useWaveform()`
 - **SVG-based**: All rendering uses SVG for scalability and performance
@@ -55,16 +65,22 @@ Wavo is a React library for rendering audio waveforms as SVG components. The lib
 ## Package Manager
 
 Uses `pnpm` as the package manager. The workspace includes:
+
 - Root package (main library)
 - `test/` - Test application (Next.js)
 - `docs/` - Documentation site (Astro)
 
 ## Testing
 
-Uses Playwright for end-to-end testing with performance benchmarks. Tests include rendering performance and interaction scenarios.
+- **Unit Tests**: Vitest with React Testing Library for component and utility testing
+- **E2E Tests**: Playwright for end-to-end testing with performance benchmarks
+
+Tests include rendering performance and interaction scenarios.
 
 ## Build System
 
-- **Bundler**: bunchee for efficient library bundling
+- **Bundler**: tsdown (powered by Rolldown) for fast library bundling
+- **Linter**: oxlint for high-performance linting
+- **Formatter**: oxfmt for fast code formatting
 - **Monorepo**: Turbo for coordinated builds across packages
 - **TypeScript**: Strict type checking required before builds

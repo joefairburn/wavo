@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useWaveform } from '../contexts/waveform-context';
-import { getReducedDataPoints } from '../lib';
-import type { WaveformData } from '../waveform';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useWaveform } from "../contexts/waveform-context";
+import { getReducedDataPoints } from "../lib";
+import type { WaveformData } from "../waveform";
 
 /**
  * Type for bar corner radius with constrained values
@@ -68,7 +68,7 @@ export const SingleBar = React.memo(function SingleBarComponent({
   const normalizedRadius = Math.min(
     radius,
     width < radius * 2 ? width / 2 : radius,
-    heightInPixels < radius * 2 ? heightInPixels / 2 : radius
+    heightInPixels < radius * 2 ? heightInPixels / 2 : radius,
   );
 
   return (
@@ -158,10 +158,7 @@ const BarsRenderer = React.memo(function BarsRendererComponent({
   }, [dataPoints, radius, width, gap]);
 
   return (
-    <g
-      className={className}
-      fill={hasProgress ? `url(#gradient-${id})` : 'currentColor'}
-    >
+    <g className={className} fill={hasProgress ? `url(#gradient-${id})` : "currentColor"}>
       {bars}
     </g>
   );
@@ -196,16 +193,9 @@ const BarsRenderer = React.memo(function BarsRendererComponent({
  *
  * ```
  */
-export const Bars: React.FC<BarsProps> = ({
-  width = 3,
-  gap = 1,
-  radius = 2,
-  className,
-}) => {
+export const Bars: React.FC<BarsProps> = ({ width = 3, gap = 1, radius = 2, className }) => {
   const [svgWidth, setSvgWidth] = useState<number>(0); // Initialize with 0 or a sensible default
-  const [computedDataPoints, setComputedDataPoints] = useState<
-    readonly number[]
-  >([]);
+  const [computedDataPoints, setComputedDataPoints] = useState<readonly number[]>([]);
   const { dataPoints: _dataPoints, svgRef } = useWaveform();
 
   // Computation function for reducing data points
@@ -216,7 +206,7 @@ export const Bars: React.FC<BarsProps> = ({
       }
       return getReducedDataPoints(currentBarCount, sourceData);
     },
-    []
+    [],
   );
 
   // Use ResizeObserver to update width when SVG container size changes
@@ -232,9 +222,7 @@ export const Bars: React.FC<BarsProps> = ({
         if (entry.contentRect) {
           const newWidth = entry.contentRect.width;
           // Update state only if width has actually changed to avoid unnecessary renders
-          setSvgWidth((prevWidth) =>
-            prevWidth !== newWidth ? newWidth : prevWidth
-          );
+          setSvgWidth((prevWidth) => (prevWidth !== newWidth ? newWidth : prevWidth));
         }
       }
     });

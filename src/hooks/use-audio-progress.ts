@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
-import type { ProgressHandle } from '../components/progress';
+import { useCallback, useEffect, useRef } from "react";
+import type { ProgressHandle } from "../components/progress";
 
 /**
  * Audio source interface that provides current time and duration
@@ -140,9 +140,9 @@ export function useAudioProgress({
     if (audioRef?.current) {
       const audio = audioRef.current;
 
-      audio.addEventListener('play', startLoop);
-      audio.addEventListener('pause', stopLoop);
-      audio.addEventListener('ended', stopLoop);
+      audio.addEventListener("play", startLoop);
+      audio.addEventListener("pause", stopLoop);
+      audio.addEventListener("ended", stopLoop);
 
       // Start loop immediately if audio is already playing
       if (!audio.paused) {
@@ -150,9 +150,9 @@ export function useAudioProgress({
       }
 
       return () => {
-        audio.removeEventListener('play', startLoop);
-        audio.removeEventListener('pause', stopLoop);
-        audio.removeEventListener('ended', stopLoop);
+        audio.removeEventListener("play", startLoop);
+        audio.removeEventListener("pause", stopLoop);
+        audio.removeEventListener("ended", stopLoop);
         stopLoop();
       };
     }
@@ -182,6 +182,6 @@ export function useAudioProgress({
         onProgressUpdate(percentage);
       }
     },
-    [progressRef, onProgressUpdate]
+    [progressRef, onProgressUpdate],
   );
 }

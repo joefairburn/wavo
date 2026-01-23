@@ -1,5 +1,5 @@
-import { generateTestData } from '@/utils/test-data-generator';
-import MusicPlayer from './music-player';
+import { generateTestData } from "@/utils/test-data-generator";
+import MusicPlayer from "./music-player";
 
 const NUMBER_OF_WAVEFORMS = 1000;
 // Removed testTracks generation from module scope
