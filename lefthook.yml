@@ -5,3 +5,6 @@ pre-commit:
       glob: "*.{js,jsx,ts,tsx,json,css,md}"
       run: pnpm exec oxfmt {staged_files}
       stage_fixed: true
+    lint:
+      glob: "*.{js,jsx,ts,tsx}"
+      run: pnpm exec oxlint {staged_files}
