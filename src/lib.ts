@@ -120,39 +120,50 @@ export const calculateReducedDataPoints = (
  * unnecessary recalculations when inputs haven't changed. This is particularly
  * useful for large waveforms where the reduction calculation is expensive.
  *
+ * Uses a WeakMap with data array reference as key for O(1) cache lookups:
+ * - Has O(1) lookup time regardless of array size
+ * - Automatically garbage collects when data arrays are no longer referenced
+ * - Stores per-barCount results in a nested Map for multi-resolution support
+ *
+ * Note: This assumes immutable data patterns - create a new array when data changes.
+ *
  * @returns A memoized function with the same signature as calculateReducedDataPoints
  *
  * @internal Used to create the singleton getReducedDataPoints function
  */
 export const memoizedReducedDataPoints = () => {
-  // Use a Map to store results
-  const cache = new Map<string, number[]>();
+  // WeakMap keyed by data array reference, value is Map of barCount -> result
+  // WeakMap allows garbage collection when data arrays are no longer referenced
+  const cache = new WeakMap<WaveformData, Map<number, number[]>>();
 
   return (barCount: number, dataPoints: WaveformData): number[] => {
-    // Skip caching for small data sets
+    // Skip caching for small data sets where computation is cheap
     if (dataPoints.length < 1000 && barCount < 100) {
       return calculateReducedDataPoints(barCount, dataPoints);
     }
 
-    // Create a unique key that includes data content
-    const key = `${barCount}:${dataPoints.length}:${dataPoints.toString()}`;
-
-    if (cache.has(key)) {
-      const cachedResult = cache.get(key);
-      if (cachedResult) {
-        return cachedResult;
-      }
+    // Get or create the barCount map for this data array
+    let barCountMap = cache.get(dataPoints);
+    if (!barCountMap) {
+      barCountMap = new Map<number, number[]>();
+      cache.set(dataPoints, barCountMap);
     }
 
-    const result = calculateReducedDataPoints(barCount, dataPoints);
-    cache.set(key, result);
+    // Check if we have a cached result for this barCount
+    const cachedResult = barCountMap.get(barCount);
+    if (cachedResult) {
+      return cachedResult;
+    }
 
-    // Limit cache size to prevent memory issues
-    if (cache.size > 20) {
-      // Get the first key - TS doesn't know it's not undefined here
-      const keys = Array.from(cache.keys());
-      if (keys.length > 0) {
-        cache.delete(keys[0]);
+    // Calculate and cache the result
+    const result = calculateReducedDataPoints(barCount, dataPoints);
+    barCountMap.set(barCount, result);
+
+    // Limit barCount entries per data array to prevent memory issues
+    if (barCountMap.size > 20) {
+      const firstKey = barCountMap.keys().next().value;
+      if (firstKey !== undefined) {
+        barCountMap.delete(firstKey);
       }
     }
 
