@@ -86,6 +86,8 @@ export function useAudioProgress({
   isPlaying,
 }: UseAudioProgressOptions) {
   const rafRef = useRef<number | undefined>(undefined);
+  // Frame counter for deterministic throttling of onProgressUpdate callback
+  const frameCountRef = useRef(0);
 
   // 60fps progress update loop using requestAnimationFrame
   const updateProgress = useCallback(() => {
@@ -107,8 +109,10 @@ export function useAudioProgress({
       // Update progress ref for smooth visual progress
       progressRef.current?.setProgress(percentage);
 
-      // Optional state callback (called less frequently to avoid excessive re-renders)
-      if (onProgressUpdate && Math.random() < 0.1) {
+      // Optional state callback (called every 6th frame ~10fps to avoid excessive re-renders)
+      // Using deterministic frame counter instead of Math.random() for predictable behavior
+      frameCountRef.current++;
+      if (onProgressUpdate && frameCountRef.current % 6 === 0) {
         onProgressUpdate(percentage);
       }
     }
