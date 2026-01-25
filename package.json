@@ -46,6 +46,7 @@
     "test": "pnpm test:unit && pnpm test:e2e",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
+    "test:bench": "vitest bench --run > /dev/null 2>&1 && node scripts/bench-summary.js",
     "test:e2e": "cd test && playwright test",
     "prepare": "lefthook install",
     "size": "size-limit"
