@@ -238,8 +238,10 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
   // Add and remove global event listeners for drag operations
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener("mousemove", handleGlobalMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      // Use passive: true since handlers don't call preventDefault()
+      // This allows the browser to optimize event handling
+      document.addEventListener("mousemove", handleGlobalMouseMove, { passive: true });
+      document.addEventListener("mouseup", handleMouseUp, { passive: true });
     }
 
     return () => {
