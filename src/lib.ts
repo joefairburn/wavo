@@ -47,18 +47,15 @@ const calculateSegmentAverage = (
   startIndex: number,
   endIndex: number,
 ): number => {
-  // Calculate average using reduce
-  const segment = dataPoints.slice(startIndex, endIndex);
-  const { sum, count } = segment.reduce(
-    (acc, val) => {
-      if (!Number.isNaN(val)) {
-        acc.sum += val;
-        acc.count++;
-      }
-      return acc;
-    },
-    { sum: 0, count: 0 },
-  );
+  let sum = 0;
+  let count = 0;
+  for (let i = startIndex; i < endIndex; i++) {
+    const val = dataPoints[i];
+    if (!Number.isNaN(val)) {
+      sum += val;
+      count++;
+    }
+  }
 
   if (count > 0) {
     return sum / count;
