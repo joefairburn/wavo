@@ -1,5 +1,13 @@
-import type React from "react";
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useWaveform } from "../contexts/waveform-context";
 import { getReducedDataPoints } from "../lib";
 import type { WaveformData } from "../waveform";
@@ -285,6 +293,22 @@ const createSmoothPath = (points: [number, number][], tensionFactor: number): st
 };
 
 /**
+ * Imperative handle for Path component ref
+ */
+export interface PathHandle {
+  /**
+   * Update path data without triggering component re-render
+   * @param dataPoints - Array of normalized values (0-1)
+   */
+  setDataPoints(dataPoints: number[]): void;
+
+  /**
+   * Get current segment count (useful for generating correctly-sized data)
+   */
+  getSegmentCount(): number;
+}
+
+/**
  * Props for the Path component
  */
 export interface PathProps {
@@ -382,137 +406,151 @@ export interface PathProps {
  * </Waveform>
  * ```
  */
-export const Path: React.FC<PathProps> = ({
-  type = "line",
-  width = 3,
-  gap = 1,
-  radius = 2,
-  curvature = 0,
-  smooth = true,
-  className,
-}) => {
-  const { dataPoints: _dataPoints, svgRef, hasProgress, id } = useWaveform();
-  // We need this state to force re-renders when the size changes
-  const [svgWidth, setSvgWidth] = useState<number | null>(null);
+export const Path = forwardRef<PathHandle, PathProps>(
+  (
+    { type = "line", width = 3, gap = 1, radius = 2, curvature = 0, smooth = true, className },
+    ref,
+  ) => {
+    const { dataPoints: _dataPoints, svgRef, hasProgress, id } = useWaveform();
+    // We need this state to force re-renders when the size changes
+    const [svgWidth, setSvgWidth] = useState<number | null>(null);
+    const pathRef = useRef<SVGPathElement>(null);
+    const segmentCountRef = useRef(0);
 
-  // Function to measure and update SVG dimensions
-  const updateSvgDimensions = useCallback(() => {
-    if (svgRef?.current) {
-      setSvgWidth(svgRef.current.clientWidth);
-    }
-  }, [svgRef]);
+    // Function to measure and update SVG dimensions
+    const updateSvgDimensions = useCallback(() => {
+      if (svgRef?.current) {
+        setSvgWidth(svgRef.current.clientWidth);
+      }
+    }, [svgRef]);
 
-  // Calculate segment width and gap using CSS variables if available
-  const cssBarWidth = useMemo(() => {
-    if (!svgRef?.current) {
-      return width;
-    }
+    // Calculate segment width and gap using CSS variables if available
+    const cssBarWidth = useMemo(() => {
+      if (!svgRef?.current) {
+        return width;
+      }
 
-    const style = window.getComputedStyle(svgRef.current);
-    const cssWidth = style.getPropertyValue(CSS_VAR_BAR_WIDTH);
-    return cssWidth ? Number.parseInt(cssWidth, 10) : width;
-  }, [svgRef, width]);
+      const style = window.getComputedStyle(svgRef.current);
+      const cssWidth = style.getPropertyValue(CSS_VAR_BAR_WIDTH);
+      return cssWidth ? Number.parseInt(cssWidth, 10) : width;
+    }, [svgRef, width]);
 
-  const cssBarGap = useMemo(() => {
-    if (!svgRef?.current) {
-      return gap;
-    }
+    const cssBarGap = useMemo(() => {
+      if (!svgRef?.current) {
+        return gap;
+      }
 
-    const style = window.getComputedStyle(svgRef.current);
-    const cssGap = style.getPropertyValue(CSS_VAR_BAR_GAP);
-    return cssGap ? Number.parseInt(cssGap, 10) : gap;
-  }, [svgRef, gap]);
+      const style = window.getComputedStyle(svgRef.current);
+      const cssGap = style.getPropertyValue(CSS_VAR_BAR_GAP);
+      return cssGap ? Number.parseInt(cssGap, 10) : gap;
+    }, [svgRef, gap]);
 
-  // Calculate segment count based on SVG width and dimensions
-  const segmentCount = useMemo(() => {
-    if (!svgWidth) {
-      return 0;
-    }
-    return Math.floor(svgWidth / (cssBarWidth + cssBarGap));
-  }, [svgWidth, cssBarWidth, cssBarGap]);
+    // Calculate segment count based on SVG width and dimensions
+    const segmentCount = useMemo(() => {
+      if (!svgWidth) {
+        return 0;
+      }
+      return Math.floor(svgWidth / (cssBarWidth + cssBarGap));
+    }, [svgWidth, cssBarWidth, cssBarGap]);
 
-  // Use the memoized version for better performance with large datasets
-  const reducedDataPoints = useMemo(() => {
-    if (!segmentCount) {
-      return [];
-    }
-    return getReducedDataPoints(segmentCount, _dataPoints);
-  }, [segmentCount, _dataPoints]);
+    // Update segmentCountRef when segment count changes
+    useEffect(() => {
+      segmentCountRef.current = segmentCount;
+    }, [segmentCount]);
 
-  // Generate the path string
-  const pathString = useMemo(() => {
-    if (!reducedDataPoints.length) {
-      return "";
-    }
+    // Expose imperative API
+    useImperativeHandle(
+      ref,
+      () => ({
+        setDataPoints: (points: number[]) => {
+          if (!pathRef.current || !segmentCountRef.current) return;
+          // Auto-scale data to match segment count for consistency with prop-based updates
+          const scaledPoints = getReducedDataPoints(segmentCountRef.current, points);
+          const newPath =
+            type === "bar"
+              ? createBarPath(scaledPoints, cssBarWidth, cssBarGap, radius)
+              : createLinePath(scaledPoints, cssBarWidth, cssBarGap, smooth ? 0.1 : curvature);
+          pathRef.current.setAttribute("d", newPath);
+        },
+        getSegmentCount: () => segmentCountRef.current,
+      }),
+      [type, cssBarWidth, cssBarGap, radius, curvature, smooth],
+    );
 
-    if (type === "bar") {
-      return createBarPath(reducedDataPoints, cssBarWidth, cssBarGap, radius);
-    }
-    if (type === "line") {
-      // Use 0.1 curvature if smooth is true, otherwise use the provided curvature
-      const smoothingValue = smooth ? 0.1 : curvature;
-      return createLinePath(reducedDataPoints, cssBarWidth, cssBarGap, smoothingValue);
-    }
+    // Update path imperatively when dataPoints or dimensions change
+    // This avoids re-rendering - only DOM manipulation
+    useLayoutEffect(() => {
+      if (!pathRef.current || !segmentCount || !_dataPoints.length) return;
 
-    return "";
-  }, [reducedDataPoints, cssBarWidth, cssBarGap, radius, type, curvature, smooth]);
+      const reducedDataPoints = getReducedDataPoints(segmentCount, _dataPoints);
+      const newPath =
+        type === "bar"
+          ? createBarPath(reducedDataPoints, cssBarWidth, cssBarGap, radius)
+          : createLinePath(reducedDataPoints, cssBarWidth, cssBarGap, smooth ? 0.1 : curvature);
 
-  // Calculate the viewBox to ensure the path scales properly with the container
-  const viewBox = useMemo(() => {
-    if (!svgWidth) {
-      return "0 0 100 100";
-    }
+      pathRef.current.setAttribute("d", newPath);
+    }, [_dataPoints, segmentCount, cssBarWidth, cssBarGap, radius, type, curvature, smooth]);
 
-    // Width is just the full svg width to allow all bars to be visible
-    const totalWidth = segmentCount * (cssBarWidth + cssBarGap);
+    // Calculate the viewBox to ensure the path scales properly with the container
+    const viewBox = useMemo(() => {
+      if (!svgWidth) {
+        return "0 0 100 100";
+      }
 
-    // Use the container's aspect ratio to ensure we fit in the SVG
-    return `0 0 ${totalWidth} 100`;
-  }, [svgWidth, segmentCount, cssBarWidth, cssBarGap]);
+      // Width is just the full svg width to allow all bars to be visible
+      const totalWidth = segmentCount * (cssBarWidth + cssBarGap);
 
-  // Set up resize observer and initial measurement
-  useLayoutEffect(() => {
-    if (!svgRef?.current) {
-      return;
-    }
+      // Use the container's aspect ratio to ensure we fit in the SVG
+      return `0 0 ${totalWidth} 100`;
+    }, [svgWidth, segmentCount, cssBarWidth, cssBarGap]);
 
-    // Initial measurement
-    updateSvgDimensions();
+    // Set up resize observer and initial measurement
+    useLayoutEffect(() => {
+      if (!svgRef?.current) {
+        return;
+      }
 
-    // Set up resize observer
-    const resizeObserver = new ResizeObserver(() => {
+      // Initial measurement
       updateSvgDimensions();
-    });
 
-    resizeObserver.observe(svgRef.current);
-    return () => resizeObserver.disconnect();
-  }, [svgRef, updateSvgDimensions]);
+      // Set up resize observer
+      const resizeObserver = new ResizeObserver(() => {
+        updateSvgDimensions();
+      });
 
-  // Return null if there are no datapoints
-  if (!(reducedDataPoints.length && pathString)) {
-    return null;
-  }
+      resizeObserver.observe(svgRef.current);
+      return () => resizeObserver.disconnect();
+    }, [svgRef, updateSvgDimensions]);
 
-  return (
-    // Use an svg element to apply proper scaling within the parent SVG
-    <svg
-      aria-hidden="true"
-      height="100%"
-      preserveAspectRatio="none"
-      style={{ overflow: "visible" }}
-      viewBox={viewBox}
-      width="100%"
-    >
-      <path
-        className={className}
-        d={pathString}
-        data-wavo-path={type}
-        fill={hasProgress ? `url(#gradient-${id})` : "var(--wavo-bar-color, currentColor)"}
-        style={{ willChange: "none" }} // Prevent CSS animations from targeting this element
-      />
-    </svg>
-  );
-};
+    // Return null if there are no datapoints or dimensions not measured
+    if (!segmentCount || !_dataPoints.length) {
+      return null;
+    }
+
+    return (
+      // Use an svg element to apply proper scaling within the parent SVG
+      <svg
+        aria-hidden="true"
+        height="100%"
+        preserveAspectRatio="none"
+        style={{ overflow: "visible" }}
+        viewBox={viewBox}
+        width="100%"
+      >
+        <path
+          ref={pathRef}
+          className={className}
+          d="" // Initial empty path, populated by useLayoutEffect before paint
+          data-wavo-path={type}
+          fill={hasProgress ? `url(#gradient-${id})` : "var(--wavo-bar-color, currentColor)"}
+          style={{ willChange: "none" }} // Prevent CSS animations from targeting this element
+        />
+      </svg>
+    );
+  },
+);
+
+Path.displayName = "Path";
 
 // Add default export for the Path component
 export default Path;
