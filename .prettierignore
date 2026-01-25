@@ -1,0 +1,2 @@
+# Wrangler config uses JSONC but doesn't support trailing commas
+docs/wrangler.jsonc

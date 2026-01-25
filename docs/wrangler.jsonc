@@ -1,9 +1,9 @@
 {
   "name": "wavo-docs",
-  "compatibility_date": "2025-01-24",
+  "compatibility_date": "2026-01-25",
   "assets": {
     "directory": "./dist",
     "html_handling": "auto-trailing-slash",
-    "not_found_handling": "single-page-application",
-  },
+    "not_found_handling": "single-page-application"
+  }
 }
