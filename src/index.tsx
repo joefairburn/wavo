@@ -12,8 +12,8 @@ export const Waveform = {
   Path,
 };
 
-export type { BarsProps } from "./components/bars";
-export type { BarRadius, PathProps, RenderType } from "./components/path";
+export type { BarsHandle, BarsProps } from "./components/bars";
+export type { BarRadius, PathHandle, PathProps, RenderType } from "./components/path";
 export type { GradientStop, ProgressHandle, ProgressProps } from "./components/progress";
 export type { UseAudioProgressOptions } from "./hooks/use-audio-progress";
 // Export hooks

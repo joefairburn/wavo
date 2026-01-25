@@ -1,14 +1,38 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useWaveform } from "../contexts/waveform-context";
 import { getReducedDataPoints } from "../lib";
 import type { WaveformData } from "../waveform";
-import { Path } from "./path";
+import { Path, type PathHandle } from "./path";
 
 /**
  * Type for bar corner radius with constrained values
  * Higher values create more rounded corners on bars
  */
 export type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
+ * Imperative handle for Bars component ref
+ */
+export interface BarsHandle {
+  /**
+   * Update bar heights without triggering component re-render
+   * @param dataPoints - Array of normalized values (0-1), length should match bar count
+   */
+  setDataPoints(dataPoints: number[]): void;
+
+  /**
+   * Get current bar count (useful for generating correctly-sized data)
+   */
+  getBarCount(): number;
+}
 
 /**
  * Props for an individual bar in the waveform visualization
@@ -142,120 +166,153 @@ export interface BarsProps {
  *
  * @private
  */
-const BarsRenderer = React.memo(function BarsRendererComponent({
-  width = 3,
-  gap = 1,
-  radius = 2,
-  className,
-  dataPoints,
-}: BarsProps & { dataPoints: readonly number[] }) {
-  const { hasProgress, id } = useWaveform();
+const BarsRenderer = React.memo(
+  forwardRef<SVGGElement, BarsProps & { dataPoints: readonly number[] }>(
+    function BarsRendererComponent({ width = 3, gap = 1, radius = 2, className, dataPoints }, ref) {
+      const { hasProgress, id } = useWaveform();
 
-  // Simplified approach: just render all bars directly
-  const bars = useMemo(() => {
-    return dataPoints.map((point, index) => (
-      <SingleBar
-        // biome-ignore lint/suspicious/noArrayIndexKey: Waveform data points have stable positions
-        key={`bar-${index}`}
-        point={point}
-        radius={radius}
-        width={width}
-        x={index * (width + gap)}
-      />
-    ));
-  }, [dataPoints, radius, width, gap]);
+      // Simplified approach: just render all bars directly
+      const bars = useMemo(() => {
+        return dataPoints.map((point, index) => (
+          <SingleBar
+            // biome-ignore lint/suspicious/noArrayIndexKey: Waveform data points have stable positions
+            key={`bar-${index}`}
+            point={point}
+            radius={radius}
+            width={width}
+            x={index * (width + gap)}
+          />
+        ));
+      }, [dataPoints, radius, width, gap]);
 
-  return (
-    <g className={className} fill={hasProgress ? `url(#gradient-${id})` : "currentColor"}>
-      {bars}
-    </g>
-  );
-});
+      return (
+        <g
+          ref={ref}
+          className={className}
+          fill={hasProgress ? `url(#gradient-${id})` : "currentColor"}
+        >
+          {bars}
+        </g>
+      );
+    },
+  ),
+);
 
 /**
  * Internal component for rendering bars as individual rect elements
  * @private
  */
-const BarsRects: React.FC<Omit<BarsProps, "optimized">> = ({
-  width = 3,
-  gap = 1,
-  radius = 2,
-  className,
-}) => {
-  const [svgWidth, setSvgWidth] = useState<number>(0); // Initialize with 0 or a sensible default
-  const [computedDataPoints, setComputedDataPoints] = useState<readonly number[]>([]);
-  const { dataPoints: _dataPoints, svgRef } = useWaveform();
+const BarsRects = forwardRef<BarsHandle, Omit<BarsProps, "optimized">>(
+  ({ width = 3, gap = 1, radius = 2, className }, ref) => {
+    const [svgWidth, setSvgWidth] = useState<number>(0);
+    const { dataPoints: _dataPoints, svgRef } = useWaveform();
+    const groupRef = useRef<SVGGElement>(null);
+    const barCountRef = useRef(0);
 
-  // Computation function for reducing data points
-  const computeReducedDataPoints = useCallback(
-    (currentBarCount: number, sourceData: WaveformData): readonly number[] => {
-      if (currentBarCount === 0) {
+    // Use ResizeObserver to update width when SVG container size changes
+    useEffect(() => {
+      if (!svgRef?.current) {
+        return;
+      }
+
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect) {
+            const newWidth = entry.contentRect.width;
+            setSvgWidth((prevWidth) => (prevWidth !== newWidth ? newWidth : prevWidth));
+          }
+        }
+      });
+
+      resizeObserver.observe(svgRef.current);
+      return () => resizeObserver.disconnect();
+    }, [svgRef]);
+
+    // Calculate bar count based on available space
+    const barCount = useMemo(() => {
+      if (!svgWidth || svgWidth <= 0) {
+        return 0;
+      }
+      const barTotalWidth = width + gap;
+      return Math.max(1, Math.floor(svgWidth / barTotalWidth));
+    }, [svgWidth, width, gap]);
+
+    // Update barCountRef when bar count changes
+    useEffect(() => {
+      barCountRef.current = barCount;
+    }, [barCount]);
+
+    // PERFORMANCE OPTIMIZATION: Imperative DOM update pattern
+    // --------------------------------------------------------
+    // This memo intentionally omits _dataPoints from dependencies.
+    // Initial render uses _dataPoints, but subsequent updates are handled
+    // imperatively via useLayoutEffect below to avoid React re-renders.
+    //
+    // Flow:
+    // 1. initialDataPoints computed once per barCount change (triggers re-render)
+    // 2. _dataPoints changes -> useLayoutEffect updates DOM directly (no re-render)
+    // 3. setDataPoints() imperative API also updates DOM directly (no re-render)
+    const initialDataPoints = useMemo(() => {
+      if (barCount === 0 || _dataPoints.length === 0) {
         return [];
       }
-      return getReducedDataPoints(currentBarCount, sourceData);
-    },
-    [],
-  );
+      return getReducedDataPoints(barCount, _dataPoints);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [barCount]);
 
-  // Use ResizeObserver to update width when SVG container size changes
-  useEffect(() => {
-    // Ensure svgRef is available
-    if (!svgRef?.current) {
-      return;
+    // Imperatively update bar heights when dataPoints change (avoids re-rendering)
+    useLayoutEffect(() => {
+      if (!groupRef.current || barCount === 0 || _dataPoints.length === 0) return;
+
+      const reducedPoints = getReducedDataPoints(barCount, _dataPoints);
+      const bars = groupRef.current.querySelectorAll("[data-wavo-bar]");
+
+      bars.forEach((bar, i) => {
+        if (i >= reducedPoints.length) return;
+        const barHeight = Math.max(1, reducedPoints[i] * 50);
+        bar.setAttribute("height", `${barHeight * 2}%`);
+        bar.setAttribute("y", `${50 - barHeight}%`);
+      });
+    }, [_dataPoints, barCount]);
+
+    // Expose imperative API
+    useImperativeHandle(
+      ref,
+      () => ({
+        setDataPoints: (points: number[]) => {
+          if (!groupRef.current || !barCountRef.current) return;
+          // Auto-scale data to match bar count for consistency with prop-based updates
+          const scaledPoints = getReducedDataPoints(barCountRef.current, points);
+          const bars = groupRef.current.querySelectorAll("[data-wavo-bar]");
+          bars.forEach((bar, i) => {
+            if (i >= scaledPoints.length) return;
+            const barHeight = Math.max(1, scaledPoints[i] * 50);
+            bar.setAttribute("height", `${barHeight * 2}%`);
+            bar.setAttribute("y", `${50 - barHeight}%`);
+          });
+        },
+        getBarCount: () => barCountRef.current,
+      }),
+      [],
+    );
+
+    // Render nothing until width is properly measured
+    if (barCount === 0) {
+      return null;
     }
 
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        // Ensure contentRect is available and provides width
-        if (entry.contentRect) {
-          const newWidth = entry.contentRect.width;
-          // Update state only if width has actually changed to avoid unnecessary renders
-          setSvgWidth((prevWidth) => (prevWidth !== newWidth ? newWidth : prevWidth));
-        }
-      }
-    });
-
-    // Start observing the SVG element
-    resizeObserver.observe(svgRef.current);
-
-    // Cleanup function to disconnect observer on component unmount or ref change
-    return () => resizeObserver.disconnect();
-  }, [svgRef]); // Dependency array includes svgRef
-
-  // Calculate bar count based on available space
-  const barCount = useMemo(() => {
-    if (!svgWidth || svgWidth <= 0) {
-      return 0; // Handle zero or negative width
-    }
-    const barTotalWidth = width + gap;
-    return Math.max(1, Math.floor(svgWidth / barTotalWidth)); // Ensure at least 1 bar if width > 0
-  }, [svgWidth, width, gap]);
-
-  // Effect to compute reduced data points when barCount or dataPoints change
-  useEffect(() => {
-    if (barCount > 0 && _dataPoints.length > 0) {
-      const result = computeReducedDataPoints(barCount, _dataPoints);
-      setComputedDataPoints(result);
-    } else {
-      setComputedDataPoints([]);
-    }
-  }, [barCount, _dataPoints, computeReducedDataPoints]);
-
-  // Render nothing until width is properly measured and bars calculated
-  if (barCount === 0) {
-    return null;
-  }
-
-  return (
-    <BarsRenderer
-      className={className}
-      dataPoints={computedDataPoints}
-      gap={gap}
-      radius={radius}
-      width={width}
-    />
-  );
-};
+    return (
+      <BarsRenderer
+        ref={groupRef}
+        className={className}
+        dataPoints={initialDataPoints}
+        gap={gap}
+        radius={radius}
+        width={width}
+      />
+    );
+  },
+);
 
 /**
  * Bar-based waveform visualization component
@@ -291,20 +348,35 @@ const BarsRects: React.FC<Omit<BarsProps, "optimized">> = ({
  * </Waveform>
  * ```
  */
-export const Bars: React.FC<BarsProps> = ({
-  width = 3,
-  gap = 1,
-  radius = 2,
-  className,
-  optimized = false,
-}) => {
-  // If optimized, delegate to Path component with type="bar"
-  if (optimized) {
-    return <Path type="bar" width={width} gap={gap} radius={radius} className={className} />;
-  }
+export const Bars = forwardRef<BarsHandle | PathHandle, BarsProps>(
+  ({ width = 3, gap = 1, radius = 2, className, optimized = false }, ref) => {
+    // If optimized, delegate to Path component with type="bar"
+    if (optimized) {
+      return (
+        <Path
+          ref={ref as React.Ref<PathHandle>}
+          type="bar"
+          width={width}
+          gap={gap}
+          radius={radius}
+          className={className}
+        />
+      );
+    }
 
-  return <BarsRects width={width} gap={gap} radius={radius} className={className} />;
-};
+    return (
+      <BarsRects
+        ref={ref as React.Ref<BarsHandle>}
+        width={width}
+        gap={gap}
+        radius={radius}
+        className={className}
+      />
+    );
+  },
+);
+
+Bars.displayName = "Bars";
 
 /**
  * @deprecated Use Bars instead
