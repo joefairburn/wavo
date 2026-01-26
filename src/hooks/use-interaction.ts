@@ -1,6 +1,22 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 /**
+ * Creates a synthetic React mouse event from a native MouseEvent
+ */
+const toSyntheticEvent = <T extends HTMLElement | SVGElement>(
+  e: MouseEvent,
+  currentTarget: T | null,
+) =>
+  ({
+    clientX: e.clientX,
+    clientY: e.clientY,
+    target: e.target,
+    currentTarget,
+    preventDefault: () => e.preventDefault(),
+    stopPropagation: () => e.stopPropagation(),
+  }) as unknown as React.MouseEvent<T>;
+
+/**
  * Options for configuring element interactions
  *
  * @template ElementType - The type of DOM element being interacted with
@@ -125,10 +141,7 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
   const [isDragging, setIsDragging] = useState(false);
 
   // Determine if the component has any mouse or keyboard events
-  const hasInteractions = React.useMemo(
-    () => Boolean(onClick || onDrag || onKeyDown || onDragStart || onDragEnd),
-    [onClick, onDrag, onKeyDown, onDragStart, onDragEnd],
-  );
+  const hasInteractions = !!(onClick || onDrag || onKeyDown || onDragStart || onDragEnd);
 
   /**
    * Calculates the relative position as a percentage (0-1) based on a mouse event
@@ -194,17 +207,9 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
         if (!prev) {
           return false;
         }
-        // Convert the native MouseEvent to a React MouseEvent as much as possible
+        // Convert the native MouseEvent to a React MouseEvent
         if (onDragEnd) {
-          const syntheticEvent = {
-            clientX: event.clientX,
-            clientY: event.clientY,
-            target: event.target,
-            currentTarget: elementRef.current,
-            preventDefault: () => event.preventDefault(),
-            stopPropagation: () => event.stopPropagation(),
-          } as unknown as React.MouseEvent<ElementType>;
-          onDragEnd(syntheticEvent);
+          onDragEnd(toSyntheticEvent(event, elementRef.current));
         }
         return false;
       });
@@ -221,16 +226,8 @@ export function useInteraction<ElementType extends HTMLElement | SVGElement = SV
       if (!(isDragging && elementRef.current && onDrag)) {
         return;
       }
-      // Convert the native MouseEvent to a React MouseEvent as much as possible
-      const syntheticEvent = {
-        clientX: event.clientX,
-        clientY: event.clientY,
-        target: event.target,
-        currentTarget: elementRef.current,
-        preventDefault: () => event.preventDefault(),
-        stopPropagation: () => event.stopPropagation(),
-      } as unknown as React.MouseEvent<ElementType>;
-      onDrag(calculatePercentageFromEvent(event), syntheticEvent);
+      // Convert the native MouseEvent to a React MouseEvent
+      onDrag(calculatePercentageFromEvent(event), toSyntheticEvent(event, elementRef.current));
     },
     [isDragging, onDrag, calculatePercentageFromEvent, elementRef],
   );
