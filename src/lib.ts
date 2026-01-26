@@ -1,35 +1,6 @@
 import type { NormalizedAmplitude, WaveformData } from "./waveform";
 
 /**
- * Finds the nearest valid amplitude value in a specified direction
- *
- * Searches through the dataPoints array starting from startIndex, moving in the direction
- * specified by increment, until reaching endCondition. Returns the first non-NaN value found.
- *
- * @param dataPoints - Array of amplitude values to search through
- * @param startIndex - Index position to start the search from
- * @param increment - Direction to search: positive for forward, negative for backward
- * @param endCondition - Stop searching when reaching this index
- * @returns The first valid amplitude value found, or NaN if none exists
- *
- * @internal Used by calculateSegmentAverage to handle gaps in data
- */
-const findNeighborValue = (
-  dataPoints: readonly NormalizedAmplitude[],
-  startIndex: number,
-  increment: number,
-  endCondition: number,
-): number => {
-  for (let i = startIndex; increment > 0 ? i < endCondition : i >= endCondition; i += increment) {
-    if (!Number.isNaN(dataPoints[i])) {
-      return dataPoints[i];
-    }
-  }
-
-  return Number.NaN;
-};
-
-/**
  * Calculates the average amplitude for a segment of the waveform data
  *
  * Takes a slice of the dataPoints array and calculates the average of valid values.
@@ -62,8 +33,21 @@ const calculateSegmentAverage = (
   }
 
   // If no valid points, search for neighbors
-  const prevValue = findNeighborValue(dataPoints, startIndex - 1, -1, 0);
-  const nextValue = findNeighborValue(dataPoints, endIndex, 1, dataPoints.length);
+  let prevValue = Number.NaN;
+  for (let i = startIndex - 1; i >= 0; i--) {
+    if (!Number.isNaN(dataPoints[i])) {
+      prevValue = dataPoints[i];
+      break;
+    }
+  }
+
+  let nextValue = Number.NaN;
+  for (let i = endIndex; i < dataPoints.length; i++) {
+    if (!Number.isNaN(dataPoints[i])) {
+      nextValue = dataPoints[i];
+      break;
+    }
+  }
 
   // Calculate final value based on available neighbors
   if (!(Number.isNaN(prevValue) || Number.isNaN(nextValue))) {
@@ -155,15 +139,6 @@ export const memoizedReducedDataPoints = () => {
     // Calculate and cache the result
     const result = calculateReducedDataPoints(barCount, dataPoints);
     barCountMap.set(barCount, result);
-
-    // Limit barCount entries per data array to prevent memory issues
-    if (barCountMap.size > 20) {
-      const firstKey = barCountMap.keys().next().value;
-      if (firstKey !== undefined) {
-        barCountMap.delete(firstKey);
-      }
-    }
-
     return result;
   };
 };
@@ -186,51 +161,3 @@ export const memoizedReducedDataPoints = () => {
  * ```
  */
 export const getReducedDataPoints = memoizedReducedDataPoints();
-
-/**
- * Cross-browser implementation of requestIdleCallback
- *
- * Schedules a callback to be called during browser idle periods.
- * Falls back to setTimeout for browsers that don't support requestIdleCallback.
- *
- * @param callback - Function to call during idle period
- * @param timeout - Maximum delay before the callback is invoked regardless of idle state
- * @returns Numeric ID that can be used to cancel the callback
- */
-export const requestIdleCallback = (callback: () => void, timeout = 2000) => {
-  if ("requestIdleCallback" in window) {
-    return window.requestIdleCallback(callback, { timeout });
-  }
-  // Fallback for browsers that don't support requestIdleCallback
-  return setTimeout(callback, 100);
-};
-
-/**
- * Creates a debounced version of a function
- *
- * Returns a function that will only execute after the specified delay
- * has passed without the function being called again. Useful for handling
- * rapid events like resize or scroll.
- *
- * @param callback - Function to debounce
- * @param delay - Delay in milliseconds before executing the function
- * @returns Debounced function
- *
- * @example
- * ```ts
- * // Create a debounced resize handler
- * const handleResize = createDebouncedFunction((width) => {
- *   console.log(`Window resized to ${width}px`);
- * }, 100);
- *
- * window.addEventListener('resize', () => handleResize(window.innerWidth));
- * ```
- */
-export const createDebouncedFunction = <T>(callback: (value: T) => void, delay = 30) => {
-  let timeoutId: NodeJS.Timeout;
-
-  return (value: T) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => callback(value), delay);
-  };
-};

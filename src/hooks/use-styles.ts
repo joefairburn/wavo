@@ -84,9 +84,9 @@ export const createWaveformStyles = (easing: EasingFunction) => {
 
     /* Explicitly disable animations for Path elements */
     [data-wavo-path] {
-      will-change: none !important;
-      transition: none !important;
-      animation: none !important;
+      will-change: none;
+      transition: none;
+      animation: none;
     }
     
     /* Animation for groups of bars */

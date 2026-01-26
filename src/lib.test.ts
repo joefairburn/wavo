@@ -1,9 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import {
-  calculateReducedDataPoints,
-  createDebouncedFunction,
-  memoizedReducedDataPoints,
-} from "./lib";
+import { describe, expect, it } from "vitest";
+import { calculateReducedDataPoints, memoizedReducedDataPoints } from "./lib";
 
 describe("calculateReducedDataPoints", () => {
   it("returns empty array when barCount is 0", () => {
@@ -98,70 +94,5 @@ describe("memoizedReducedDataPoints", () => {
     const result2 = memoized(2, smallData);
     // Results should be equal but not necessarily the same reference
     expect(result1).toEqual(result2);
-  });
-});
-
-describe("createDebouncedFunction", () => {
-  it("delays function execution", () => {
-    vi.useFakeTimers();
-    const callback = vi.fn();
-    const debounced = createDebouncedFunction(callback, 100);
-
-    debounced("test");
-    expect(callback).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(100);
-    expect(callback).toHaveBeenCalledWith("test");
-
-    vi.useRealTimers();
-  });
-
-  it("only calls once for rapid successive calls", () => {
-    vi.useFakeTimers();
-    const callback = vi.fn();
-    const debounced = createDebouncedFunction(callback, 100);
-
-    debounced("first");
-    debounced("second");
-    debounced("third");
-
-    vi.advanceTimersByTime(100);
-
-    expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith("third");
-
-    vi.useRealTimers();
-  });
-
-  it("uses default delay of 30ms", () => {
-    vi.useFakeTimers();
-    const callback = vi.fn();
-    const debounced = createDebouncedFunction(callback);
-
-    debounced("test");
-    vi.advanceTimersByTime(29);
-    expect(callback).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(1);
-    expect(callback).toHaveBeenCalled();
-
-    vi.useRealTimers();
-  });
-
-  it("resets timer on each call", () => {
-    vi.useFakeTimers();
-    const callback = vi.fn();
-    const debounced = createDebouncedFunction(callback, 100);
-
-    debounced("first");
-    vi.advanceTimersByTime(50);
-    debounced("second");
-    vi.advanceTimersByTime(50);
-    expect(callback).not.toHaveBeenCalled();
-
-    vi.advanceTimersByTime(50);
-    expect(callback).toHaveBeenCalledWith("second");
-
-    vi.useRealTimers();
   });
 });

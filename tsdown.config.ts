@@ -9,6 +9,7 @@ export default defineConfig({
   sourcemap: true,
   splitting: true,
   treeshake: true,
+  minify: true,
   jsx: "react-jsx",
   external: ["react", "react-dom"],
   outDir: "dist",

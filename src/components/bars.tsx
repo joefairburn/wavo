@@ -377,8 +377,3 @@ export const Bars = forwardRef<BarsHandle | PathHandle, BarsProps>(
 );
 
 Bars.displayName = "Bars";
-
-/**
- * @deprecated Use Bars instead
- */
-export { Bars as BarsContainer };
