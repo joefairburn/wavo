@@ -112,12 +112,6 @@ export interface WaveformProps {
   className?: string;
 
   /**
-   * Whether animation should be enabled
-   * @default true
-   */
-  shouldAnimate?: boolean;
-
-  /**
    * Keyboard event handler for accessibility
    * @param event - Original keyboard event
    */
