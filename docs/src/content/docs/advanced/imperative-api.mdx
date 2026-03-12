@@ -1,0 +1,270 @@
+---
+title: Imperative API
+description: Direct DOM updates for 60fps animations without React re-renders
+---
+
+Wavo components expose imperative handles for high-frequency updates that bypass React's reconciliation. This enables smooth 60fps animations.
+
+## Why Imperative Updates?
+
+React re-renders are expensive. For audio playback at 60fps:
+
+| Approach | Re-renders/sec | Smoothness |
+|----------|----------------|------------|
+| State updates | 60 | Janky |
+| Imperative | 0 | Smooth |
+
+## Component Handles
+
+### ProgressHandle
+
+```tsx
+interface ProgressHandle {
+  setProgress(newProgress: number): void;
+}
+```
+
+Update progress without re-rendering:
+
+```tsx
+const progressRef = useRef<ProgressHandle>(null);
+
+// Called at 60fps from requestAnimationFrame
+const animate = () => {
+  progressRef.current?.setProgress(currentTime / duration);
+  requestAnimationFrame(animate);
+};
+
+<Waveform.Progress ref={progressRef} color="#f96706" />
+```
+
+### BarsHandle
+
+```tsx
+interface BarsHandle {
+  setDataPoints(dataPoints: number[]): void;
+  getBarCount(): number;
+}
+```
+
+Update bar heights without re-rendering:
+
+```tsx
+const barsRef = useRef<BarsHandle>(null);
+
+// Get current bar count for data generation
+const count = barsRef.current?.getBarCount() ?? 0;
+
+// Update bars at 60fps
+barsRef.current?.setDataPoints(newData);
+
+<Waveform.Bars ref={barsRef} />
+```
+
+### PathHandle
+
+```tsx
+interface PathHandle {
+  setDataPoints(dataPoints: number[]): void;
+  getSegmentCount(): number;
+}
+```
+
+Update path without re-rendering:
+
+```tsx
+const pathRef = useRef<PathHandle>(null);
+
+// Update path at 60fps
+pathRef.current?.setDataPoints(newData);
+
+<Waveform.Path ref={pathRef} />
+```
+
+## Audio Playback Pattern
+
+Complete example for smooth audio progress:
+
+```tsx
+import { useRef, useEffect, useState } from "react";
+import { Waveform, type ProgressHandle } from "wavo";
+
+function SmoothAudioPlayer() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateProgress = () => {
+      if (audio.duration) {
+        const progress = audio.currentTime / audio.duration;
+        progressRef.current?.setProgress(progress);
+      }
+      rafRef.current = requestAnimationFrame(updateProgress);
+    };
+
+    const handlePlay = () => {
+      rafRef.current = requestAnimationFrame(updateProgress);
+    };
+
+    const handlePause = () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("ended", handlePause);
+
+    return () => {
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("ended", handlePause);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <>
+      <audio ref={audioRef} src="audio.mp3" controls />
+      <Waveform.Container dataPoints={audioData}>
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+    </>
+  );
+}
+```
+
+> **Tip:** Use the `useAudioProgress` hook which handles all this for you.
+
+## Real-Time Visualization
+
+Update waveform from live audio data:
+
+```tsx
+import { useRef, useEffect } from "react";
+import { Waveform, type BarsHandle } from "wavo";
+
+function AudioAnalyzer() {
+  const barsRef = useRef<BarsHandle>(null);
+
+  useEffect(() => {
+    let animationId: number;
+
+    const setup = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      const update = () => {
+        analyser.getByteFrequencyData(dataArray);
+
+        // Normalize to 0-1 range
+        const normalized = Array.from(dataArray).map((v) => v / 255);
+
+        // Update bars imperatively
+        barsRef.current?.setDataPoints(normalized);
+
+        animationId = requestAnimationFrame(update);
+      };
+
+      animationId = requestAnimationFrame(update);
+    };
+
+    setup();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  return (
+    <Waveform.Container dataPoints={new Array(128).fill(0)}>
+      <Waveform.Bars ref={barsRef} optimized />
+    </Waveform.Container>
+  );
+}
+```
+
+## Combining Imperative and Declarative
+
+Use both patterns together:
+
+```tsx
+function HybridPlayer() {
+  const progressRef = useRef<ProgressHandle>(null);
+  const [progress, setProgress] = useState(0);
+
+  // Imperative: 60fps visual updates
+  useAudioProgress({
+    audioRef,
+    progressRef,
+    // Declarative: ~10fps state updates for UI
+    onProgressUpdate: setProgress,
+  });
+
+  return (
+    <>
+      {/* Smooth visual progress */}
+      <Waveform.Container dataPoints={audioData}>
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} />
+      </Waveform.Container>
+
+      {/* UI updates at lower frequency */}
+      <TimeDisplay time={progress * duration} />
+      <ProgressBar value={progress} />
+    </>
+  );
+}
+```
+
+## Data Scaling
+
+The imperative API automatically scales data to match element count:
+
+```tsx
+// Get current bar count
+const barCount = barsRef.current?.getBarCount() ?? 100;
+
+// Data is automatically scaled to fit
+barsRef.current?.setDataPoints(largeDataset);
+// Internally calls: getReducedDataPoints(barCount, largeDataset)
+```
+
+## Error Handling
+
+Handle cases where ref might be null:
+
+```tsx
+const updateSafely = (progress: number) => {
+  progressRef.current?.setProgress(progress);
+  // Optional chaining prevents errors if component unmounted
+};
+```
+
+## Performance Tips
+
+1. **Batch updates** - Update multiple refs in the same RAF callback
+2. **Use optimized mode** - `<Bars optimized />` for fewer DOM updates
+3. **Avoid state in RAF** - State updates trigger re-renders
+4. **Clean up on unmount** - Cancel animation frames
+
+## Next Steps
+
+- See [useAudioProgress](/docs/hooks/use-audio-progress) for audio sync
+- See [Performance](/docs/advanced/performance) for optimization tips
+- See [Progress](/docs/components/progress) for handle details

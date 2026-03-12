@@ -1,18 +1,129 @@
 ---
 title: Installation
-description: Learn how to install and set up wavo in your React project
+description: Install and set up wavo in your React project
 ---
+
+## Package Installation
 
 Install wavo using your preferred package manager:
 
 ```bash
-# Using npm
+# npm
 npm install wavo
 
-# Using pnpm
+# pnpm
 pnpm add wavo
 
-# Using yarn
+# yarn
 yarn add wavo
 
+# bun
+bun add wavo
 ```
+
+## Requirements
+
+- React 18 or higher
+- TypeScript 5.0+ (optional but recommended)
+
+## Framework Setup
+
+### Next.js (App Router)
+
+Wavo components use client-side features. Add the `"use client"` directive or use `client:load`:
+
+```tsx
+"use client";
+
+import { Waveform } from "wavo";
+
+export function AudioPlayer() {
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+### Next.js (Pages Router)
+
+Works out of the box. Import and use directly:
+
+```tsx
+import { Waveform } from "wavo";
+
+export default function Page() {
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+### Astro
+
+Use the `client:load` directive for interactive components:
+
+```astro
+---
+import AudioPlayer from "../components/AudioPlayer";
+---
+
+<AudioPlayer client:load />
+```
+
+### Vite / Create React App
+
+Works out of the box. Import and use directly:
+
+```tsx
+import { Waveform } from "wavo";
+
+function App() {
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+## TypeScript
+
+Types are included with the package. No additional `@types` package needed.
+
+```tsx
+import type { WaveformData, ProgressHandle } from "wavo";
+
+const audioData: WaveformData = [0.1, 0.4, 0.8, 0.6, 0.3];
+```
+
+## Verify Installation
+
+Test your installation with a basic waveform:
+
+```tsx
+import { Waveform } from "wavo";
+
+const testData = [0.2, 0.5, 0.8, 0.6, 0.4, 0.7, 0.3, 0.9, 0.5, 0.2];
+
+function TestWaveform() {
+  return (
+    <div style={{ height: 100, width: 300 }}>
+      <Waveform.Container dataPoints={testData}>
+        <Waveform.Bars />
+      </Waveform.Container>
+    </div>
+  );
+}
+```
+
+If you see a waveform visualization, you're ready to go.
+
+## Next Steps
+
+- Follow the [Quick Start](/docs/guides/quickstart) guide
+- Explore [Component documentation](/docs/components/container)
+- See [Examples](/docs/examples/audio-player) for complete implementations

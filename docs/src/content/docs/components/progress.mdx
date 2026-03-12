@@ -1,0 +1,215 @@
+---
+title: Progress
+description: Visual progress indicator that distinguishes played and unplayed portions of the waveform
+---
+
+import ProgressDemo from "./components/progress-demo";
+
+The `Progress` component creates a visual indicator that distinguishes between played and unplayed portions of the waveform. It works by defining an SVG gradient that other components (Bars, Path) reference.
+
+<ProgressDemo client:load />
+
+## Basic Usage
+
+```tsx
+import { Waveform } from "wavo";
+
+function MyWaveform() {
+  return (
+    <Waveform.Container dataPoints={audioData} progress={0.5}>
+      <Waveform.Bars />
+      <Waveform.Progress color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `progress` | `number` | Container's progress | Playback progress (0-1) |
+| `color` | `string` | `"currentColor"` | Color for the played portion |
+| `gradient` | `GradientStop[]` | - | Multi-color gradient stops |
+
+## Progress Value
+
+The progress value can be set on the Container (recommended) or directly on the Progress component:
+
+```tsx
+// Recommended: Set on Container (shared with accessibility)
+<Waveform.Container dataPoints={data} progress={0.5}>
+  <Waveform.Bars />
+  <Waveform.Progress color="#f96706" />
+</Waveform.Container>
+
+// Alternative: Set directly on Progress
+<Waveform.Container dataPoints={data}>
+  <Waveform.Bars />
+  <Waveform.Progress progress={0.5} color="#f96706" />
+</Waveform.Container>
+```
+
+## Single Color
+
+Use the `color` prop for a solid progress color:
+
+```tsx
+<Waveform.Progress color="#f96706" />
+<Waveform.Progress color="rgb(249, 103, 6)" />
+<Waveform.Progress color="currentColor" />
+```
+
+## Gradient Colors
+
+Create multi-color gradients with the `gradient` prop:
+
+```tsx
+// Two-color gradient
+<Waveform.Progress
+  gradient={[
+    { offset: "0%", color: "#f96706" },
+    { offset: "100%", color: "#ffd93d" },
+  ]}
+/>
+
+// Three-color gradient
+<Waveform.Progress
+  gradient={[
+    { offset: "0%", color: "#ff006e" },
+    { offset: "50%", color: "#8338ec" },
+    { offset: "100%", color: "#3a86ff" },
+  ]}
+/>
+```
+
+### GradientStop Interface
+
+```tsx
+interface GradientStop {
+  /**
+   * Position as percentage (e.g., "0%", "50%", "100%")
+   */
+  offset: string;
+
+  /**
+   * CSS color value
+   */
+  color: string;
+}
+```
+
+## Imperative Handle
+
+For 60fps audio playback, update progress imperatively without React re-renders:
+
+```tsx
+import { useRef } from "react";
+import { Waveform, type ProgressHandle } from "wavo";
+
+function HighFrequencyUpdates() {
+  const progressRef = useRef<ProgressHandle>(null);
+
+  // Called at 60fps from requestAnimationFrame
+  const updateProgress = (value: number) => {
+    progressRef.current?.setProgress(value);
+  };
+
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+      <Waveform.Progress ref={progressRef} color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+### ProgressHandle Interface
+
+```tsx
+interface ProgressHandle {
+  /**
+   * Update progress without triggering re-render
+   * @param newProgress - Value between 0 and 1
+   */
+  setProgress(newProgress: number): void;
+}
+```
+
+## With useAudioProgress
+
+The recommended way to sync with audio playback is using the `useAudioProgress` hook:
+
+```tsx
+import { useRef } from "react";
+import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+
+function AudioPlayer() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+
+  useAudioProgress({
+    audioRef,
+    progressRef,
+  });
+
+  return (
+    <>
+      <audio ref={audioRef} src="audio.mp3" />
+      <Waveform.Container dataPoints={audioData}>
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+    </>
+  );
+}
+```
+
+See [useAudioProgress](/docs/hooks/use-audio-progress) for details.
+
+## How It Works
+
+The Progress component renders an SVG `<linearGradient>` with a hard stop at the current progress position:
+
+1. At 0% progress: Entire waveform shows the unplayed color
+2. At 50% progress: First half shows played color, second half shows unplayed
+3. At 100% progress: Entire waveform shows the played color
+
+The Bars and Path components automatically reference this gradient when a Progress component is present.
+
+## Gradient Animation
+
+The gradient offsets are updated imperatively using `useLayoutEffect` to ensure smooth animations without flickering. This happens before the browser paints, providing the smoothest possible updates.
+
+## Styling the Unplayed Portion
+
+The unplayed portion uses `currentColor` by default. Set this via CSS:
+
+```tsx
+<Waveform.Container
+  dataPoints={audioData}
+  style={{ color: "#333" }}  // Unplayed color
+>
+  <Waveform.Bars />
+  <Waveform.Progress color="#f96706" />  // Played color
+</Waveform.Container>
+```
+
+Or use CSS variables:
+
+```tsx
+<Waveform.Container
+  dataPoints={audioData}
+  style={{ "--wavo-bar-color": "#333" }}
+>
+  <Waveform.Bars />
+  <Waveform.Progress color="#f96706" />
+</Waveform.Container>
+```
+
+## Next Steps
+
+- Learn about [Bars](/docs/components/bars) for bar-based visualization
+- Learn about [Path](/docs/components/path) for line-based visualization
+- See [useAudioProgress](/docs/hooks/use-audio-progress) for audio sync
+- See [Imperative API](/docs/advanced/imperative-api) for performance patterns

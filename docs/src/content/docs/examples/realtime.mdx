@@ -1,0 +1,212 @@
+---
+title: Real-time Visualization
+description: Microphone input visualization using Web Audio API and imperative updates
+---
+
+import RealtimeDemo from "./components/realtime";
+
+Real-time audio visualization from microphone input using the Web Audio API and Wavo's imperative update pattern for smooth 60fps rendering.
+
+<RealtimeDemo client:load />
+
+## Implementation
+
+This example demonstrates:
+- Web Audio API integration with `AnalyserNode`
+- Microphone input capture via `getUserMedia`
+- Imperative updates via `setDataPoints()` at 60fps
+- Using `optimized` mode for performance
+
+## Full Source Code
+
+```tsx
+import { useRef, useState, useEffect } from "react";
+import { Waveform, type BarsHandle } from "wavo";
+
+function MicrophoneVisualizer() {
+  const barsRef = useRef<BarsHandle>(null);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    let animationId: number;
+    let stream: MediaStream | null = null;
+    let audioContext: AudioContext | null = null;
+
+    const setup = async () => {
+      try {
+        // Request microphone access
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        // Set up Web Audio API
+        audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+
+        // Configure analyser
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.7;
+
+        source.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        // Visualization loop
+        const visualize = () => {
+          // Get frequency data
+          analyser.getByteFrequencyData(dataArray);
+
+          // Normalize to 0-1 range
+          const normalized = Array.from(dataArray).map((v) => v / 255);
+
+          // Update bars imperatively (no React re-render!)
+          barsRef.current?.setDataPoints(normalized);
+
+          animationId = requestAnimationFrame(visualize);
+        };
+
+        animationId = requestAnimationFrame(visualize);
+      } catch (err) {
+        console.error("Microphone access error:", err);
+        setIsActive(false);
+      }
+    };
+
+    setup();
+
+    // Cleanup
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+      if (audioContext) audioContext.close();
+    };
+  }, [isActive]);
+
+  // Initial placeholder data
+  const initialData = new Array(128).fill(0.05);
+
+  return (
+    <div>
+      <Waveform.Container dataPoints={initialData}>
+        <Waveform.Bars ref={barsRef} optimized />
+      </Waveform.Container>
+
+      <button onClick={() => setIsActive(!isActive)}>
+        {isActive ? "Stop" : "Start"}
+      </button>
+    </div>
+  );
+}
+```
+
+## Key Patterns
+
+### Web Audio API Setup
+
+```tsx
+const audioContext = new AudioContext();
+const source = audioContext.createMediaStreamSource(stream);
+const analyser = audioContext.createAnalyser();
+
+analyser.fftSize = 256;           // 128 frequency bins
+analyser.smoothingTimeConstant = 0.7; // Smooth transitions
+
+source.connect(analyser);
+```
+
+### Frequency Data
+
+Get frequency data as a Uint8Array (0-255 values):
+
+```tsx
+const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+analyser.getByteFrequencyData(dataArray);  // Frequency data
+// OR
+analyser.getByteTimeDomainData(dataArray); // Waveform data
+```
+
+### Imperative Updates
+
+Update at 60fps without React re-renders:
+
+```tsx
+const normalized = Array.from(dataArray).map((v) => v / 255);
+barsRef.current?.setDataPoints(normalized);
+```
+
+### Cleanup
+
+Always clean up resources:
+
+```tsx
+return () => {
+  cancelAnimationFrame(animationId);
+  stream.getTracks().forEach((t) => t.stop());
+  audioContext.close();
+};
+```
+
+## Performance Tips
+
+1. **Use optimized mode** - Single path element is faster
+
+```tsx
+<Waveform.Bars ref={barsRef} optimized />
+```
+
+2. **Tune smoothingTimeConstant** - Higher = smoother but less responsive
+
+```tsx
+analyser.smoothingTimeConstant = 0.7; // 0.0 - 1.0
+```
+
+3. **Adjust fftSize** - Smaller = fewer bars, better performance
+
+```tsx
+analyser.fftSize = 256;  // Results in 128 frequency bins
+// Options: 32, 64, 128, 256, 512, 1024, 2048
+```
+
+## Frequency vs Time Domain
+
+### Frequency Data (shown above)
+Shows audio spectrum - bass on left, treble on right:
+
+```tsx
+analyser.getByteFrequencyData(dataArray);
+```
+
+### Time Domain Data
+Shows raw waveform shape:
+
+```tsx
+analyser.getByteTimeDomainData(dataArray);
+
+// Convert to amplitude
+const amplitude = Array.from(dataArray).map((v) =>
+  Math.abs(v - 128) / 128
+);
+```
+
+## Browser Permissions
+
+Handle permission states gracefully:
+
+```tsx
+// Check permission before requesting
+const result = await navigator.permissions.query({
+  name: "microphone" as PermissionName
+});
+
+if (result.state === "denied") {
+  // Show message to enable in settings
+}
+```
+
+## Next Steps
+
+- See [Imperative API](/docs/advanced/imperative-api) for update patterns
+- See [Custom Audio Sources](/docs/advanced/custom-audio-sources) for more examples
+- See [Performance](/docs/advanced/performance) for optimization tips

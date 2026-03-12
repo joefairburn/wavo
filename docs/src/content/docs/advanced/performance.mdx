@@ -1,0 +1,252 @@
+---
+title: Performance
+description: Optimization techniques for smooth 60fps waveform animations
+---
+
+Wavo is designed for high-performance audio visualization. This guide covers optimization techniques for smooth 60fps animations.
+
+## Performance Architecture
+
+Wavo uses a dual-update pattern:
+
+1. **Visual updates at 60fps** - Imperative DOM manipulation
+2. **React state updates at ~10fps** - For UI synchronization
+
+This separation ensures smooth animations without React re-render overhead.
+
+## Imperative Updates
+
+Use component refs for high-frequency updates:
+
+```tsx
+import { useRef } from "react";
+import { Waveform, type ProgressHandle, type BarsHandle } from "wavo";
+
+function HighPerformancePlayer() {
+  const progressRef = useRef<ProgressHandle>(null);
+  const barsRef = useRef<BarsHandle>(null);
+
+  // Update at 60fps without React re-renders
+  const updateVisualization = (progress: number, data: number[]) => {
+    progressRef.current?.setProgress(progress);
+    barsRef.current?.setDataPoints(data);
+  };
+
+  return (
+    <Waveform.Container dataPoints={initialData}>
+      <Waveform.Bars ref={barsRef} />
+      <Waveform.Progress ref={progressRef} color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+## useAudioProgress Hook
+
+The recommended pattern for audio playback:
+
+```tsx
+const updateProgress = useAudioProgress({
+  audioRef,
+  progressRef,
+  onProgressUpdate: setProgress, // ~10fps for UI
+});
+```
+
+Benefits:
+- Automatic RAF loop management
+- Event-based start/stop (play/pause/ended)
+- Throttled state callback (~10fps)
+- Zero re-renders for visual updates
+
+## Optimized Bars
+
+For large waveforms, use optimized mode:
+
+```tsx
+// Standard: N individual <rect> elements
+<Waveform.Bars />
+
+// Optimized: Single <path> element
+<Waveform.Bars optimized />
+```
+
+| Mode | DOM Elements | Best For |
+|------|--------------|----------|
+| Standard | Many rects | < 100 bars |
+| Optimized | Single path | 100+ bars |
+
+## Data Reduction
+
+Wavo automatically reduces data points to match available bars:
+
+```tsx
+// 1000+ data points reduced to ~100 bars
+<Waveform.Container dataPoints={largeDataset}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+The reduction uses peak preservation to maintain waveform shape.
+
+For manual control:
+
+```tsx
+import { getReducedDataPoints } from "wavo";
+
+const reducedData = getReducedDataPoints(barCount, originalData);
+```
+
+## Memoization
+
+Data reduction is automatically memoized using WeakMap:
+
+```tsx
+// Same input returns cached result
+const data1 = getReducedDataPoints(100, audioData);
+const data2 = getReducedDataPoints(100, audioData);
+// data1 === data2 (same reference)
+```
+
+## Lazy Loading
+
+Defer off-screen waveforms:
+
+```tsx
+<Waveform.Container dataPoints={audioData} lazyLoad>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+Benefits:
+- Faster initial page load
+- Reduced memory usage
+- Animation triggered on visibility
+
+Configure preloading:
+
+```tsx
+// Hook usage for custom components
+const { shouldRender } = useLazyLoad({
+  elementRef,
+  enabled: true,
+  rootMargin: "200px", // Preload 200px before visible
+});
+```
+
+## ResizeObserver
+
+Bars and Path use ResizeObserver for responsive sizing:
+
+1. Container width is measured
+2. Bar/segment count calculated
+3. Data reduced to match count
+4. Visualization updated
+
+This happens automatically and efficiently.
+
+## Animation Performance
+
+### Entrance Animation
+
+The default entrance animation uses CSS transforms for GPU acceleration:
+
+```css
+[data-wavo-bar] {
+  will-change: height;
+  transform: translateZ(0);
+}
+```
+
+### Disable Animations
+
+For maximum performance:
+
+```tsx
+<Waveform.Container dataPoints={data} shouldAnimate={false}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+### Reduced Motion
+
+Wavo respects `prefers-reduced-motion`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  [data-wavo-svg] * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+```
+
+## Real-Time Visualization
+
+For real-time audio (microphone, streaming):
+
+```tsx
+function RealTimeWaveform() {
+  const barsRef = useRef<BarsHandle>(null);
+
+  useEffect(() => {
+    const analyser = setupWebAudioAnalyser();
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    const update = () => {
+      analyser.getByteFrequencyData(dataArray);
+      const normalized = Array.from(dataArray).map((v) => v / 255);
+      barsRef.current?.setDataPoints(normalized);
+      requestAnimationFrame(update);
+    };
+
+    requestAnimationFrame(update);
+  }, []);
+
+  return (
+    <Waveform.Container dataPoints={new Array(128).fill(0)}>
+      <Waveform.Bars ref={barsRef} optimized />
+    </Waveform.Container>
+  );
+}
+```
+
+Key patterns:
+- Use imperative `setDataPoints()` for updates
+- Use `optimized` prop for fewer DOM nodes
+- Initialize with placeholder data
+
+## Bundle Size
+
+Wavo is tree-shakeable. Import only what you need:
+
+```tsx
+// Full import (~5kb gzipped)
+import { Waveform, useAudioProgress } from "wavo";
+
+// Minimal import
+import { Waveform } from "wavo";
+```
+
+## Profiling
+
+Use React DevTools Profiler to identify re-renders:
+
+1. Open React DevTools
+2. Go to Profiler tab
+3. Record while interacting
+4. Look for unexpected Waveform re-renders
+
+## Performance Checklist
+
+- [ ] Use imperative refs for 60fps updates
+- [ ] Use `useAudioProgress` for audio playback
+- [ ] Use `optimized` prop for 100+ bars
+- [ ] Enable `lazyLoad` for off-screen waveforms
+- [ ] Avoid passing new object/array references as props
+- [ ] Consider `shouldAnimate={false}` for many waveforms
+
+## Next Steps
+
+- See [Imperative API](/docs/advanced/imperative-api) for update patterns
+- See [useAudioProgress](/docs/hooks/use-audio-progress) for audio sync

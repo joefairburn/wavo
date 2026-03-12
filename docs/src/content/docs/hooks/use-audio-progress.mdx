@@ -1,0 +1,252 @@
+---
+title: useAudioProgress
+description: High-performance hook for 60fps audio progress updates without React re-renders
+---
+
+The `useAudioProgress` hook provides 60fps audio progress updates using `requestAnimationFrame`. It updates the Progress component's imperative handle directly, avoiding React re-renders for smooth visualization.
+
+## Basic Usage
+
+```tsx
+import { useRef } from "react";
+import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+
+function AudioPlayer() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+
+  useAudioProgress({
+    audioRef,
+    progressRef,
+  });
+
+  return (
+    <>
+      <audio ref={audioRef} src="audio.mp3" controls />
+      <Waveform.Container dataPoints={audioData}>
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+    </>
+  );
+}
+```
+
+## Options
+
+```tsx
+interface UseAudioProgressOptions {
+  // Audio element reference
+  audioRef?: React.RefObject<HTMLAudioElement | null>;
+
+  // Custom audio source (for Web Audio API, etc.)
+  audioSource?: AudioSource;
+
+  // Progress component reference to update
+  progressRef: React.RefObject<ProgressHandle | null>;
+
+  // Optional callback for state synchronization
+  onProgressUpdate?: (progress: number) => void;
+
+  // Enable 60fps updates (default: true)
+  enableHighFrequency?: boolean;
+
+  // Manual play state for custom audio sources
+  isPlaying?: boolean;
+}
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `audioRef` | `RefObject<HTMLAudioElement>` | - | HTML audio element reference |
+| `audioSource` | `AudioSource` | - | Custom audio source (Web Audio API) |
+| `progressRef` | `RefObject<ProgressHandle>` | **required** | Progress component reference |
+| `onProgressUpdate` | `(progress: number) => void` | - | State sync callback (~10fps) |
+| `enableHighFrequency` | `boolean` | `true` | Enable 60fps updates |
+| `isPlaying` | `boolean` | - | Manual play state for custom sources |
+
+## Return Value
+
+Returns a function to manually update progress (useful for seeking):
+
+```tsx
+const updateProgress = useAudioProgress({ audioRef, progressRef });
+
+const handleSeek = (percentage: number) => {
+  // Update audio position
+  if (audioRef.current) {
+    audioRef.current.currentTime = audioRef.current.duration * percentage;
+  }
+  // Immediately update progress visualization
+  updateProgress(percentage);
+};
+```
+
+## With State Synchronization
+
+Use `onProgressUpdate` to sync with React state (throttled to ~10fps):
+
+```tsx
+function AudioPlayerWithState() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+  const [progress, setProgress] = useState(0);
+
+  useAudioProgress({
+    audioRef,
+    progressRef,
+    onProgressUpdate: setProgress, // ~10fps for UI updates
+  });
+
+  return (
+    <>
+      <audio ref={audioRef} src="audio.mp3" />
+      <Waveform.Container dataPoints={audioData} progress={progress}>
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+      <span>Progress: {(progress * 100).toFixed(1)}%</span>
+    </>
+  );
+}
+```
+
+> **Note:** The `onProgressUpdate` callback is called every 6th frame (~10fps) to avoid excessive React re-renders while still keeping UI synchronized.
+
+## Interactive Seeking
+
+Full example with click and drag seeking:
+
+```tsx
+function InteractiveAudioPlayer() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+  const [progress, setProgress] = useState(0);
+
+  const updateProgress = useAudioProgress({
+    audioRef,
+    progressRef,
+    onProgressUpdate: setProgress,
+  });
+
+  const handleSeek = (percentage: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = audioRef.current.duration * percentage;
+      updateProgress(percentage);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    const STEP = 0.05;
+    switch (event.key) {
+      case "ArrowLeft":
+        handleSeek(Math.max(0, progress - STEP));
+        event.preventDefault();
+        break;
+      case "ArrowRight":
+        handleSeek(Math.min(1, progress + STEP));
+        event.preventDefault();
+        break;
+      case " ":
+        if (audioRef.current?.paused) {
+          audioRef.current.play();
+        } else {
+          audioRef.current?.pause();
+        }
+        event.preventDefault();
+        break;
+    }
+  };
+
+  return (
+    <>
+      <audio ref={audioRef} src="audio.mp3" />
+      <Waveform.Container
+        dataPoints={audioData}
+        progress={progress}
+        onClick={handleSeek}
+        onDrag={handleSeek}
+        onKeyDown={handleKeyDown}
+      >
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+    </>
+  );
+}
+```
+
+## Custom Audio Source
+
+Use `audioSource` with `isPlaying` for custom audio implementations:
+
+```tsx
+interface AudioSource {
+  currentTime: number;
+  duration: number;
+  paused?: boolean;
+  ended?: boolean;
+}
+
+function WebAudioPlayer() {
+  const progressRef = useRef<ProgressHandle>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Custom audio source state
+  const audioSourceRef = useRef<AudioSource>({
+    currentTime: 0,
+    duration: 60,
+    paused: true,
+    ended: false,
+  });
+
+  useAudioProgress({
+    audioSource: audioSourceRef.current,
+    progressRef,
+    isPlaying,
+  });
+
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Path smooth />
+      <Waveform.Progress ref={progressRef} color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+## How It Works
+
+1. **Automatic Loop Management**: Starts/stops RAF loop based on audio `play`/`pause`/`ended` events
+2. **Direct DOM Updates**: Calls `progressRef.current.setProgress()` at 60fps
+3. **Throttled State Updates**: Calls `onProgressUpdate` every 6th frame (~10fps)
+4. **Cleanup**: Automatically cleans up RAF on unmount or when audio element changes
+
+## Performance Benefits
+
+| Approach | Re-renders | Smoothness |
+|----------|------------|------------|
+| React state at 60fps | High | Janky |
+| useAudioProgress | Low (~10fps) | Smooth (60fps) |
+
+By separating visual updates (60fps via imperative handle) from React state updates (~10fps), you get smooth animations without performance degradation.
+
+## Disabling High-Frequency Updates
+
+For simpler use cases, disable the RAF loop:
+
+```tsx
+useAudioProgress({
+  audioRef,
+  progressRef,
+  enableHighFrequency: false, // Only uses audio timeupdate events
+});
+```
+
+This falls back to the browser's native `timeupdate` event (typically 4-6fps).
+
+## Next Steps
+
+- Learn about [Progress](/docs/components/progress) imperative handle
+- See [Imperative API](/docs/advanced/imperative-api) for more patterns
+- See [Performance](/docs/advanced/performance) for optimization tips
