@@ -143,7 +143,7 @@ export const Progress = forwardRef<ProgressHandle, ProgressProps>(
       const clampedProgress = Math.max(0, Math.min(1, value));
 
       // Round to 4 decimal places to avoid floating point precision issues
-      const roundedProgress = Math.round(clampedProgress * 10_000) / 10_000;
+      const roundedProgress = Math.round(clampedProgress * 10000) / 10000;
 
       // Only update DOM if progress actually changed
       if (roundedProgress !== lastProgressRef.current && gradientRef.current) {
