@@ -12,6 +12,7 @@ function formatTime(seconds: number): string {
 const AccessiblePlayerDemo = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<ProgressHandle>(null);
+  const wasPlayingRef = useRef(false);
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -125,8 +126,15 @@ const AccessiblePlayerDemo = () => {
           progress={progress}
           onClick={handleSeek}
           onDrag={handleSeek}
-          onDragStart={() => audioRef.current?.pause()}
-          onDragEnd={() => isPlaying && audioRef.current?.play()}
+          onDragStart={() => {
+            wasPlayingRef.current = !audioRef.current?.paused;
+            audioRef.current?.pause();
+          }}
+          onDragEnd={() => {
+            if (wasPlayingRef.current) {
+              audioRef.current?.play();
+            }
+          }}
           onKeyDown={handleKeyDown}
         >
           <Waveform.Bars width={3} gap={2} radius={1} />
@@ -146,6 +154,7 @@ const AccessiblePlayerDemo = () => {
           >
             {isPlaying ? (
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <title>Pause</title>
                 <rect x="6" y="4" width="4" height="16" />
                 <rect x="14" y="4" width="4" height="16" />
               </svg>
@@ -156,6 +165,7 @@ const AccessiblePlayerDemo = () => {
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
+                <title>Play</title>
                 <polygon points="5,3 19,12 5,21" />
               </svg>
             )}

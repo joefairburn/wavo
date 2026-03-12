@@ -10,9 +10,12 @@ const RealtimeDemo = () => {
   useEffect(() => {
     // Check permission state on mount
     if (navigator.permissions) {
-      navigator.permissions.query({ name: "microphone" as PermissionName }).then((result) => {
-        setPermissionState(result.state as "prompt" | "granted" | "denied");
-      });
+      navigator.permissions
+        .query({ name: "microphone" as PermissionName })
+        .then((result) => {
+          setPermissionState(result.state as "prompt" | "granted" | "denied");
+        })
+        .catch(() => {});
     }
   }, []);
 
