@@ -66,7 +66,7 @@ const RealtimeDemo = () => {
       }
     };
 
-    setup();
+    void setup();
 
     return () => {
       if (animationId) {
@@ -78,7 +78,7 @@ const RealtimeDemo = () => {
         }
       }
       if (audioContext) {
-        audioContext.close();
+        void audioContext.close();
       }
     };
   }, [isActive]);

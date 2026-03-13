@@ -13,7 +13,6 @@ export default defineConfig({
     sourcemap: true,
     treeshake: true,
     minify: true,
-    jsx: "react-jsx",
     external: ["react", "react-dom"],
     outDir: "dist",
     fixedExtension: true,
