@@ -50,7 +50,7 @@ describe("Path imperative API", () => {
       expect(pathRef.current).not.toBeNull();
     });
 
-    expect(pathRef.current?.setDataPoints).toBeTypeOf("function");
+    expect(typeof pathRef.current?.setDataPoints).toBe("function");
   });
 
   it("exposes getSegmentCount method via ref", async () => {
@@ -67,7 +67,7 @@ describe("Path imperative API", () => {
       expect(pathRef.current).not.toBeNull();
     });
 
-    expect(pathRef.current?.getSegmentCount).toBeTypeOf("function");
+    expect(typeof pathRef.current?.getSegmentCount).toBe("function");
   });
 
   it("setDataPoints can be called without errors", async () => {
@@ -129,8 +129,8 @@ describe("Path imperative API", () => {
     });
 
     // Verify the API works for line type as well
-    expect(pathRef.current?.setDataPoints).toBeTypeOf("function");
-    expect(pathRef.current?.getSegmentCount).toBeTypeOf("function");
+    expect(typeof pathRef.current?.setDataPoints).toBe("function");
+    expect(typeof pathRef.current?.getSegmentCount).toBe("function");
 
     expect(() => {
       act(() => {

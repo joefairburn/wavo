@@ -83,7 +83,7 @@ const RealtimeDemo = () => {
     };
   }, [isActive]);
 
-  const initialData = new Array(128).fill(0.05);
+  const initialData = Array.from({ length: 128 }, () => 0.05);
 
   return (
     <div className="border-2 border-white/10 bg-[#050505]">

@@ -7,7 +7,6 @@ export default defineConfig({
   target: "es2018",
   clean: true,
   sourcemap: true,
-  splitting: true,
   treeshake: true,
   minify: true,
   jsx: "react-jsx",
