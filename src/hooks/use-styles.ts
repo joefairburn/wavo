@@ -196,6 +196,11 @@ export function useStyles({ unstyled = false, easing = "ease-in-out" }: StyleOpt
     }
 
     // Only inject styles once globally
+    // Check the DOM for the style element in case it was removed by client-side navigation
+    if (stylesInjected && !document.querySelector(`[${STYLE_ATTRIBUTE_ID}]`)) {
+      stylesInjected = false;
+    }
+
     if (!stylesInjected) {
       // Create and insert the style element
       const style = document.createElement("style");
@@ -205,7 +210,6 @@ export function useStyles({ unstyled = false, easing = "ease-in-out" }: StyleOpt
 
       stylesInjected = true;
     }
-    // No cleanup needed - styles persist for the session
   }, [unstyled, easing]);
 
   return { cssVariables };
