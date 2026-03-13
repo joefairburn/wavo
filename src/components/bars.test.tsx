@@ -1,6 +1,6 @@
 import { act, render, waitFor } from "@testing-library/react";
 import { createRef } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { WaveformProvider } from "../contexts/waveform-context";
 import { Bars, type BarsHandle } from "./bars";
 import type { PathHandle } from "./path";
