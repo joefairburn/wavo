@@ -73,45 +73,9 @@ export const getEasingFunction = (easing: EasingFunction): string => {
 export const createWaveformStyles = (easing: EasingFunction) => {
   const easingValue = getEasingFunction(easing);
 
-  return `
-  @media (prefers-reduced-motion: no-preference) {
-    /* Apply transitions only to individual bars */
-    [data-wavo-bar] {
-      will-change: height, y;
-      transition: height var(--wavo-transition-duration, 1s) var(--wavo-easing-function, ${easingValue}), 
-                 y var(--wavo-transition-duration, 1s) var(--wavo-easing-function, ${easingValue});
-    }
-
-    /* Explicitly disable animations for Path elements */
-    [data-wavo-path] {
-      will-change: none;
-      transition: none;
-      animation: none;
-    }
-    
-    /* Animation for groups of bars */
-    [data-wavo-svg] [data-new-bars='true'] {
-      will-change: transform;
-      transform: scaleY(0);
-      transform-origin: center;
-      animation: growBars var(--wavo-transition-duration, 1s) forwards var(--wavo-easing-function, ${easingValue});
-    }
-    
-    @keyframes growBars {
-      0% {
-        opacity: 0;
-        transform: scaleY(0);
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 1;
-        transform: scaleY(1);
-      }
-    }
-  }
-`;
+  const d = "var(--wavo-transition-duration,1s)";
+  const e = `var(--wavo-easing-function,${easingValue})`;
+  return `@media(prefers-reduced-motion:no-preference){[data-wavo-bar]{will-change:height,y;transition:height ${d} ${e},y ${d} ${e}}[data-wavo-path]{will-change:none;transition:none;animation:none}[data-wavo-svg] [data-new-bars='true']{will-change:transform;transform:scaleY(0);transform-origin:center;animation:growBars ${d} forwards ${e}}@keyframes growBars{0%{opacity:0;transform:scaleY(0)}50%{opacity:1}100%{opacity:1;transform:scaleY(1)}}}`;
 };
 
 // Define a global identifier for tracking style insertion
@@ -195,17 +159,17 @@ export function useStyles({ unstyled = false, easing = "ease-in-out" }: StyleOpt
       return;
     }
 
-    // Only inject styles once globally
+    // Re-inject if styles were removed by client-side navigation (e.g. Astro)
+    if (stylesInjected && !document.querySelector(`[${STYLE_ATTRIBUTE_ID}]`)) {
+      stylesInjected = false;
+    }
     if (!stylesInjected) {
-      // Create and insert the style element
-      const style = document.createElement("style");
-      style.setAttribute(STYLE_ATTRIBUTE_ID, "");
-      style.innerHTML = createWaveformStyles(easing);
-      document.head.appendChild(style);
-
+      const s = document.createElement("style");
+      s.setAttribute(STYLE_ATTRIBUTE_ID, "");
+      s.innerHTML = createWaveformStyles(easing);
+      document.head.appendChild(s);
       stylesInjected = true;
     }
-    // No cleanup needed - styles persist for the session
   }, [unstyled, easing]);
 
   return { cssVariables };

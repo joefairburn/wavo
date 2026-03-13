@@ -166,24 +166,25 @@ export interface BarsProps {
  *
  * @private
  */
-const BarsRenderer = React.memo(
-  forwardRef<SVGGElement, BarsProps & { dataPoints: readonly number[] }>(
-    function BarsRendererComponent({ width = 3, gap = 1, radius = 2, className, dataPoints }, ref) {
-      const { hasProgress, id } = useWaveform();
+const renderBars = (points: readonly number[], w: number, g: number, r: BarRadius, offset = 0) =>
+  points.map((point, i) => (
+    <SingleBar
+      key={`b${i + offset}`}
+      point={point}
+      radius={r}
+      width={w}
+      x={(i + offset) * (w + g)}
+    />
+  ));
 
-      // Simplified approach: just render all bars directly
-      const bars = useMemo(() => {
-        return dataPoints.map((point, index) => (
-          <SingleBar
-            // biome-ignore lint/suspicious/noArrayIndexKey: Waveform data points have stable positions
-            key={`bar-${index}`}
-            point={point}
-            radius={radius}
-            width={width}
-            x={index * (width + gap)}
-          />
-        ));
-      }, [dataPoints, radius, width, gap]);
+const BarsRenderer = React.memo(
+  forwardRef<SVGGElement, BarsProps & { dataPoints: readonly number[]; prevBarCount: number }>(
+    function BarsRendererComponent(
+      { width = 3, gap = 1, radius = 2, className, dataPoints, prevBarCount },
+      ref,
+    ) {
+      const { hasProgress, id } = useWaveform();
+      const split = prevBarCount > 0 && prevBarCount < dataPoints.length ? prevBarCount : 0;
 
       return (
         <g
@@ -191,7 +192,15 @@ const BarsRenderer = React.memo(
           className={className}
           fill={hasProgress ? `url(#gradient-${id})` : "currentColor"}
         >
-          {bars}
+          {renderBars(split ? dataPoints.slice(0, split) : dataPoints, width, gap, radius)}
+          {split > 0 && (
+            <g
+              data-new-bars="true"
+              onAnimationEnd={(e) => e.currentTarget.removeAttribute("data-new-bars")}
+            >
+              {renderBars(dataPoints.slice(split), width, gap, radius, split)}
+            </g>
+          )}
         </g>
       );
     },
@@ -208,6 +217,7 @@ const BarsRects = forwardRef<BarsHandle, Omit<BarsProps, "optimized">>(
     const { dataPoints: _dataPoints, svgRef } = useWaveform();
     const groupRef = useRef<SVGGElement>(null);
     const barCountRef = useRef(0);
+    const prevBarCountRef = useRef(0);
 
     // Use ResizeObserver to update width when SVG container size changes
     useEffect(() => {
@@ -237,8 +247,10 @@ const BarsRects = forwardRef<BarsHandle, Omit<BarsProps, "optimized">>(
       return Math.max(1, Math.floor(svgWidth / barTotalWidth));
     }, [svgWidth, width, gap]);
 
-    // Update barCountRef when bar count changes
+    // Track previous bar count for animation, then update current
+    const prevBarCount = prevBarCountRef.current;
     useEffect(() => {
+      prevBarCountRef.current = barCount;
       barCountRef.current = barCount;
     }, [barCount]);
 
@@ -307,6 +319,7 @@ const BarsRects = forwardRef<BarsHandle, Omit<BarsProps, "optimized">>(
         className={className}
         dataPoints={initialDataPoints}
         gap={gap}
+        prevBarCount={prevBarCount}
         radius={radius}
         width={width}
       />
