@@ -123,6 +123,13 @@ const STYLE_ATTRIBUTE_ID = "data-wavo-styles";
 let stylesInjected = false;
 
 /**
+ * @internal Reset the styles-injected flag (testing only)
+ */
+export const __resetStylesInjected = () => {
+  stylesInjected = false;
+};
+
+/**
  * Options for the useStyles hook
  */
 interface StyleOptions {

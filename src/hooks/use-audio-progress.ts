@@ -46,6 +46,14 @@ export interface UseAudioProgressOptions {
    * If not provided, will attempt to use audio element events
    */
   isPlaying?: boolean;
+
+  /**
+   * @internal Dependency injection for requestAnimationFrame/cancelAnimationFrame (testing only)
+   */
+  __raf?: {
+    requestAnimationFrame: typeof requestAnimationFrame;
+    cancelAnimationFrame: typeof cancelAnimationFrame;
+  };
 }
 
 /**
@@ -84,7 +92,9 @@ export function useAudioProgress({
   onProgressUpdate,
   enableHighFrequency = true,
   isPlaying,
+  __raf,
 }: UseAudioProgressOptions) {
+  const raf = __raf ?? { requestAnimationFrame, cancelAnimationFrame };
   const rafRef = useRef<number | undefined>(undefined);
   // Frame counter for deterministic throttling of onProgressUpdate callback
   const frameCountRef = useRef(0);
@@ -118,8 +128,8 @@ export function useAudioProgress({
     }
 
     // Continue the animation loop
-    rafRef.current = requestAnimationFrame(updateProgress);
-  }, [audioRef, audioSource, progressRef, onProgressUpdate, isPlaying]);
+    rafRef.current = raf.requestAnimationFrame(updateProgress);
+  }, [audioRef, audioSource, progressRef, onProgressUpdate, isPlaying, raf]);
 
   // Start/stop the animation loop based on audio state
   useEffect(() => {
@@ -129,13 +139,13 @@ export function useAudioProgress({
 
     const startLoop = () => {
       if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(updateProgress);
+        rafRef.current = raf.requestAnimationFrame(updateProgress);
       }
     };
 
     const stopLoop = () => {
       if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
+        raf.cancelAnimationFrame(rafRef.current);
         rafRef.current = undefined;
       }
     };
