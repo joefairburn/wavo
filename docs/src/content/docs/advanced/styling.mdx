@@ -1,12 +1,303 @@
 ---
 title: Styling
-description: Learn how to customize the appearance of your waveforms
+description: Customize waveform appearance with CSS variables, classes, and data attributes
 ---
 
-## Styling Guide
+Wavo provides multiple ways to style your waveforms, from CSS variables to data attribute selectors.
 
-Wavelet provides multiple ways to style your waveforms, from basic CSS to advanced customization options.
+## CSS Variables
 
-### Basic Styling
+The primary way to customize waveforms:
 
-The simplest way to style your waveform is through CSS variables and data attributes:
+```tsx
+<Waveform.Container
+  dataPoints={audioData}
+  style={{
+    "--wavo-bar-color": "#333",
+    "--wavo-bar-color-progress": "#f96706",
+    "--wavo-bar-width": "4px",
+    "--wavo-bar-gap": "2px",
+  }}
+>
+  <Waveform.Bars />
+  <Waveform.Progress />
+</Waveform.Container>
+```
+
+See [CSS Variables](/docs/advanced/css-variables) for the complete reference.
+
+## className Prop
+
+Apply CSS classes to components:
+
+```tsx
+<Waveform.Container dataPoints={audioData} className="my-waveform">
+  <Waveform.Bars className="my-bars" />
+  <Waveform.Path className="my-path" />
+</Waveform.Container>
+```
+
+```css
+.my-waveform {
+  background: #000;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.my-bars {
+  filter: drop-shadow(0 0 4px rgba(249, 103, 6, 0.5));
+}
+```
+
+## Data Attributes
+
+Target specific elements with data attribute selectors:
+
+```css
+/* Main SVG container */
+[data-wavo-svg] {
+  background: #000;
+}
+
+/* Individual bars */
+[data-wavo-bar] {
+  transition: fill 0.2s ease;
+}
+
+/* Path elements */
+[data-wavo-path="line"] {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Animation trigger */
+[data-wavo-animate="true"] [data-wavo-bar] {
+  animation: fadeIn 0.5s ease-out;
+}
+```
+
+### Available Data Attributes
+
+| Attribute               | Applied To     | Description          |
+| ----------------------- | -------------- | -------------------- |
+| `data-wavo-svg`         | SVG element    | Main container       |
+| `data-wavo-bar`         | rect elements  | Individual bars      |
+| `data-wavo-path="line"` | path element   | Line visualization   |
+| `data-wavo-path="bar"`  | path element   | Bar path (optimized) |
+| `data-wavo-gradient`    | linearGradient | Progress gradient    |
+| `data-wavo-animate`     | SVG element    | Animation state      |
+
+## Theming
+
+Create theme variations using CSS:
+
+```css
+/* Dark theme */
+.waveform-dark {
+  --wavo-bar-color: #333;
+  --wavo-bar-color-progress: #f96706;
+}
+
+/* Light theme */
+.waveform-light {
+  --wavo-bar-color: #ddd;
+  --wavo-bar-color-progress: #e55b00;
+}
+
+/* Minimal theme */
+.waveform-minimal {
+  --wavo-bar-color: transparent;
+  --wavo-bar-color-progress: currentColor;
+}
+```
+
+```tsx
+<Waveform.Container className="waveform-dark" dataPoints={data}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+## Tailwind CSS
+
+Use Tailwind classes directly:
+
+```tsx
+<Waveform.Container className="h-20 w-full rounded-lg bg-black p-4" dataPoints={audioData}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+For dynamic styling, use Tailwind's arbitrary values:
+
+```tsx
+<Waveform.Container
+  className="[--wavo-bar-color:#333] [--wavo-bar-color-progress:#f96706]"
+  dataPoints={audioData}
+>
+  <Waveform.Bars />
+  <Waveform.Progress />
+</Waveform.Container>
+```
+
+## Unstyled Mode
+
+Disable all default styles for complete control:
+
+```tsx
+<Waveform.Container dataPoints={audioData} unstyled>
+  <Waveform.Bars className="custom-bars" />
+</Waveform.Container>
+```
+
+When `unstyled` is true:
+
+- No CSS is injected
+- No animations are applied
+- No transitions are configured
+- You have full styling control
+
+## Animation Customization
+
+### Entrance Animation
+
+Override the default entrance animation:
+
+```css
+[data-wavo-animate="true"] [data-wavo-bar] {
+  animation: slideUp 0.6s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+@keyframes slideUp {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--bar-height);
+    opacity: 1;
+  }
+}
+```
+
+### Transition Timing
+
+Control animation duration and easing:
+
+```tsx
+<Waveform.Container dataPoints={audioData} transitionDuration={0.5} easing={[0.4, 0, 0.2, 1]}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+### Disable Animations
+
+```tsx
+<Waveform.Container dataPoints={audioData} shouldAnimate={false}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+## Responsive Styling
+
+Waveforms automatically resize, but you can add responsive styles:
+
+```css
+.my-waveform {
+  height: 60px;
+}
+
+@media (min-width: 768px) {
+  .my-waveform {
+    height: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .my-waveform {
+    height: 150px;
+  }
+}
+```
+
+## Focus States
+
+Style focus for accessibility:
+
+```css
+[data-wavo-svg]:focus {
+  outline: 2px solid #f96706;
+  outline-offset: 2px;
+}
+
+[data-wavo-svg]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+[data-wavo-svg]:focus-visible {
+  outline: 2px solid #f96706;
+  outline-offset: 2px;
+}
+```
+
+## Hover Effects
+
+Add interactive hover states:
+
+```css
+[data-wavo-svg]:hover [data-wavo-bar] {
+  filter: brightness(1.1);
+}
+
+/* Individual bar hover (requires pointer-events) */
+[data-wavo-bar] {
+  pointer-events: all;
+  transition: transform 0.2s ease;
+}
+
+[data-wavo-bar]:hover {
+  transform: scaleY(1.1);
+}
+```
+
+## CSS-in-JS
+
+Works with styled-components, emotion, etc:
+
+```tsx
+import styled from "styled-components";
+import { Waveform } from "wavo";
+
+const StyledWaveform = styled(Waveform.Container)`
+  --wavo-bar-color: ${(props) => props.theme.colors.muted};
+  --wavo-bar-color-progress: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.colors.background};
+  border-radius: 8px;
+  padding: 1rem;
+`;
+```
+
+## Color with Gradients
+
+Use CSS gradients for bar fill:
+
+```css
+[data-wavo-bar] {
+  fill: url(#custom-gradient);
+}
+```
+
+Or use the Progress component's gradient prop:
+
+```tsx
+<Waveform.Progress
+  gradient={[
+    { offset: "0%", color: "#f96706" },
+    { offset: "50%", color: "#ff4757" },
+    { offset: "100%", color: "#ffd93d" },
+  ]}
+/>
+```
+
+## Next Steps
+
+- See [CSS Variables](/docs/advanced/css-variables) for complete reference
+- See [Performance](/docs/advanced/performance) for optimization tips

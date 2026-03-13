@@ -1,0 +1,313 @@
+---
+title: Custom Audio Sources
+description: Integrate Wavo with Web Audio API, streaming audio, and custom players
+---
+
+Beyond `HTMLAudioElement`, Wavo works with any audio source that provides timing information.
+
+## AudioSource Interface
+
+```tsx
+interface AudioSource {
+  currentTime: number;
+  duration: number;
+  paused?: boolean;
+  ended?: boolean;
+}
+```
+
+Any object matching this interface works with `useAudioProgress`.
+
+## Web Audio API
+
+### Basic Integration
+
+```tsx
+import { useRef, useState, useEffect } from "react";
+import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+
+function WebAudioPlayer() {
+  const progressRef = useRef<ProgressHandle>(null);
+  const [audioSource, setAudioSource] = useState<AudioSource>({
+    currentTime: 0,
+    duration: 0,
+    paused: true,
+  });
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const audioContextRef = useRef<AudioContext>();
+  const sourceNodeRef = useRef<AudioBufferSourceNode>();
+  const startTimeRef = useRef(0);
+
+  useAudioProgress({
+    audioSource,
+    progressRef,
+    isPlaying,
+  });
+
+  const loadAudio = async (url: string) => {
+    const context = new AudioContext();
+    audioContextRef.current = context;
+
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await context.decodeAudioData(arrayBuffer);
+
+    setAudioSource({
+      currentTime: 0,
+      duration: audioBuffer.duration,
+      paused: true,
+    });
+  };
+
+  const play = () => {
+    const context = audioContextRef.current;
+    if (!context) return;
+
+    const source = context.createBufferSource();
+    sourceNodeRef.current = source;
+    source.connect(context.destination);
+    source.start(0, audioSource.currentTime);
+
+    startTimeRef.current = context.currentTime - audioSource.currentTime;
+    setIsPlaying(true);
+
+    // Update currentTime during playback
+    const updateTime = () => {
+      if (!isPlaying) return;
+      setAudioSource((prev) => ({
+        ...prev,
+        currentTime: context.currentTime - startTimeRef.current,
+      }));
+      requestAnimationFrame(updateTime);
+    };
+    requestAnimationFrame(updateTime);
+  };
+
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+      <Waveform.Progress ref={progressRef} color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+### Real-Time Frequency Visualization
+
+```tsx
+function FrequencyVisualizer() {
+  const barsRef = useRef<BarsHandle>(null);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    let animationId: number;
+
+    const setup = async () => {
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+
+      // Connect to audio source (media element, microphone, etc.)
+      const source = await getAudioSource(audioContext);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      const visualize = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const normalized = Array.from(dataArray).map((v) => v / 255);
+        barsRef.current?.setDataPoints(normalized);
+        animationId = requestAnimationFrame(visualize);
+      };
+
+      animationId = requestAnimationFrame(visualize);
+    };
+
+    setup();
+    return () => cancelAnimationFrame(animationId);
+  }, [isActive]);
+
+  return (
+    <Waveform.Container dataPoints={new Array(128).fill(0.1)}>
+      <Waveform.Bars ref={barsRef} optimized />
+    </Waveform.Container>
+  );
+}
+```
+
+## Microphone Input
+
+```tsx
+function MicrophoneWaveform() {
+  const barsRef = useRef<BarsHandle>(null);
+  const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    if (!isListening) return;
+
+    let animationId: number;
+    let stream: MediaStream;
+
+    const setup = async () => {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.8;
+
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      const visualize = () => {
+        analyser.getByteTimeDomainData(dataArray);
+
+        // Convert to amplitude values
+        const normalized = Array.from(dataArray).map((v) => Math.abs(v - 128) / 128);
+
+        barsRef.current?.setDataPoints(normalized);
+        animationId = requestAnimationFrame(visualize);
+      };
+
+      animationId = requestAnimationFrame(visualize);
+    };
+
+    setup();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      stream?.getTracks().forEach((track) => track.stop());
+    };
+  }, [isListening]);
+
+  return (
+    <>
+      <button type="button" onClick={() => setIsListening(!isListening)}>
+        {isListening ? "Stop" : "Start"} Listening
+      </button>
+      <Waveform.Container dataPoints={new Array(256).fill(0.1)}>
+        <Waveform.Path ref={barsRef} smooth />
+      </Waveform.Container>
+    </>
+  );
+}
+```
+
+## Streaming Audio
+
+For audio streams without known duration:
+
+```tsx
+function StreamingPlayer() {
+  const progressRef = useRef<ProgressHandle>(null);
+  const [buffered, setBuffered] = useState(0);
+
+  // For streams, visualize buffer position instead of progress
+  useEffect(() => {
+    const updateBuffer = () => {
+      progressRef.current?.setProgress(buffered);
+    };
+    updateBuffer();
+  }, [buffered]);
+
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+      <Waveform.Progress ref={progressRef} color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+## Custom Video Player
+
+Use with video elements:
+
+```tsx
+function VideoWaveform() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+
+  // useAudioProgress works with any media element
+  useAudioProgress({
+    audioRef: videoRef as React.RefObject<HTMLAudioElement>,
+    progressRef,
+  });
+
+  return (
+    <>
+      <video ref={videoRef} src="video.mp4" controls />
+      <Waveform.Container dataPoints={audioData}>
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+    </>
+  );
+}
+```
+
+## Third-Party Players
+
+Wrap third-party player APIs:
+
+```tsx
+// Example with a hypothetical player API
+function ThirdPartyPlayer() {
+  const progressRef = useRef<ProgressHandle>(null);
+  const [audioSource, setAudioSource] = useState<AudioSource>({
+    currentTime: 0,
+    duration: 0,
+    paused: true,
+  });
+
+  useEffect(() => {
+    const player = new SomePlayer("#player");
+
+    player.on("timeupdate", (time: number) => {
+      setAudioSource((prev) => ({
+        ...prev,
+        currentTime: time,
+      }));
+    });
+
+    player.on("durationchange", (duration: number) => {
+      setAudioSource((prev) => ({
+        ...prev,
+        duration,
+      }));
+    });
+
+    player.on("play", () => {
+      setAudioSource((prev) => ({ ...prev, paused: false }));
+    });
+
+    player.on("pause", () => {
+      setAudioSource((prev) => ({ ...prev, paused: true }));
+    });
+  }, []);
+
+  useAudioProgress({
+    audioSource,
+    progressRef,
+    isPlaying: !audioSource.paused,
+  });
+
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+      <Waveform.Progress ref={progressRef} />
+    </Waveform.Container>
+  );
+}
+```
+
+## Next Steps
+
+- See [useAudioProgress](/docs/hooks/use-audio-progress) for hook details
+- See [Imperative API](/docs/advanced/imperative-api) for update patterns
+- See [Real-time example](/docs/examples/realtime) for complete demo

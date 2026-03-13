@@ -1,0 +1,248 @@
+---
+title: Accessibility
+description: Fully accessible audio player with keyboard navigation and screen reader support
+---
+
+import AccessiblePlayerDemo from "./components/accessible-player";
+
+A fully accessible audio player implementation with comprehensive keyboard navigation, screen reader announcements, and proper ARIA attributes.
+
+<AccessiblePlayerDemo client:load />
+
+## Implementation
+
+This example demonstrates:
+
+- Full keyboard navigation (arrow keys, space, enter, home, end)
+- Screen reader announcements via live regions
+- Proper ARIA attributes on interactive elements
+- Visible focus indicators
+
+## Full Source Code
+
+```tsx
+import { useRef, useState, useEffect } from "react";
+import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+
+function AccessibleAudioPlayer({ audioSrc, waveformData }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+  const [progress, setProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [announcement, setAnnouncement] = useState("");
+
+  const updateProgress = useAudioProgress({
+    audioRef,
+    progressRef,
+    onProgressUpdate: setProgress,
+  });
+
+  // Screen reader announcements
+  const announce = (message: string) => {
+    setAnnouncement(message);
+  };
+
+  const handleSeek = (percentage: number) => {
+    if (audioRef.current && duration) {
+      audioRef.current.currentTime = duration * percentage;
+      updateProgress(percentage);
+      announce(`Seeked to ${Math.round(percentage * 100)}%`);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    const STEP = 0.05;
+
+    switch (event.key) {
+      case "ArrowLeft":
+        handleSeek(Math.max(0, progress - STEP));
+        event.preventDefault();
+        break;
+
+      case "ArrowRight":
+        handleSeek(Math.min(1, progress + STEP));
+        event.preventDefault();
+        break;
+
+      case " ":
+      case "Enter":
+        togglePlayback();
+        event.preventDefault();
+        break;
+
+      case "Home":
+        handleSeek(0);
+        event.preventDefault();
+        break;
+
+      case "End":
+        handleSeek(1);
+        event.preventDefault();
+        break;
+    }
+  };
+
+  return (
+    <div>
+      {/* Live region for announcements */}
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </div>
+
+      <audio ref={audioRef} src={audioSrc} preload="metadata" />
+
+      <Waveform.Container
+        dataPoints={waveformData}
+        progress={progress}
+        onClick={handleSeek}
+        onDrag={handleSeek}
+        onKeyDown={handleKeyDown}
+        className="focus-visible:ring-2 focus-visible:ring-orange-500"
+      >
+        <Waveform.Bars />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+
+      <button onClick={togglePlayback} aria-label={isPlaying ? "Pause audio" : "Play audio"}>
+        {isPlaying ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />}
+      </button>
+    </div>
+  );
+}
+```
+
+## Accessibility Features
+
+### ARIA Attributes
+
+Waveform.Container automatically adds when interactive:
+
+```tsx
+<svg
+  role="slider"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-valuenow={Math.round(progress * 100)}
+  aria-label="Audio progress"
+  tabIndex="0"
+>
+```
+
+### Keyboard Navigation
+
+| Key               | Action           |
+| ----------------- | ---------------- |
+| `Space` / `Enter` | Play/Pause       |
+| `ArrowLeft`       | Seek backward 5% |
+| `ArrowRight`      | Seek forward 5%  |
+| `Home`            | Go to start      |
+| `End`             | Go to end        |
+
+### Screen Reader Announcements
+
+Use a live region for dynamic announcements:
+
+```tsx
+<div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+  {announcement}
+</div>
+```
+
+Update the announcement when:
+
+- Playback starts/stops
+- User seeks
+- Audio ends
+
+### Focus Indicators
+
+Visible focus styles for keyboard navigation:
+
+```css
+[data-wavo-svg]:focus-visible {
+  outline: 2px solid #f96706;
+  outline-offset: 2px;
+}
+
+/* Or with Tailwind */
+.focus-visible:ring-2.focus-visible:ring-orange-500
+```
+
+### Button Labels
+
+Use `aria-label` for icon-only buttons:
+
+```tsx
+<button aria-label={isPlaying ? "Pause audio" : "Play audio"}>
+  {isPlaying ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />}
+</button>
+```
+
+### Time Display
+
+Provide accessible time format:
+
+```tsx
+<div aria-label={`${formatTime(elapsed)} of ${formatTime(duration)}`}>
+  {formatTime(elapsed)} / {formatTime(duration)}
+</div>
+```
+
+## Reduced Motion
+
+Wavo respects `prefers-reduced-motion`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  [data-wavo-svg] * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+```
+
+Or check in JavaScript:
+
+```tsx
+const prefersReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
+
+<Waveform.Container shouldAnimate={!prefersReducedMotion}>
+```
+
+## High Contrast Mode
+
+Ensure colors work in high contrast:
+
+```css
+@media (forced-colors: active) {
+  [data-wavo-bar] {
+    fill: CanvasText;
+  }
+}
+```
+
+## Testing Accessibility
+
+1. **Keyboard only** - Navigate without mouse
+2. **Screen reader** - Test with VoiceOver, NVDA, or JAWS
+3. **Reduced motion** - Enable in OS settings
+4. **High contrast** - Test in Windows high contrast mode
+5. **Zoom** - Test at 200% zoom
+
+## WCAG Compliance
+
+This implementation addresses:
+
+- **1.4.3 Contrast** - Progress color has sufficient contrast
+- **2.1.1 Keyboard** - All functionality accessible via keyboard
+- **2.4.7 Focus Visible** - Clear focus indicators
+- **4.1.2 Name, Role, Value** - Proper ARIA attributes
+
+## Next Steps
+
+- See [Container](/docs/components/container) for built-in a11y
+- See [Audio Player](/docs/examples/audio-player) for full player
+- See [useInteraction](/docs/hooks/use-interaction) for keyboard handling

@@ -11,12 +11,123 @@ import WavoExample from "./components/wavo-example";
 
 ## Overview
 
-wavo is a React library that makes it easy to create beautiful, interactive waveform visualizations. It's perfect for audio players, voice messages, or any application that needs to display waveform data.
+Wavo is a React library for creating beautiful, interactive audio waveform visualizations. Built with performance in mind, it uses SVG rendering and imperative updates to achieve smooth 60fps animations without triggering React re-renders.
 
 ### Key Features
 
-- 🎨 **Customizable**: Style your waveforms with CSS or props
-- ⚡ **Performant**: Optimized for handling large datasets
-- 📱 **Responsive**: Adapts to any container size
-- 🔄 **Interactive**: Built-in support for progress, click, and drag events
-- 🎭 **Animated**: Smooth animations for loading and progress
+- **Performant** - Imperative updates bypass React's reconciliation for 60fps animations
+- **Flexible** - Bar, path, and custom visualizations with full styling control
+- **Interactive** - Built-in click, drag, and keyboard navigation support
+- **Accessible** - ARIA attributes and keyboard controls out of the box
+- **Lightweight** - ~8KB minified and gzipped, zero dependencies beyond React
+- **TypeScript** - Full type definitions included
+
+## Architecture
+
+Wavo uses a compound component pattern where the Container manages state and interactions while child components handle rendering:
+
+```tsx
+<Waveform.Container dataPoints={data} progress={0.5}>
+  <Waveform.Bars /> {/* Visualization layer */}
+  <Waveform.Progress /> {/* Progress overlay */}
+</Waveform.Container>
+```
+
+This architecture provides:
+
+- **Separation of concerns** - Each component has a single responsibility
+- **Composability** - Mix and match visualization styles
+- **Context-driven state** - Child components access shared state via React context
+- **Imperative handles** - Direct DOM updates for high-frequency operations
+
+## When to Use Wavo
+
+Wavo is ideal for:
+
+- **Audio players** - Music apps, podcast players, voice recorders
+- **Voice messages** - Chat applications with audio messages
+- **Real-time visualization** - Microphone input, streaming audio
+- **Audio editing** - DAWs, audio trimming tools
+- **Data visualization** - Any time-series amplitude data
+
+## Performance
+
+Wavo is optimized for smooth 60fps rendering:
+
+| Feature            | Benefit                                                   |
+| ------------------ | --------------------------------------------------------- |
+| SVG rendering      | Hardware-accelerated, resolution-independent              |
+| Imperative updates | Bypass React reconciliation for progress animations       |
+| Data reduction     | Automatically downsamples large datasets to fit container |
+| Optimized mode     | Single path element instead of individual bars            |
+| Lazy loading       | Intersection Observer delays rendering until visible      |
+
+### The Imperative Pattern
+
+For high-frequency updates like audio playback progress, Wavo provides imperative handles that update the DOM directly:
+
+```tsx
+const progressRef = useRef<ProgressHandle>(null);
+
+// Called 60 times per second - no React re-renders!
+progressRef.current?.setProgress(0.5);
+```
+
+See the [Performance Guide](/docs/advanced/performance) for optimization strategies.
+
+## Browser Support
+
+Wavo supports all modern browsers:
+
+| Browser | Version |
+| ------- | ------- |
+| Chrome  | 88+     |
+| Firefox | 85+     |
+| Safari  | 14+     |
+| Edge    | 88+     |
+
+Features used: SVG, CSS custom properties, Intersection Observer, ResizeObserver.
+
+## Bundle Size
+
+Wavo is designed to be lightweight:
+
+| Import       | Size (minified + gzipped) |
+| ------------ | ------------------------- |
+| Full library | ~8KB                      |
+| Core only    | ~5KB                      |
+
+Tree-shaking is fully supported. Import only what you need:
+
+```tsx
+// Full library
+import { Waveform } from "wavo";
+
+// Individual components (tree-shakeable)
+import { Container, Bars, Progress } from "wavo";
+```
+
+## Quick Example
+
+Here's a minimal example to get started:
+
+```tsx
+import { Waveform } from "wavo";
+
+const data = [0.2, 0.5, 0.8, 0.6, 0.3, 0.9, 0.4, 0.7];
+
+function MyWaveform() {
+  return (
+    <Waveform.Container dataPoints={data}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+## Next Steps
+
+- [Installation](/docs/guides/installation) - Install and set up Wavo
+- [Quick Start](/docs/guides/quickstart) - Build your first waveform
+- [Components](/docs/components/container) - Explore the component API
+- [Examples](/docs/examples/audio-player) - See complete implementations

@@ -1,0 +1,192 @@
+---
+title: CSS Variables
+description: Complete reference for all CSS custom properties used by Wavo
+---
+
+Wavo uses CSS custom properties (variables) for styling. These can be set on the waveform container or any parent element.
+
+## Available Variables
+
+| Variable                     | Default        | Description            |
+| ---------------------------- | -------------- | ---------------------- |
+| `--wavo-bar-width`           | `3px`          | Width of each bar      |
+| `--wavo-bar-gap`             | `1px`          | Gap between bars       |
+| `--wavo-bar-color`           | `currentColor` | Unplayed portion color |
+| `--wavo-bar-color-progress`  | `currentColor` | Played portion color   |
+| `--wavo-transition-duration` | `1s`           | Animation duration     |
+| `--wavo-easing-function`     | `ease-in-out`  | Animation easing       |
+
+## Usage
+
+### Inline Styles
+
+```tsx
+<Waveform.Container
+  dataPoints={audioData}
+  style={{
+    "--wavo-bar-color": "#333",
+    "--wavo-bar-color-progress": "#f96706",
+    "--wavo-bar-width": "4px",
+    "--wavo-bar-gap": "2px",
+  }}
+>
+  <Waveform.Bars />
+  <Waveform.Progress />
+</Waveform.Container>
+```
+
+### CSS Classes
+
+```css
+.my-waveform {
+  --wavo-bar-color: #333;
+  --wavo-bar-color-progress: #f96706;
+  --wavo-bar-width: 4px;
+  --wavo-bar-gap: 2px;
+}
+```
+
+```tsx
+<Waveform.Container className="my-waveform" dataPoints={audioData}>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+### Tailwind CSS
+
+```tsx
+<Waveform.Container
+  className="[--wavo-bar-color:#333] [--wavo-bar-color-progress:#f96706]"
+  dataPoints={audioData}
+>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+## Variable Details
+
+### --wavo-bar-width
+
+Controls the width of each bar in the waveform.
+
+```css
+--wavo-bar-width: 2px; /* Thin bars */
+--wavo-bar-width: 4px; /* Default-ish */
+--wavo-bar-width: 8px; /* Thick bars */
+```
+
+### --wavo-bar-gap
+
+Controls the spacing between bars.
+
+```css
+--wavo-bar-gap: 0px; /* No gap (solid) */
+--wavo-bar-gap: 1px; /* Minimal gap */
+--wavo-bar-gap: 4px; /* Visible gap */
+```
+
+### --wavo-bar-color
+
+The fill color for the unplayed portion of the waveform.
+
+```css
+--wavo-bar-color: #333; /* Dark gray */
+--wavo-bar-color: rgba(255, 255, 255, 0.2); /* Semi-transparent */
+--wavo-bar-color: currentColor; /* Inherit from parent */
+```
+
+### --wavo-bar-color-progress
+
+The fill color for the played portion of the waveform.
+
+```css
+--wavo-bar-color-progress: #f96706; /* Orange */
+--wavo-bar-color-progress: currentColor; /* Inherit from parent */
+```
+
+> **Note:** When using the `Progress` component with `color` or `gradient` props, those take precedence over this variable.
+
+### --wavo-transition-duration
+
+Controls the duration of entrance animations.
+
+```css
+--wavo-transition-duration: 0s; /* No animation */
+--wavo-transition-duration: 0.5s; /* Fast */
+--wavo-transition-duration: 1s; /* Default */
+--wavo-transition-duration: 2s; /* Slow */
+```
+
+### --wavo-easing-function
+
+Controls the easing curve for animations.
+
+```css
+--wavo-easing-function: linear;
+--wavo-easing-function: ease-in-out;
+--wavo-easing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+```
+
+## Theming Example
+
+Create a reusable theme:
+
+```css
+:root {
+  /* Default theme */
+  --wavo-bar-color: #333;
+  --wavo-bar-color-progress: #f96706;
+}
+
+[data-theme="dark"] {
+  --wavo-bar-color: #444;
+  --wavo-bar-color-progress: #ff8533;
+}
+
+[data-theme="light"] {
+  --wavo-bar-color: #ddd;
+  --wavo-bar-color-progress: #e55b00;
+}
+```
+
+## TypeScript Support
+
+For TypeScript, extend CSSProperties:
+
+```tsx
+declare module "react" {
+  interface CSSProperties {
+    "--wavo-bar-color"?: string;
+    "--wavo-bar-color-progress"?: string;
+    "--wavo-bar-width"?: string;
+    "--wavo-bar-gap"?: string;
+    "--wavo-transition-duration"?: string;
+    "--wavo-easing-function"?: string;
+  }
+}
+```
+
+## Accessing in JavaScript
+
+Read variable values:
+
+```tsx
+const styles = getComputedStyle(svgRef.current);
+const barWidth = styles.getPropertyValue("--wavo-bar-width");
+const barGap = styles.getPropertyValue("--wavo-bar-gap");
+```
+
+## Priority Order
+
+When multiple sources define the same variable:
+
+1. Inline `style` prop (highest)
+2. Component `className` CSS
+3. Parent element CSS
+4. CSS custom property defaults
+5. Component prop defaults (lowest)
+
+## Next Steps
+
+- See [Styling](/docs/advanced/styling) for more customization options
+- See [Performance](/docs/advanced/performance) for optimization tips

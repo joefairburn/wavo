@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from "astro:transitions";
+
 interface Props {
   title: string;
   description?: string;
@@ -8,7 +10,7 @@ const { title, description = "A small library for drawing waveforms in React" } 
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,6 +26,7 @@ const { title, description = "A small library for drawing waveforms in React" } 
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
     />
+    <ClientRouter />
   </head>
   <body
     class="bg-background-dark min-h-screen flex flex-col font-display overflow-x-hidden selection:bg-primary selection:text-white"

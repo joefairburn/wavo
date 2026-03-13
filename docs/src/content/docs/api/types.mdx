@@ -1,0 +1,307 @@
+---
+title: Types
+description: TypeScript type definitions for Wavo components and hooks
+---
+
+Complete TypeScript type reference for Wavo.
+
+## Core Types
+
+### WaveformData
+
+Array of normalized amplitude values:
+
+```tsx
+type NormalizedAmplitude = number; // Values between 0 and 1
+
+type WaveformData = readonly NormalizedAmplitude[];
+```
+
+Example:
+
+```tsx
+const audioData: WaveformData = [0.1, 0.4, 0.8, 0.6, 0.3, 0.9, 0.5];
+```
+
+### EasingFunction
+
+Animation easing options:
+
+```tsx
+type EasingFunction =
+  | "linear"
+  | "ease"
+  | "ease-in"
+  | "ease-out"
+  | "ease-in-out"
+  | "cubic-bezier"
+  | [number, number, number, number]; // [x1, y1, x2, y2]
+```
+
+Examples:
+
+```tsx
+const easing1: EasingFunction = "ease-out";
+const easing2: EasingFunction = [0.1, 0.9, 0.2, 1.0]; // Snappy
+```
+
+### BarRadius
+
+Constrained corner radius values:
+
+```tsx
+type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
+```
+
+### RenderType
+
+Path rendering modes:
+
+```tsx
+type RenderType = "bar" | "line";
+```
+
+> **Note:** `"bar"` is deprecated. Use `<Bars optimized />` instead.
+
+### GradientStop
+
+Gradient color stop definition:
+
+```tsx
+interface GradientStop {
+  /**
+   * Position as percentage (e.g., "0%", "50%", "100%")
+   */
+  offset: string;
+
+  /**
+   * CSS color value
+   */
+  color: string;
+}
+```
+
+Example:
+
+```tsx
+const gradient: GradientStop[] = [
+  { offset: "0%", color: "#f96706" },
+  { offset: "50%", color: "#ff4757" },
+  { offset: "100%", color: "#ffd93d" },
+];
+```
+
+## Component Props
+
+### WaveformProps
+
+```tsx
+interface WaveformProps {
+  dataPoints: WaveformData;
+  progress?: number;
+  lazyLoad?: boolean;
+  transitionDuration?: number;
+  easing?: EasingFunction;
+  onClick?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+  onDrag?: (percentage: number, event: React.MouseEvent<SVGSVGElement>) => void;
+  onDragStart?: (event: React.MouseEvent<SVGSVGElement>) => void;
+  onDragEnd?: (event: React.MouseEvent<SVGSVGElement>) => void;
+  onKeyDown?: (event: React.KeyboardEvent<SVGSVGElement>) => void;
+  className?: string;
+  shouldAnimate?: boolean;
+  unstyled?: boolean;
+  children: React.ReactNode;
+}
+```
+
+### BarsProps
+
+```tsx
+interface BarsProps {
+  width?: number;
+  gap?: number;
+  radius?: BarRadius;
+  optimized?: boolean;
+  className?: string;
+  // Internal props (from context)
+  progress?: number;
+  dataPoints?: WaveformData;
+}
+```
+
+### PathProps
+
+```tsx
+interface PathProps {
+  type?: RenderType;
+  width?: number;
+  gap?: number;
+  radius?: BarRadius;
+  curvature?: number;
+  smooth?: boolean;
+  className?: string;
+  // Internal props (from context)
+  progress?: number;
+  dataPoints?: WaveformData;
+}
+```
+
+### ProgressProps
+
+```tsx
+interface ProgressProps {
+  progress?: number;
+  color?: string;
+  gradient?: GradientStop[];
+}
+```
+
+## Component Handles
+
+### ProgressHandle
+
+```tsx
+interface ProgressHandle {
+  setProgress(newProgress: number): void;
+}
+```
+
+### BarsHandle
+
+```tsx
+interface BarsHandle {
+  setDataPoints(dataPoints: number[]): void;
+  getBarCount(): number;
+}
+```
+
+### PathHandle
+
+```tsx
+interface PathHandle {
+  setDataPoints(dataPoints: number[]): void;
+  getSegmentCount(): number;
+}
+```
+
+## Hook Types
+
+### UseAudioProgressOptions
+
+```tsx
+interface UseAudioProgressOptions {
+  audioRef?: React.RefObject<HTMLAudioElement | null>;
+  audioSource?: AudioSource;
+  progressRef: React.RefObject<ProgressHandle | null>;
+  onProgressUpdate?: (progress: number) => void;
+  enableHighFrequency?: boolean;
+  isPlaying?: boolean;
+}
+```
+
+### AudioSource
+
+```tsx
+interface AudioSource {
+  currentTime: number;
+  duration: number;
+  paused?: boolean;
+  ended?: boolean;
+}
+```
+
+### InteractionOptions
+
+```tsx
+interface InteractionOptions<T extends HTMLElement | SVGElement> {
+  elementRef: React.RefObject<T | null>;
+  onClick?: (percentage: number, event: React.MouseEvent<T>) => void;
+  onDrag?: (percentage: number, event: React.MouseEvent<T>) => void;
+  onDragStart?: (event: React.MouseEvent<T>) => void;
+  onDragEnd?: (event: React.MouseEvent<T>) => void;
+  onKeyDown?: React.KeyboardEventHandler<T>;
+}
+```
+
+### InteractionResult
+
+```tsx
+interface InteractionResult<T> {
+  eventHandlers: {
+    onClick: React.MouseEventHandler<T>;
+    onMouseDown: React.MouseEventHandler<T>;
+    onKeyDown?: React.KeyboardEventHandler<T>;
+  };
+  isDragging: boolean;
+  hasInteractions: boolean;
+}
+```
+
+### LazyLoadOptions
+
+```tsx
+interface LazyLoadOptions {
+  elementRef: React.RefObject<HTMLElement | SVGElement | null>;
+  enabled: boolean;
+  rootMargin?: string;
+  threshold?: number;
+}
+```
+
+### LazyLoadResult
+
+```tsx
+interface LazyLoadResult {
+  shouldRender: boolean;
+}
+```
+
+### StyleOptions
+
+```tsx
+interface StyleOptions {
+  unstyled?: boolean;
+  transitionDuration?: number;
+  easing?: EasingFunction;
+}
+```
+
+## Context Type
+
+### WaveformContextType
+
+```tsx
+interface WaveformContextType {
+  dataPoints: WaveformData;
+  id: string;
+  svgRef: React.RefObject<SVGSVGElement | null>;
+  hasProgress: boolean;
+  isStyled: boolean;
+  transitionDuration: number;
+  easing: EasingFunction;
+  progress: number;
+}
+```
+
+## Importing Types
+
+```tsx
+import type {
+  WaveformData,
+  EasingFunction,
+  BarRadius,
+  GradientStop,
+  WaveformProps,
+  BarsProps,
+  PathProps,
+  ProgressProps,
+  ProgressHandle,
+  BarsHandle,
+  PathHandle,
+} from "wavo";
+```
+
+## Next Steps
+
+- See [Utilities](/docs/api/utilities) for helper functions
+- See component pages for usage examples

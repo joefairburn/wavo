@@ -1,0 +1,219 @@
+---
+title: Voice Message
+description: WhatsApp/Telegram-style compact voice message with waveform
+---
+
+import VoiceMessageDemo from "./components/voice-message";
+
+A compact voice message component similar to WhatsApp or Telegram, featuring a play button, inline waveform, and duration display.
+
+<VoiceMessageDemo client:load />
+
+## Implementation
+
+This example demonstrates:
+
+- Compact waveform layout
+- Inline play button
+- Duration display (switches to elapsed time during playback)
+- Message bubble styling
+
+## Full Source Code
+
+```tsx
+import { useRef, useState, useEffect } from "react";
+import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function VoiceMessage({ audioSrc, waveformData }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+  const [progress, setProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+
+  const updateProgress = useAudioProgress({
+    audioRef,
+    progressRef,
+    onProgressUpdate: setProgress,
+  });
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleLoadedMetadata = () => setDuration(audio.duration);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
+
+  const handleSeek = (percentage: number) => {
+    if (audioRef.current && duration) {
+      audioRef.current.currentTime = duration * percentage;
+      updateProgress(percentage);
+    }
+  };
+
+  const togglePlayback = () => {
+    if (audioRef.current) {
+      isPlaying ? audioRef.current.pause() : audioRef.current.play();
+    }
+  };
+
+  return (
+    <div className="voice-message">
+      <audio ref={audioRef} src={audioSrc} preload="metadata" />
+
+      <div className="bubble">
+        {/* Play Button */}
+        <button onClick={togglePlayback} className="play-button">
+          {isPlaying ? <PauseIcon /> : <PlayIcon />}
+        </button>
+
+        {/* Waveform and Time */}
+        <div className="content">
+          <div className="waveform-container">
+            <Waveform.Container
+              dataPoints={waveformData}
+              progress={progress}
+              onClick={handleSeek}
+              onDrag={handleSeek}
+            >
+              <Waveform.Bars width={2} gap={1} radius={1} />
+              <Waveform.Progress ref={progressRef} color="#f96706" />
+            </Waveform.Container>
+          </div>
+          <span className="time">{formatTime(isPlaying ? progress * duration : duration)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Styling
+
+```css
+.voice-message {
+  max-width: 300px;
+}
+
+.bubble {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+}
+
+.play-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f96706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.waveform-container {
+  height: 32px;
+}
+
+.time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+```
+
+## Key Features
+
+### Compact Layout
+
+The waveform fits in a small space by adjusting dimensions:
+
+```tsx
+<div className="h-8">
+  {" "}
+  {/* 32px height */}
+  <Waveform.Container dataPoints={data}>
+    <Waveform.Bars width={2} gap={1} radius={1} />
+  </Waveform.Container>
+</div>
+```
+
+### Dynamic Time Display
+
+Shows duration when paused, elapsed time when playing:
+
+```tsx
+<span className="time">{formatTime(isPlaying ? progress * duration : duration)}</span>
+```
+
+### Touch-Friendly
+
+Click/drag seeking works on touch devices:
+
+```tsx
+<Waveform.Container
+  onClick={handleSeek}
+  onDrag={handleSeek}
+>
+```
+
+## Variations
+
+### Sent Message (Right Aligned)
+
+```css
+.bubble.sent {
+  border-radius: 16px;
+  border-bottom-right-radius: 4px;
+  background: #0a84ff;
+}
+```
+
+### Received Message (Left Aligned)
+
+```css
+.bubble.received {
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  background: #333;
+}
+```
+
+## Next Steps
+
+- See [Audio Player](/docs/examples/audio-player) for a full player
+- See [Accessibility](/docs/examples/accessibility) for a11y features

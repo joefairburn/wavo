@@ -25,8 +25,93 @@ To show playback progress, add the `Progress` component and pass a `progress` pr
   <WaveformWithProgress client:load />
 </DemoCard>
 
+## Understanding the Data Format
+
+Waveform data is an array of normalized amplitude values between 0 and 1:
+
+```tsx
+import type { WaveformData } from "wavo";
+
+// Each value represents amplitude (0 = silence, 1 = max)
+const audioData: WaveformData = [0.1, 0.4, 0.8, 0.6, 0.3, 0.9, 0.5, 0.2, 0.7, 0.4];
+```
+
+The number of bars rendered is determined by the container width and bar dimensions, not the array length. Wavo automatically reduces larger datasets to fit.
+
+## Adding Interactivity
+
+Enable click and drag seeking:
+
+```tsx
+import { useState } from "react";
+import { Waveform } from "wavo";
+
+function InteractiveWaveform() {
+  const [progress, setProgress] = useState(0);
+
+  return (
+    <Waveform.Container
+      dataPoints={audioData}
+      progress={progress}
+      onClick={(percentage) => setProgress(percentage)}
+      onDrag={(percentage) => setProgress(percentage)}
+    >
+      <Waveform.Bars />
+      <Waveform.Progress color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+## Visualization Styles
+
+### Bars (default)
+
+Vertical bars with customizable width, gap, and radius:
+
+```tsx
+<Waveform.Container dataPoints={audioData}>
+  <Waveform.Bars width={3} gap={2} radius={2} />
+</Waveform.Container>
+```
+
+### Path / Line
+
+Smooth curves or jagged lines:
+
+```tsx
+<Waveform.Container dataPoints={audioData}>
+  <Waveform.Path smooth />
+</Waveform.Container>
+```
+
+## Compound Component Pattern
+
+Wavo uses a compound component pattern. The Container provides context to child components:
+
+```tsx
+<Waveform.Container dataPoints={audioData} progress={0.5}>
+  <Waveform.Bars /> {/* Visualization */}
+  <Waveform.Progress /> {/* Progress indicator */}
+</Waveform.Container>
+```
+
+Or use direct imports:
+
+```tsx
+import { Waveform, Bars, Progress } from "wavo";
+
+<Waveform dataPoints={audioData}>
+  <Bars />
+  <Progress />
+</Waveform>;
+```
+
 ## Next Steps
 
-- Check out the [Examples](/guides/examples) to see more advanced usage
-- Learn about all available [Configuration Options](/guides/configuration)
-- See how to [Handle Audio Data](/guides/audio-data) with wavo
+- Explore [Container](/docs/components/container) props and features
+- Learn about [Bars](/docs/components/bars) customization
+- See [Path](/docs/components/path) for line visualizations
+- Add [Progress](/docs/components/progress) indicators
+- Use [useAudioProgress](/docs/hooks/use-audio-progress) for 60fps audio sync
+- Browse [Examples](/docs/examples/audio-player) for complete implementations

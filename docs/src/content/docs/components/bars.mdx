@@ -1,0 +1,177 @@
+---
+title: Bars
+description: Render waveforms as a series of vertical bars with customizable dimensions and appearance
+---
+
+import BarsDemo from "./components/bars-demo";
+
+The `Bars` component renders the waveform as a series of vertical bars. Each bar's height represents the audio amplitude at that point. The component automatically adjusts the number of bars based on available width.
+
+<BarsDemo client:load />
+
+## Basic Usage
+
+```tsx
+import { Waveform } from "wavo";
+
+function MyWaveform() {
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+## Props
+
+| Prop        | Type        | Default | Description                                      |
+| ----------- | ----------- | ------- | ------------------------------------------------ |
+| `width`     | `number`    | `3`     | Width of each bar in pixels                      |
+| `gap`       | `number`    | `1`     | Gap between bars in pixels                       |
+| `radius`    | `BarRadius` | `2`     | Corner radius for bars (0-5)                     |
+| `optimized` | `boolean`   | `false` | Render as single SVG path for better performance |
+| `className` | `string`    | -       | CSS class for styling                            |
+
+### BarRadius Type
+
+```tsx
+type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
+```
+
+## Customizing Appearance
+
+Adjust width, gap, and radius to achieve different visual styles:
+
+```tsx
+// Wide bars with no gap
+<Waveform.Bars width={8} gap={0} radius={0} />
+
+// Thin bars with rounded corners
+<Waveform.Bars width={2} gap={1} radius={3} />
+
+// Thick rounded bars with spacing
+<Waveform.Bars width={6} gap={3} radius={5} />
+```
+
+## Optimized Mode
+
+For large waveforms or performance-critical applications, enable optimized mode:
+
+```tsx
+<Waveform.Container dataPoints={audioData}>
+  <Waveform.Bars optimized />
+</Waveform.Container>
+```
+
+**Standard mode** renders each bar as an individual `<rect>` element. This provides maximum flexibility for styling and animations, but can be slower with many bars.
+
+**Optimized mode** renders all bars as a single `<path>` element. This significantly reduces DOM nodes and improves performance, especially for:
+
+- Waveforms with 100+ bars
+- Pages with multiple waveforms
+- Animation-heavy interfaces
+
+## Imperative Handle
+
+Access the component imperatively for high-frequency updates:
+
+```tsx
+import { useRef } from "react";
+import { Waveform, type BarsHandle } from "wavo";
+
+function ImperativeExample() {
+  const barsRef = useRef<BarsHandle>(null);
+
+  const updateBars = (newData: number[]) => {
+    // Update without triggering React re-render
+    barsRef.current?.setDataPoints(newData);
+  };
+
+  const logBarCount = () => {
+    console.log(`Rendering ${barsRef.current?.getBarCount()} bars`);
+  };
+
+  return (
+    <Waveform.Container dataPoints={initialData}>
+      <Waveform.Bars ref={barsRef} />
+    </Waveform.Container>
+  );
+}
+```
+
+### BarsHandle Interface
+
+```tsx
+interface BarsHandle {
+  // Update bar heights without re-rendering
+  setDataPoints(dataPoints: number[]): void;
+
+  // Get current number of bars
+  getBarCount(): number;
+}
+```
+
+## Responsive Behavior
+
+The Bars component uses `ResizeObserver` to automatically recalculate the number of bars when the container resizes:
+
+1. Container width is measured
+2. Bar count = `floor(containerWidth / (width + gap))`
+3. Data points are reduced to match bar count
+4. Bars are rendered to fill available space
+
+This ensures the waveform always looks good regardless of container size.
+
+## With Progress
+
+Combine with the Progress component to show playback position:
+
+```tsx
+<Waveform.Container dataPoints={audioData} progress={0.5}>
+  <Waveform.Bars width={3} gap={2} />
+  <Waveform.Progress color="#f96706" />
+</Waveform.Container>
+```
+
+The bars automatically use the gradient defined by Progress to distinguish played vs unplayed sections.
+
+## Styling with CSS Variables
+
+Style bars using CSS variables:
+
+```tsx
+<Waveform.Container
+  dataPoints={audioData}
+  style={{
+    "--wavo-bar-color": "#333",
+    "--wavo-bar-color-progress": "#f96706",
+    "--wavo-bar-width": "4px",
+    "--wavo-bar-gap": "2px",
+  }}
+>
+  <Waveform.Bars />
+  <Waveform.Progress />
+</Waveform.Container>
+```
+
+See [CSS Variables](/docs/advanced/css-variables) for all available variables.
+
+## Data Attributes
+
+Bars include data attributes for CSS targeting:
+
+- `[data-wavo-bar]` - Applied to each bar element
+
+```css
+/* Custom bar styling */
+[data-wavo-bar] {
+  transition: fill 0.2s ease;
+}
+```
+
+## Next Steps
+
+- Learn about [Path](/docs/components/path) for line-based visualization
+- Learn about [Progress](/docs/components/progress) for playback indication
+- See [Imperative API](/docs/advanced/imperative-api) for 60fps updates

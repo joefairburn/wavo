@@ -1,0 +1,179 @@
+---
+title: Audio Player
+description: Complete audio player with waveform visualization, playback controls, and seeking
+---
+
+import AudioPlayerDemo from "./components/audio-player";
+
+A complete audio player implementation with waveform visualization, play/pause controls, time display, and click/drag seeking.
+
+<AudioPlayerDemo client:load />
+
+## Implementation
+
+This example demonstrates:
+
+- Using `useAudioProgress` for 60fps progress updates
+- Click and drag seeking with `onClick` and `onDrag`
+- Keyboard navigation (arrow keys, spacebar)
+- Play/pause state management
+- Time display formatting
+
+## Full Source Code
+
+```tsx
+import { useRef, useState, useEffect } from "react";
+import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function AudioPlayer({ audioSrc, waveformData }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressRef = useRef<ProgressHandle>(null);
+  const [progress, setProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+
+  // 60fps progress updates
+  const updateProgress = useAudioProgress({
+    audioRef,
+    progressRef,
+    onProgressUpdate: setProgress,
+  });
+
+  // Audio event listeners
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleLoadedMetadata = () => setDuration(audio.duration);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
+
+  // Seeking
+  const handleSeek = (percentage: number) => {
+    if (audioRef.current && duration) {
+      audioRef.current.currentTime = duration * percentage;
+      updateProgress(percentage);
+    }
+  };
+
+  // Keyboard navigation
+  const handleKeyDown = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    const STEP = 0.05;
+    switch (event.key) {
+      case "ArrowLeft":
+        handleSeek(Math.max(0, progress - STEP));
+        event.preventDefault();
+        break;
+      case "ArrowRight":
+        handleSeek(Math.min(1, progress + STEP));
+        event.preventDefault();
+        break;
+      case " ":
+        togglePlayback();
+        event.preventDefault();
+        break;
+    }
+  };
+
+  const togglePlayback = () => {
+    if (audioRef.current) {
+      isPlaying ? audioRef.current.pause() : audioRef.current.play();
+    }
+  };
+
+  return (
+    <div>
+      <audio ref={audioRef} src={audioSrc} preload="metadata" />
+
+      <Waveform.Container
+        dataPoints={waveformData}
+        progress={progress}
+        onClick={handleSeek}
+        onDrag={handleSeek}
+        onDragStart={() => audioRef.current?.pause()}
+        onDragEnd={() => isPlaying && audioRef.current?.play()}
+        onKeyDown={handleKeyDown}
+      >
+        <Waveform.Bars width={3} gap={2} radius={1} />
+        <Waveform.Progress ref={progressRef} color="#f96706" />
+      </Waveform.Container>
+
+      <div>
+        <button onClick={togglePlayback}>{isPlaying ? "Pause" : "Play"}</button>
+        <span>
+          {formatTime(progress * duration)} / {formatTime(duration)}
+        </span>
+      </div>
+    </div>
+  );
+}
+```
+
+## Key Features
+
+### 60fps Progress Updates
+
+Using `useAudioProgress` ensures smooth visual updates without React re-renders:
+
+```tsx
+const updateProgress = useAudioProgress({
+  audioRef,
+  progressRef,
+  onProgressUpdate: setProgress, // ~10fps for UI state
+});
+```
+
+### Drag Seeking
+
+Pause during drag, resume on drag end for smooth seeking:
+
+```tsx
+<Waveform.Container
+  onDrag={handleSeek}
+  onDragStart={() => audioRef.current?.pause()}
+  onDragEnd={() => isPlaying && audioRef.current?.play()}
+>
+```
+
+### Keyboard Accessibility
+
+Full keyboard support for accessible controls:
+
+```tsx
+const handleKeyDown = (event) => {
+  switch (event.key) {
+    case "ArrowLeft": // Seek backward
+    case "ArrowRight": // Seek forward
+    case " ": // Toggle playback
+  }
+};
+```
+
+## Next Steps
+
+- See [Voice Message](/docs/examples/voice-message) for a compact player
+- See [Accessibility](/docs/examples/accessibility) for full a11y implementation
+- See [useAudioProgress](/docs/hooks/use-audio-progress) for hook details

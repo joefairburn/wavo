@@ -1,0 +1,227 @@
+---
+title: Utilities
+description: Helper functions for data processing and waveform manipulation
+---
+
+Wavo exports utility functions for working with waveform data.
+
+## Data Reduction
+
+### getReducedDataPoints
+
+Memoized function to reduce data points to match bar count:
+
+```tsx
+import { getReducedDataPoints } from "wavo";
+
+const reducedData = getReducedDataPoints(barCount, originalData);
+```
+
+**Parameters:**
+
+- `barCount: number` - Target number of data points
+- `dataPoints: WaveformData` - Original amplitude data
+
+**Returns:** `number[]` - Reduced data array
+
+**Features:**
+
+- Uses peak preservation to maintain waveform shape
+- Results are cached via WeakMap
+- Same inputs return cached result
+
+### calculateReducedDataPoints
+
+Non-memoized version for one-off calculations:
+
+```tsx
+import { calculateReducedDataPoints } from "wavo";
+
+const reducedData = calculateReducedDataPoints(100, originalData);
+```
+
+Use this when you don't need caching (e.g., single-use data).
+
+### memoizedReducedDataPoints
+
+Factory to create a memoized reducer:
+
+```tsx
+import { memoizedReducedDataPoints } from "wavo";
+
+// Create a memoized function for this specific use
+const reducer = memoizedReducedDataPoints();
+
+const data1 = reducer(100, audioData);
+const data2 = reducer(100, audioData); // Returns cached result
+```
+
+## Easing
+
+### getEasingFunction
+
+Convert easing value to CSS timing function:
+
+```tsx
+import { getEasingFunction } from "wavo";
+
+getEasingFunction("ease-in");
+// Returns: "ease-in"
+
+getEasingFunction([0.1, 0.9, 0.2, 1.0]);
+// Returns: "cubic-bezier(0.1, 0.9, 0.2, 1.0)"
+```
+
+## Debouncing
+
+### createDebouncedFunction
+
+Create a debounced callback:
+
+```tsx
+import { createDebouncedFunction } from "wavo";
+
+const debouncedResize = createDebouncedFunction((width: number) => {
+  console.log(`Resized to ${width}px`);
+}, 100);
+
+// Called repeatedly, but only fires every 100ms
+window.addEventListener("resize", () => {
+  debouncedResize(window.innerWidth);
+});
+```
+
+**Parameters:**
+
+- `callback: (value: T) => void` - Function to debounce
+- `delay?: number` - Delay in milliseconds (default: 100)
+
+**Returns:** Debounced function
+
+## Idle Callback
+
+### requestIdleCallback
+
+Cross-browser `requestIdleCallback` with fallback:
+
+```tsx
+import { requestIdleCallback } from "wavo";
+
+const id = requestIdleCallback(() => {
+  // Run when browser is idle
+  processData();
+}, 1000);
+```
+
+**Parameters:**
+
+- `callback: () => void` - Function to run
+- `timeout?: number` - Maximum wait time in ms
+
+**Returns:** Callback ID
+
+Uses native `requestIdleCallback` when available, falls back to `setTimeout`.
+
+## CSS Variables
+
+### cssVariables
+
+Object containing CSS variable names:
+
+```tsx
+import { cssVariables } from "wavo";
+
+// cssVariables = {
+//   BAR_WIDTH: "--wavo-bar-width",
+//   BAR_GAP: "--wavo-bar-gap",
+//   BAR_COLOR: "--wavo-bar-color",
+//   BAR_COLOR_PROGRESS: "--wavo-bar-color-progress",
+//   TRANSITION_DURATION: "--wavo-transition-duration",
+//   EASING_FUNCTION: "--wavo-easing-function",
+// }
+```
+
+Use for programmatic CSS variable access:
+
+```tsx
+element.style.setProperty(cssVariables.BAR_COLOR, "#f96706");
+```
+
+## Component Detection
+
+### hasProgressComponent
+
+Check if children contain a Progress component:
+
+```tsx
+import { hasProgressComponent } from "wavo";
+
+const hasProgress = hasProgressComponent(children);
+```
+
+### hasComponentType
+
+Check for any component type in children:
+
+```tsx
+import { hasComponentType } from "wavo";
+
+const hasCustomComponent = hasComponentType(children, MyComponent);
+```
+
+## Usage Examples
+
+### Custom Data Reduction
+
+```tsx
+function CustomWaveform({ data }: { data: WaveformData }) {
+  const [barCount, setBarCount] = useState(100);
+  const reducedData = getReducedDataPoints(barCount, data);
+
+  return (
+    <svg>
+      {reducedData.map((point, i) => (
+        <rect key={i} x={i * 5} y={50 - point * 50} width={4} height={point * 100} />
+      ))}
+    </svg>
+  );
+}
+```
+
+### Dynamic Easing
+
+```tsx
+function AnimatedWaveform({ easingOption }: { easingOption: EasingFunction }) {
+  const cssEasing = getEasingFunction(easingOption);
+
+  return <div style={{ transition: `all 0.3s ${cssEasing}` }}>{/* ... */}</div>;
+}
+```
+
+### Debounced Updates
+
+```tsx
+function ResponsiveWaveform() {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const handleResize = createDebouncedFunction((w: number) => {
+      setWidth(w);
+    }, 150);
+
+    const observer = new ResizeObserver((entries) => {
+      handleResize(entries[0].contentRect.width);
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return <Waveform.Container dataPoints={data}>{/* ... */}</Waveform.Container>;
+}
+```
+
+## Next Steps
+
+- See [Types](/docs/api/types) for type definitions
+- See [Performance](/docs/advanced/performance) for optimization tips

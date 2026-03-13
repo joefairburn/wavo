@@ -1,0 +1,243 @@
+---
+title: Path
+description: Render waveforms as smooth curves or jagged lines using a single SVG path element
+---
+
+import PathDemo from "./components/path-demo";
+
+The `Path` component renders the waveform as a single SVG path element. This is ideal for line-based visualizations and provides better performance for large waveforms by reducing DOM nodes.
+
+<PathDemo client:load />
+
+## Basic Usage
+
+```tsx
+import { Waveform } from "wavo";
+
+function MyWaveform() {
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Path />
+    </Waveform.Container>
+  );
+}
+```
+
+## Props
+
+| Prop        | Type         | Default  | Description                                 |
+| ----------- | ------------ | -------- | ------------------------------------------- |
+| `type`      | `RenderType` | `"line"` | Rendering type: `"line"` or `"bar"`         |
+| `width`     | `number`     | `3`      | Width of each segment in pixels             |
+| `gap`       | `number`     | `1`      | Gap between segments in pixels              |
+| `smooth`    | `boolean`    | `true`   | Enable smooth curves                        |
+| `curvature` | `number`     | `0`      | Curve smoothness (0-1) when smooth is false |
+| `radius`    | `BarRadius`  | `2`      | Corner radius for bar type (0-5)            |
+| `className` | `string`     | -        | CSS class for styling                       |
+
+### RenderType
+
+```tsx
+type RenderType = "bar" | "line";
+```
+
+> **Note:** `type="bar"` is deprecated. Use `<Bars optimized />` instead for bar-style rendering.
+
+## Smooth Curves
+
+Enable smooth curves for a flowing waveform appearance:
+
+```tsx
+// Default smooth mode
+<Waveform.Path smooth />
+
+// Explicit smooth mode
+<Waveform.Path smooth={true} />
+```
+
+## Jagged Lines
+
+Disable smooth for a more angular appearance:
+
+```tsx
+<Waveform.Path smooth={false} />
+```
+
+## Curvature Control
+
+When `smooth` is false, control the curve tension with `curvature`:
+
+```tsx
+// Completely jagged (straight line segments)
+<Waveform.Path smooth={false} curvature={0} />
+
+// Slightly curved
+<Waveform.Path smooth={false} curvature={0.3} />
+
+// Very smooth
+<Waveform.Path smooth={false} curvature={1} />
+```
+
+The `curvature` prop only applies when `smooth={false}`. When `smooth={true}`, an optimal curvature (0.1) is used automatically.
+
+## Imperative Handle
+
+Access the component imperatively for high-frequency updates:
+
+```tsx
+import { useRef } from "react";
+import { Waveform, type PathHandle } from "wavo";
+
+function RealTimeVisualization() {
+  const pathRef = useRef<PathHandle>(null);
+
+  const updatePath = (newData: number[]) => {
+    // Update without triggering React re-render
+    pathRef.current?.setDataPoints(newData);
+  };
+
+  return (
+    <Waveform.Container dataPoints={initialData}>
+      <Waveform.Path ref={pathRef} />
+    </Waveform.Container>
+  );
+}
+```
+
+### PathHandle Interface
+
+```tsx
+interface PathHandle {
+  // Update path data without re-rendering
+  setDataPoints(dataPoints: number[]): void;
+
+  // Get current number of segments
+  getSegmentCount(): number;
+}
+```
+
+## Path vs Bars
+
+| Feature             | Path     | Bars     |
+| ------------------- | -------- | -------- |
+| DOM Elements        | 1 path   | N rects  |
+| Smooth curves       | Yes      | No       |
+| Performance         | Better   | Standard |
+| Styling flexibility | Standard | Higher   |
+
+**Choose Path when:**
+
+- You need smooth curve visualization
+- Performance is critical
+- You have many data points
+
+**Choose Bars when:**
+
+- You want individual bar styling
+- You need per-bar animations
+- Bar-based aesthetic is preferred
+
+## With Progress
+
+Path works seamlessly with the Progress component:
+
+```tsx
+<Waveform.Container dataPoints={audioData} progress={0.5}>
+  <Waveform.Path smooth />
+  <Waveform.Progress color="#f96706" />
+</Waveform.Container>
+```
+
+## How Path Rendering Works
+
+The Path component creates SVG path strings differently based on settings:
+
+### Line Mode (default)
+
+Creates a mirrored waveform shape:
+
+1. Top half: Points connect from left to right, y-position based on amplitude
+2. Bottom half: Mirror of top, connecting right to left
+3. Path is closed to create a filled shape
+
+### Smooth Curves
+
+When smooth curves are enabled, the path uses cubic Bézier curves (`C` command) instead of straight lines (`L` command). Control points are calculated to create natural-looking curves between data points.
+
+## CSS Variables
+
+Path respects CSS variables for styling:
+
+```tsx
+<Waveform.Container
+  dataPoints={audioData}
+  style={{
+    "--wavo-bar-width": "4px",
+    "--wavo-bar-gap": "2px",
+    "--wavo-bar-color": "#333",
+  }}
+>
+  <Waveform.Path />
+</Waveform.Container>
+```
+
+## Data Attributes
+
+Path elements include data attributes for CSS targeting:
+
+- `[data-wavo-path="line"]` - Line type path
+- `[data-wavo-path="bar"]` - Bar type path (deprecated)
+
+```css
+/* Custom path styling */
+[data-wavo-path="line"] {
+  filter: drop-shadow(0 0 4px rgba(249, 103, 6, 0.5));
+}
+```
+
+## Real-Time Visualization Example
+
+Use the imperative API for real-time audio visualization:
+
+```tsx
+import { useRef, useEffect } from "react";
+import { Waveform, type PathHandle } from "wavo";
+
+function AudioAnalyzer() {
+  const pathRef = useRef<PathHandle>(null);
+
+  useEffect(() => {
+    // Set up Web Audio API analyzer
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    const updateVisualization = () => {
+      analyser.getByteFrequencyData(dataArray);
+
+      // Normalize to 0-1 range
+      const normalized = Array.from(dataArray).map((v) => v / 255);
+
+      pathRef.current?.setDataPoints(normalized);
+      requestAnimationFrame(updateVisualization);
+    };
+
+    requestAnimationFrame(updateVisualization);
+  }, []);
+
+  return (
+    <Waveform.Container dataPoints={new Array(128).fill(0)}>
+      <Waveform.Path ref={pathRef} smooth />
+    </Waveform.Container>
+  );
+}
+```
+
+## Next Steps
+
+- Learn about [Bars](/docs/components/bars) for bar-based visualization
+- Learn about [Progress](/docs/components/progress) for playback indication
+- See [Performance](/docs/advanced/performance) for optimization tips
+- See [Imperative API](/docs/advanced/imperative-api) for 60fps patterns

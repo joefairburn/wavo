@@ -23,6 +23,7 @@ function isActive(href: string, current: string): boolean {
 ---
 
 <aside
+  id="docs-sidebar"
   class="w-64 border-r border-border-dark bg-background-dark flex flex-col overflow-y-auto no-scrollbar hidden lg:flex shrink-0 lg:sticky lg:top-16 lg:h-[calc(100vh-64px)]"
 >
   <nav class="p-6 space-y-6">
@@ -77,3 +78,23 @@ function isActive(href: string, current: string): boolean {
     scrollbar-width: none;
   }
 </style>
+
+<script>
+  function saveSidebarScroll() {
+    const sidebar = document.getElementById("docs-sidebar");
+    if (sidebar) {
+      sessionStorage.setItem("sidebar-scroll", String(sidebar.scrollTop));
+    }
+  }
+
+  function restoreSidebarScroll() {
+    const sidebar = document.getElementById("docs-sidebar");
+    const savedScroll = sessionStorage.getItem("sidebar-scroll");
+    if (sidebar && savedScroll) {
+      sidebar.scrollTop = Number(savedScroll);
+    }
+  }
+
+  document.addEventListener("astro:before-preparation", saveSidebarScroll);
+  document.addEventListener("astro:page-load", restoreSidebarScroll);
+</script>

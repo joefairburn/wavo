@@ -1,0 +1,197 @@
+---
+title: Container
+description: The main wrapper component that manages waveform state, interactions, and provides context to child components
+---
+
+import ContainerDemo from "./components/container-demo";
+
+The `Waveform.Container` (or just `Waveform`) is the main wrapper component for all waveform visualizations. It manages state, interactions, and provides context to child components like `Bars`, `Path`, and `Progress`.
+
+<ContainerDemo client:load />
+
+## Basic Usage
+
+```tsx
+import { Waveform } from "wavo";
+
+function MyWaveform() {
+  return (
+    <Waveform.Container dataPoints={audioData}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+## Props
+
+| Prop                 | Type                          | Default                | Description                                |
+| -------------------- | ----------------------------- | ---------------------- | ------------------------------------------ |
+| `dataPoints`         | `WaveformData`                | **required**           | Array of normalized amplitude values (0-1) |
+| `progress`           | `number`                      | `0`                    | Current playback progress between 0 and 1  |
+| `lazyLoad`           | `boolean`                     | `false`                | Only render when visible in viewport       |
+| `transitionDuration` | `number`                      | `1`                    | Duration in seconds for animations         |
+| `easing`             | `EasingFunction`              | `[0.1, 0.9, 0.2, 1.0]` | Easing function for animations             |
+| `onClick`            | `(percentage, event) => void` | -                      | Callback when waveform is clicked          |
+| `onDrag`             | `(percentage, event) => void` | -                      | Callback during drag operations            |
+| `onDragStart`        | `(event) => void`             | -                      | Callback when drag starts                  |
+| `onDragEnd`          | `(event) => void`             | -                      | Callback when drag ends                    |
+| `onKeyDown`          | `(event) => void`             | -                      | Keyboard event handler                     |
+| `className`          | `string`                      | -                      | CSS class for the SVG element              |
+| `shouldAnimate`      | `boolean`                     | `true`                 | Enable/disable animations                  |
+| `unstyled`           | `boolean`                     | `false`                | Disable default styles                     |
+| `children`           | `ReactNode`                   | **required**           | Child components (Bars, Path, Progress)    |
+
+## Interactive Example
+
+Add click and drag handlers to allow users to seek through audio:
+
+```tsx
+import { Waveform } from "wavo";
+import { useState } from "react";
+
+function InteractiveWaveform() {
+  const [progress, setProgress] = useState(0);
+
+  const handleSeek = (percentage: number) => {
+    setProgress(percentage);
+    // Update your audio player position here
+  };
+
+  return (
+    <Waveform.Container
+      dataPoints={audioData}
+      progress={progress}
+      onClick={handleSeek}
+      onDrag={handleSeek}
+    >
+      <Waveform.Bars />
+      <Waveform.Progress color="#f96706" />
+    </Waveform.Container>
+  );
+}
+```
+
+## Keyboard Navigation
+
+Add keyboard support for accessibility:
+
+```tsx
+function AccessibleWaveform() {
+  const [progress, setProgress] = useState(0);
+  const STEP = 0.05;
+
+  const handleKeyDown = (event: React.KeyboardEvent<SVGSVGElement>) => {
+    switch (event.key) {
+      case "ArrowLeft":
+        setProgress((p) => Math.max(0, p - STEP));
+        event.preventDefault();
+        break;
+      case "ArrowRight":
+        setProgress((p) => Math.min(1, p + STEP));
+        event.preventDefault();
+        break;
+    }
+  };
+
+  return (
+    <Waveform.Container
+      dataPoints={audioData}
+      progress={progress}
+      onClick={setProgress}
+      onKeyDown={handleKeyDown}
+    >
+      <Waveform.Bars />
+      <Waveform.Progress />
+    </Waveform.Container>
+  );
+}
+```
+
+## Lazy Loading
+
+Enable lazy loading to defer rendering until the waveform is visible:
+
+```tsx
+<Waveform.Container dataPoints={audioData} lazyLoad>
+  <Waveform.Bars />
+</Waveform.Container>
+```
+
+This uses the Intersection Observer API to only render the waveform when it enters the viewport, improving performance for pages with many waveforms.
+
+## Animation Easing
+
+Control the animation timing with the `easing` prop:
+
+```tsx
+// Named easing functions
+<Waveform.Container dataPoints={data} easing="ease-in-out">
+
+// Custom cubic-bezier
+<Waveform.Container dataPoints={data} easing={[0.1, 0.9, 0.2, 1.0]}>
+```
+
+Available easing options:
+
+- `"linear"` - Constant speed
+- `"ease"` - Slow start, fast middle, slow end
+- `"ease-in"` - Slow start
+- `"ease-out"` - Slow end
+- `"ease-in-out"` - Slow start and end
+- `[x1, y1, x2, y2]` - Custom cubic-bezier parameters
+
+## Ref Forwarding
+
+Access the underlying SVG element via ref:
+
+```tsx
+import { useRef } from "react";
+import { Waveform } from "wavo";
+
+function WaveformWithRef() {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  return (
+    <Waveform.Container ref={svgRef} dataPoints={audioData}>
+      <Waveform.Bars />
+    </Waveform.Container>
+  );
+}
+```
+
+## Accessibility
+
+When interactive handlers are provided, the Container automatically adds:
+
+- `role="slider"` for screen reader support
+- `aria-valuemin`, `aria-valuemax`, `aria-valuenow` for progress
+- `aria-label="Audio progress"` for context
+- `tabIndex={0}` for keyboard focus
+
+## Compound Component Pattern
+
+The Container uses React's compound component pattern. Child components access shared state via the `useWaveform` hook:
+
+```tsx
+// These are equivalent
+<Waveform.Container dataPoints={data}>
+  <Waveform.Bars />
+  <Waveform.Progress />
+</Waveform.Container>;
+
+// Direct imports also work
+import { Waveform, Bars, Progress } from "wavo";
+
+<Waveform dataPoints={data}>
+  <Bars />
+  <Progress />
+</Waveform>;
+```
+
+## Next Steps
+
+- Learn about [Bars](/docs/components/bars) for bar-based visualization
+- Learn about [Path](/docs/components/path) for line-based visualization
+- Learn about [Progress](/docs/components/progress) for playback indication
+- See [useAudioProgress](/docs/hooks/use-audio-progress) for 60fps audio sync
