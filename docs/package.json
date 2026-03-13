@@ -27,7 +27,7 @@
     "wavo": "workspace:*"
   },
   "devDependencies": {
-    "wrangler": "^4",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "wrangler": "^4"
   }
 }
