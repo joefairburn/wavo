@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { useWaveform } from "../contexts/waveform-context";
 import { getReducedDataPoints } from "../lib";
-import type { WaveformData } from "../waveform";
 import { Path, type PathHandle } from "./path";
 
 /**
@@ -128,12 +127,6 @@ export interface BarsProps {
   gap?: number;
 
   /**
-   * Current progress value (0-1) for playback indication
-   * Used in conjunction with the Progress component
-   */
-  progress?: number;
-
-  /**
    * Corner radius for the bars
    * @default 2
    */
@@ -143,12 +136,6 @@ export interface BarsProps {
    * CSS class for styling the bars
    */
   className?: string;
-
-  /**
-   * Optional custom dataPoints to use instead of those from context
-   * Generally not needed as dataPoints are provided by the Waveform container
-   */
-  dataPoints?: WaveformData;
 
   /**
    * When true, renders bars as a single optimized SVG path instead of individual rect elements.

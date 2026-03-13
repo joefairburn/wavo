@@ -133,10 +133,10 @@ function SmoothAudioPlayer() {
   return (
     <>
       <audio ref={audioRef} src="audio.mp3" controls />
-      <Waveform.Container dataPoints={audioData}>
+      <Waveform dataPoints={audioData}>
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
     </>
   );
 }
@@ -192,9 +192,9 @@ function AudioAnalyzer() {
   }, []);
 
   return (
-    <Waveform.Container dataPoints={new Array(128).fill(0)}>
+    <Waveform dataPoints={new Array(128).fill(0)}>
       <Waveform.Bars ref={barsRef} optimized />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -205,13 +205,11 @@ Use both patterns together:
 
 ```tsx
 function HybridPlayer() {
-  const progressRef = useRef<ProgressHandle>(null);
   const [progress, setProgress] = useState(0);
 
   // Imperative: 60fps visual updates
-  useAudioProgress({
+  const { ref: progressRef } = useAudioProgress({
     audioRef,
-    progressRef,
     // Declarative: ~10fps state updates for UI
     onProgressUpdate: setProgress,
   });
@@ -219,10 +217,10 @@ function HybridPlayer() {
   return (
     <>
       {/* Smooth visual progress */}
-      <Waveform.Container dataPoints={audioData}>
+      <Waveform dataPoints={audioData}>
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} />
-      </Waveform.Container>
+      </Waveform>
 
       {/* UI updates at lower frequency */}
       <TimeDisplay time={progress * duration} />

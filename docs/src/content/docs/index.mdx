@@ -27,10 +27,10 @@ Wavo is a React library for creating beautiful, interactive audio waveform visua
 Wavo uses a compound component pattern where the Container manages state and interactions while child components handle rendering:
 
 ```tsx
-<Waveform.Container dataPoints={data} progress={0.5}>
+<Waveform dataPoints={data} progress={0.5}>
   <Waveform.Bars /> {/* Visualization layer */}
   <Waveform.Progress /> {/* Progress overlay */}
-</Waveform.Container>
+</Waveform>
 ```
 
 This architecture provides:
@@ -118,9 +118,9 @@ const data = [0.2, 0.5, 0.8, 0.6, 0.3, 0.9, 0.4, 0.7];
 
 function MyWaveform() {
   return (
-    <Waveform.Container dataPoints={data}>
+    <Waveform dataPoints={data}>
       <Waveform.Bars />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { type PathHandle, Waveform } from "wavo";
+import { type BarsHandle, Waveform } from "wavo";
 import { useFPS } from "../hooks/use-fps";
 import { usePrefersReducedMotion } from "../hooks/use-prefers-reduced-motion";
 import {
@@ -15,7 +15,7 @@ const BAR_COUNT = 100;
 const DynamicWaveformShowcase = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const fps = useFPS();
-  const pathRef = useRef<PathHandle>(null);
+  const barsRef = useRef<BarsHandle>(null);
   const rafRef = useRef<number>(0);
   const startTimeRef = useRef<number>(performance.now());
 
@@ -47,7 +47,7 @@ const DynamicWaveformShowcase = () => {
   useEffect(() => {
     // Skip animation if user prefers reduced motion
     if (prefersReducedMotion) {
-      pathRef.current?.setDataPoints(generateRandomWaveform(BAR_COUNT));
+      barsRef.current?.setDataPoints(generateRandomWaveform(BAR_COUNT));
       return;
     }
 
@@ -89,7 +89,7 @@ const DynamicWaveformShowcase = () => {
           ? applyWaveFromCursor(BAR_COUNT, currentTime, wavesRef.current, baseWave)
           : baseWave;
 
-      pathRef.current?.setDataPoints(waveformData);
+      barsRef.current?.setDataPoints(waveformData);
       rafRef.current = requestAnimationFrame(animate);
     };
 
@@ -119,14 +119,14 @@ const DynamicWaveformShowcase = () => {
 
       {/* Waveform container */}
       <div className="relative z-10 w-full h-full px-4 py-6 flex items-center">
-        <Waveform.Container
+        <Waveform
           className="w-full h-full text-[#f96706]"
           dataPoints={initialDataPoints}
           transitionDuration={0}
           easing="linear"
         >
-          <Waveform.Path ref={pathRef} type="bar" width={5} gap={4} radius={0} />
-        </Waveform.Container>
+          <Waveform.Bars ref={barsRef} optimized width={5} gap={4} radius={0} />
+        </Waveform>
       </div>
 
       {/* FPS indicator */}

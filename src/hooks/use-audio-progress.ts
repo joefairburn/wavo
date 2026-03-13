@@ -22,6 +22,21 @@ export interface AudioSource {
 }
 
 /**
+ * Return value of useAudioProgress
+ */
+export interface UseAudioProgressReturn {
+  /**
+   * Ref to pass to the Progress component
+   */
+  ref: React.RefObject<ProgressHandle | null>;
+
+  /**
+   * Manual update function for seeking, etc.
+   */
+  update: (percentage: number) => void;
+}
+
+/**
  * Options for the useAudioProgress hook
  */
 export interface UseAudioProgressOptions {
@@ -37,9 +52,10 @@ export interface UseAudioProgressOptions {
   audioSource?: AudioSource;
 
   /**
-   * Progress component reference to update
+   * Progress component reference to update.
+   * If not provided, the hook creates one internally (returned as `ref`).
    */
-  progressRef: React.RefObject<ProgressHandle | null>;
+  progressRef?: React.RefObject<ProgressHandle | null>;
 
   /**
    * Optional callback for progress updates (for state synchronization)
@@ -67,47 +83,44 @@ export interface UseAudioProgressOptions {
 }
 
 /**
- * Custom hook that handles 60fps audio progress updates using requestAnimationFrame
+ * Hook that handles 60fps audio progress updates using requestAnimationFrame.
  *
  * Automatically manages the RAF loop lifecycle based on audio play/pause/ended events
- * and updates multiple progress refs efficiently without causing React re-renders.
+ * and updates the progress ref efficiently without causing React re-renders.
  *
  * @param options Configuration options
+ * @returns `{ ref, update }` — ref to pass to Progress, update for manual seeking
  *
  * @example
  * ```tsx
  * const audioRef = useRef<HTMLAudioElement>(null);
- * const progressRef1 = useRef<ProgressHandle>(null);
- * const progressRef2 = useRef<ProgressHandle>(null);
- * const [progress, setProgress] = useState(0);
  *
- * useAudioProgress({
- *   audioRef,
- *   progressRefs: [progressRef1, progressRef2],
- *   onProgressUpdate: setProgress, // Optional: sync with React state
- * });
+ * const { ref: progressRef } = useAudioProgress({ audioRef });
  *
- * // Now progress updates automatically at 60fps!
  * <audio ref={audioRef} src="music.mp3" controls />
- * <Waveform>
- *   <Bars />
- *   <Progress ref={progressRef1} color="#f00" />
+ * <Waveform dataPoints={audioData}>
+ *   <Waveform.Bars />
+ *   <Waveform.Progress ref={progressRef} />
  * </Waveform>
  * ```
  */
 export function useAudioProgress({
   audioRef,
   audioSource,
-  progressRef,
+  progressRef: externalProgressRef,
   onProgressUpdate,
   enableHighFrequency = true,
   isPlaying,
   __raf,
-}: UseAudioProgressOptions) {
+}: UseAudioProgressOptions): UseAudioProgressReturn {
   const raf = __raf ?? defaultRaf;
   const rafRef = useRef<number | undefined>(undefined);
   // Frame counter for deterministic throttling of onProgressUpdate callback
   const frameCountRef = useRef(0);
+
+  // Create internal ref if none provided
+  const internalProgressRef = useRef<ProgressHandle>(null);
+  const progressRef = externalProgressRef ?? internalProgressRef;
 
   // 60fps progress update loop using requestAnimationFrame
   const updateProgress = useCallback(() => {
@@ -195,8 +208,8 @@ export function useAudioProgress({
     }
   }, [audioRef, audioSource, updateProgress, enableHighFrequency, isPlaying]);
 
-  // Return a manual update function for seeking, etc.
-  return useCallback(
+  // Manual update function for seeking, etc.
+  const update = useCallback(
     (percentage: number) => {
       // Immediately update progress ref
       progressRef.current?.setProgress(percentage);
@@ -208,4 +221,6 @@ export function useAudioProgress({
     },
     [progressRef, onProgressUpdate],
   );
+
+  return { ref: progressRef, update };
 }

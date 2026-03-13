@@ -1,6 +1,6 @@
 import { dataPoints, musicFile } from "@docs/fixtures/data";
 import { useRef, useState, useEffect } from "react";
-import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+import { Waveform, useAudioProgress } from "wavo";
 
 function formatTime(seconds: number): string {
   if (!seconds || !Number.isFinite(seconds)) return "0:00";
@@ -11,16 +11,14 @@ function formatTime(seconds: number): string {
 
 const AccessiblePlayerDemo = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
   const wasPlayingRef = useRef(false);
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [announcement, setAnnouncement] = useState("");
 
-  const updateProgress = useAudioProgress({
+  const { ref: progressRef, update: updateProgress } = useAudioProgress({
     audioRef,
-    progressRef,
     onProgressUpdate: setProgress,
   });
 
@@ -120,7 +118,7 @@ const AccessiblePlayerDemo = () => {
 
       {/* Waveform */}
       <div className="relative h-[140px] w-full bg-black px-4">
-        <Waveform.Container
+        <Waveform
           className="h-full w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f96706] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           dataPoints={dataPoints}
           progress={progress}
@@ -139,7 +137,7 @@ const AccessiblePlayerDemo = () => {
         >
           <Waveform.Bars width={3} gap={2} radius={1} />
           <Waveform.Progress ref={progressRef} color="#f96706" />
-        </Waveform.Container>
+        </Waveform>
       </div>
 
       {/* Controls */}

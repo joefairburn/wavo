@@ -71,7 +71,7 @@ const BarsDemo = () => {
 
       {/* Waveform Display */}
       <div className="h-[200px] w-full border-b border-white/10 bg-black">
-        <Waveform.Container
+        <Waveform
           className="h-full w-full px-4"
           dataPoints={dataPoints}
           progress={progress}
@@ -85,7 +85,7 @@ const BarsDemo = () => {
             optimized={optimized}
           />
           <Waveform.Progress color="#f96706" />
-        </Waveform.Container>
+        </Waveform>
       </div>
 
       {/* Controls */}

@@ -66,7 +66,7 @@ export default function MusicPlayer({
     >
       {/* biome-ignore lint/a11y/useMediaCaption: Test music file doesn't need captions */}
       <audio className="mb-2" controls onTimeUpdate={handleTimeUpdate} ref={audioRef} src={src} />
-      <Waveform.Container
+      <Waveform
         className="h-full w-full rounded-lg focus:outline-none focus-visible:ring-1 focus-visible:ring-red-300"
         dataPoints={JSON.parse(waveformJson)}
         lazyLoad={true}
@@ -79,7 +79,7 @@ export default function MusicPlayer({
       >
         <Waveform.Bars gap={2} width={2} />
         <Waveform.Progress color="var(--wavo-progress-color)" ref={progressRef} />
-      </Waveform.Container>
+      </Waveform>
     </div>
   );
 }

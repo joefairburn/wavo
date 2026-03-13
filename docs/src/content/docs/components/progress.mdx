@@ -16,10 +16,10 @@ import { Waveform } from "wavo";
 
 function MyWaveform() {
   return (
-    <Waveform.Container dataPoints={audioData} progress={0.5}>
+    <Waveform dataPoints={audioData} progress={0.5}>
       <Waveform.Bars />
       <Waveform.Progress color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -38,16 +38,16 @@ The progress value can be set on the Container (recommended) or directly on the 
 
 ```tsx
 // Recommended: Set on Container (shared with accessibility)
-<Waveform.Container dataPoints={data} progress={0.5}>
+<Waveform dataPoints={data} progress={0.5}>
   <Waveform.Bars />
   <Waveform.Progress color="#f96706" />
-</Waveform.Container>
+</Waveform>
 
 // Alternative: Set directly on Progress
-<Waveform.Container dataPoints={data}>
+<Waveform dataPoints={data}>
   <Waveform.Bars />
   <Waveform.Progress progress={0.5} color="#f96706" />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Single Color
@@ -116,10 +116,10 @@ function HighFrequencyUpdates() {
   };
 
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Bars />
       <Waveform.Progress ref={progressRef} color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -142,24 +142,22 @@ The recommended way to sync with audio playback is using the `useAudioProgress` 
 
 ```tsx
 import { useRef } from "react";
-import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+import { Waveform, useAudioProgress } from "wavo";
 
 function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
 
-  useAudioProgress({
+  const { ref: progressRef, update } = useAudioProgress({
     audioRef,
-    progressRef,
   });
 
   return (
     <>
       <audio ref={audioRef} src="audio.mp3" />
-      <Waveform.Container dataPoints={audioData}>
+      <Waveform dataPoints={audioData}>
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
     </>
   );
 }
@@ -186,22 +184,22 @@ The gradient offsets are updated imperatively using `useLayoutEffect` to ensure 
 The unplayed portion uses `currentColor` by default. Set this via CSS:
 
 ```tsx
-<Waveform.Container
+<Waveform
   dataPoints={audioData}
   style={{ color: "#333" }} // Unplayed color
 >
   <Waveform.Bars />
   <Waveform.Progress color="#f96706" /> // Played color
-</Waveform.Container>
+</Waveform>
 ```
 
 Or use CSS variables:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} style={{ "--wavo-bar-color": "#333" }}>
+<Waveform dataPoints={audioData} style={{ "--wavo-bar-color": "#333" }}>
   <Waveform.Bars />
   <Waveform.Progress color="#f96706" />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Next Steps

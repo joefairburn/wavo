@@ -33,10 +33,10 @@ function HighPerformancePlayer() {
   };
 
   return (
-    <Waveform.Container dataPoints={initialData}>
+    <Waveform dataPoints={initialData}>
       <Waveform.Bars ref={barsRef} />
       <Waveform.Progress ref={progressRef} color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -46,9 +46,8 @@ function HighPerformancePlayer() {
 The recommended pattern for audio playback:
 
 ```tsx
-const updateProgress = useAudioProgress({
+const { ref: progressRef, update } = useAudioProgress({
   audioRef,
-  progressRef,
   onProgressUpdate: setProgress, // ~10fps for UI
 });
 ```
@@ -83,9 +82,9 @@ Wavo automatically reduces data points to match available bars:
 
 ```tsx
 // 1000+ data points reduced to ~100 bars
-<Waveform.Container dataPoints={largeDataset}>
+<Waveform dataPoints={largeDataset}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 The reduction uses peak preservation to maintain waveform shape.
@@ -114,9 +113,9 @@ const data2 = getReducedDataPoints(100, audioData);
 Defer off-screen waveforms:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} lazyLoad>
+<Waveform dataPoints={audioData} lazyLoad>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 Benefits:
@@ -165,9 +164,9 @@ The default entrance animation uses CSS transforms for GPU acceleration:
 For maximum performance:
 
 ```tsx
-<Waveform.Container dataPoints={data} shouldAnimate={false}>
+<Waveform dataPoints={data} shouldAnimate={false}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 ### Reduced Motion
@@ -206,9 +205,9 @@ function RealTimeWaveform() {
   }, []);
 
   return (
-    <Waveform.Container dataPoints={new Array(128).fill(0)}>
+    <Waveform dataPoints={new Array(128).fill(0)}>
       <Waveform.Bars ref={barsRef} optimized />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```

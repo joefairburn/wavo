@@ -1,6 +1,6 @@
 import { dataPoints, musicFile } from "@docs/fixtures/data";
 import { useRef, useState, useEffect } from "react";
-import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+import { Waveform, useAudioProgress } from "wavo";
 
 function formatTime(seconds: number): string {
   if (!seconds || !Number.isFinite(seconds)) return "0:00";
@@ -11,14 +11,12 @@ function formatTime(seconds: number): string {
 
 const VoiceMessageDemo = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
 
-  const updateProgress = useAudioProgress({
+  const { ref: progressRef, update: updateProgress } = useAudioProgress({
     audioRef,
-    progressRef,
     onProgressUpdate: setProgress,
   });
 
@@ -95,7 +93,7 @@ const VoiceMessageDemo = () => {
         {/* Waveform and Time */}
         <div className="flex flex-1 flex-col gap-1">
           <div className="h-8">
-            <Waveform.Container
+            <Waveform
               className="h-full w-full"
               dataPoints={dataPoints}
               progress={progress}
@@ -104,7 +102,7 @@ const VoiceMessageDemo = () => {
             >
               <Waveform.Bars width={2} gap={1} radius={1} />
               <Waveform.Progress ref={progressRef} color="#f96706" />
-            </Waveform.Container>
+            </Waveform>
           </div>
           <div className="font-mono text-[10px] text-white/50">
             {formatTime(isPlaying ? progress * duration : duration)}

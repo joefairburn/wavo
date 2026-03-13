@@ -100,7 +100,7 @@ export interface ProgressHandle {
  * progress position, creating a clear visual distinction between played content
  * (using the specified color) and unplayed content (using the inherited color).
  *
- * Progress reads automatically from the parent Waveform.Container's `progress` prop.
+ * Progress reads automatically from the parent Waveform's `progress` prop.
  *
  * @example
  * ```tsx

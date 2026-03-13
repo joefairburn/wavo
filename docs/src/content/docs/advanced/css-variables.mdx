@@ -21,7 +21,7 @@ Wavo uses CSS custom properties (variables) for styling. These can be set on the
 ### Inline Styles
 
 ```tsx
-<Waveform.Container
+<Waveform
   dataPoints={audioData}
   style={{
     "--wavo-bar-color": "#333",
@@ -32,7 +32,7 @@ Wavo uses CSS custom properties (variables) for styling. These can be set on the
 >
   <Waveform.Bars />
   <Waveform.Progress />
-</Waveform.Container>
+</Waveform>
 ```
 
 ### CSS Classes
@@ -47,20 +47,20 @@ Wavo uses CSS custom properties (variables) for styling. These can be set on the
 ```
 
 ```tsx
-<Waveform.Container className="my-waveform" dataPoints={audioData}>
+<Waveform className="my-waveform" dataPoints={audioData}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 ### Tailwind CSS
 
 ```tsx
-<Waveform.Container
+<Waveform
   className="[--wavo-bar-color:#333] [--wavo-bar-color-progress:#f96706]"
   dataPoints={audioData}
 >
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Variable Details
