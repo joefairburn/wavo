@@ -8,10 +8,10 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "format": "oxfmt .",
-    "format:check": "oxfmt --check .",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt .",
+    "format:check": "vp fmt --check .",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
@@ -27,8 +27,7 @@
     "wavo": "workspace:*"
   },
   "devDependencies": {
-    "oxfmt": "^0.26.0",
-    "oxlint": "^1.41.0",
+    "vite-plus": "catalog:",
     "wrangler": "^4"
   }
 }

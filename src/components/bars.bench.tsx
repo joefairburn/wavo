@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { createRef } from "react";
-import { bench, describe } from "vitest";
+import { bench, describe } from "vite-plus/test";
 import { WaveformProvider } from "../contexts/waveform-context";
 import { Bars, type BarsHandle } from "./bars";
 import type { PathHandle } from "./path";

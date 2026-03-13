@@ -57,7 +57,7 @@ const VoiceMessageDemo = () => {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        void audioRef.current.play();
       }
     }
   };

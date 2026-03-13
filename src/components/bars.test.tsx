@@ -1,6 +1,6 @@
 import { act, render, waitFor } from "@testing-library/react";
 import { createRef } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { WaveformProvider } from "../contexts/waveform-context";
 import { Bars, type BarsHandle } from "./bars";
 import type { PathHandle } from "./path";
@@ -51,7 +51,7 @@ describe("Bars imperative API (non-optimized)", () => {
       expect(barsRef.current).not.toBeNull();
     });
 
-    expect(barsRef.current?.setDataPoints).toBeTypeOf("function");
+    expect(typeof barsRef.current?.setDataPoints).toBe("function");
   });
 
   it("exposes getBarCount method via ref", async () => {
@@ -68,7 +68,7 @@ describe("Bars imperative API (non-optimized)", () => {
       expect(barsRef.current).not.toBeNull();
     });
 
-    expect(barsRef.current?.getBarCount).toBeTypeOf("function");
+    expect(typeof barsRef.current?.getBarCount).toBe("function");
   });
 
   it("setDataPoints updates bar heights via DOM", async () => {
@@ -141,7 +141,7 @@ describe("Bars imperative API (optimized - delegates to Path)", () => {
       expect(barsRef.current).not.toBeNull();
     });
 
-    expect(barsRef.current?.setDataPoints).toBeTypeOf("function");
+    expect(typeof barsRef.current?.setDataPoints).toBe("function");
   });
 
   it("exposes getSegmentCount method via ref when optimized (PathHandle)", async () => {
@@ -159,6 +159,6 @@ describe("Bars imperative API (optimized - delegates to Path)", () => {
     });
 
     // When optimized, it delegates to Path which has getSegmentCount
-    expect(barsRef.current?.getSegmentCount).toBeTypeOf("function");
+    expect(typeof barsRef.current?.getSegmentCount).toBe("function");
   });
 });
