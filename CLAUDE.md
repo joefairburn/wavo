@@ -12,30 +12,30 @@ All tooling is managed through Vite+ (`vp` CLI). See the Vite+ section below for
 
 ### Build and Development
 
-- `pnpm build` - Type-check and build the library via `vp pack`
-- `pnpm dev` - Start development mode with file watching via `vp pack --watch`
-- `pnpm type-check` - Run TypeScript type checking
+- `vp run build` - Type-check and build the library via `vp pack`
+- `vp run dev` - Start development mode with file watching via `vp pack --watch`
+- `vp run type-check` - Run TypeScript type checking
 
 ### Testing
 
-- `pnpm test` - Run all tests (unit + E2E)
-- `pnpm test:unit` - Run unit tests via `vp test run`
-- `pnpm test:unit:watch` - Run tests in watch mode via `vp test`
-- `pnpm test:e2e` - Run Playwright E2E tests
-- Test app: `pnpm dev:test` - Start test application on localhost:3000
-- Test build: `pnpm build:test` - Build test application
+- `vp run test` - Run all tests (unit + E2E)
+- `vp run test:unit` - Run unit tests via `vp test run`
+- `vp run test:unit:watch` - Run tests in watch mode via `vp test`
+- `vp run test:e2e` - Run Playwright E2E tests
+- Test app: `vp run dev:test` - Start test application on localhost:3000
+- Test build: `vp run build:test` - Build test application
 
 ### Documentation
 
-- `pnpm dev:docs` - Start documentation site in development mode
-- `pnpm build:docs` - Build documentation site
+- `vp run dev:docs` - Start documentation site in development mode
+- `vp run build:docs` - Build documentation site
 
 ### Code Quality
 
-- `pnpm lint` - Lint code via `vp lint`
-- `pnpm lint:fix` - Lint with auto-fix via `vp lint --fix`
-- `pnpm format` - Format code via `vp fmt`
-- `pnpm format:check` - Check formatting via `vp fmt --check`
+- `vp run lint` - Lint code via `vp lint`
+- `vp run lint:fix` - Lint with auto-fix via `vp lint --fix`
+- `vp run format` - Format code via `vp fmt`
+- `vp run format:check` - Check formatting via `vp fmt --check`
 
 ## Architecture
 
@@ -87,7 +87,7 @@ All build tools are unified under **Vite+** (`vp` CLI):
 - **Linter**: `vp lint` (oxlint) with type-aware linting support
 - **Formatter**: `vp fmt` (oxfmt) for code formatting
 - **Testing**: `vp test` (Vitest) for unit tests and benchmarks
-- **Git Hooks**: lefthook for pre-commit formatting
+- **Git Hooks**: `vp staged` for pre-commit checks
 - **Monorepo**: `vp run --filter` for workspace task orchestration
 - **TypeScript**: Strict type checking required before builds
 

@@ -55,26 +55,26 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: vp install --frozen-lockfile
 
       - name: Run type check
-        run: pnpm type-check
+        run: vp run type-check
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
+        run: vp exec playwright install --with-deps
 
       - name: Run tests
-        run: pnpm test
+        run: vp run test
         continue-on-error: true # Continue even if tests fail for now
 
       - name: Build package
-        run: pnpm build
+        run: vp run build
 
       - name: Update version (manual workflow only)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version }}
         run: |
           echo "Updating version to ${{ github.event.inputs.version }}"
-          pnpm version ${{ github.event.inputs.version }} --no-git-tag-version
+          vp pm version ${{ github.event.inputs.version }} --no-git-tag-version
 
       - name: Get package version
         id: package_version
@@ -87,7 +87,7 @@ jobs:
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: |
           echo "Running in dry-run mode"
-          pnpm publish --dry-run --tag ${{ github.event.inputs.tag || 'latest' }} --no-git-checks
+          vp pm publish --dry-run --tag ${{ github.event.inputs.tag || 'latest' }} --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -95,7 +95,7 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           echo "Publishing to NPM with tag: ${{ github.event.inputs.tag || 'latest' }}"
-          pnpm publish --tag ${{ github.event.inputs.tag || 'latest' }} --no-git-checks
+          vp pm publish --tag ${{ github.event.inputs.tag || 'latest' }} --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

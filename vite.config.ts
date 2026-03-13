@@ -20,6 +20,9 @@ export default defineConfig({
     outDir: "dist",
     fixedExtension: true,
   },
+  staged: {
+    "*": "vp check --fix",
+  },
   test: {
     globals: true,
     environment: "jsdom",
