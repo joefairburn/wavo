@@ -68,29 +68,46 @@ describe("useAudioProgress", () => {
     raf = createRafController();
   });
 
-  describe("manual update function (returned value)", () => {
-    it("returns a function", () => {
+  describe("return value", () => {
+    it("returns an object with ref and update", () => {
       const progressRef = createProgressRef();
 
       const { result } = renderHook(() => useAudioProgress({ progressRef, __raf: raf.__raf }));
 
-      expect(typeof result.current).toBe("function");
+      expect(result.current).toHaveProperty("ref");
+      expect(result.current).toHaveProperty("update");
+      expect(typeof result.current.update).toBe("function");
     });
 
-    it("sets progressRef.current.setProgress with the given percentage", () => {
+    it("creates an internal ref when progressRef is not provided", () => {
+      const { result } = renderHook(() => useAudioProgress({ __raf: raf.__raf }));
+
+      expect(result.current.ref).toBeDefined();
+      expect(result.current.ref.current).toBeNull();
+    });
+
+    it("uses the provided progressRef as ref", () => {
+      const progressRef = createProgressRef();
+
+      const { result } = renderHook(() => useAudioProgress({ progressRef, __raf: raf.__raf }));
+
+      expect(result.current.ref).toBe(progressRef);
+    });
+
+    it("update sets progressRef.current.setProgress with the given percentage", () => {
       const setProgress = vi.fn();
       const progressRef = createProgressRef(setProgress);
 
       const { result } = renderHook(() => useAudioProgress({ progressRef, __raf: raf.__raf }));
 
       act(() => {
-        result.current(0.75);
+        result.current.update(0.75);
       });
 
       expect(setProgress).toHaveBeenCalledWith(0.75);
     });
 
-    it("calls onProgressUpdate if provided", () => {
+    it("update calls onProgressUpdate if provided", () => {
       const onProgressUpdate = vi.fn();
       const progressRef = createProgressRef();
 
@@ -99,7 +116,7 @@ describe("useAudioProgress", () => {
       );
 
       act(() => {
-        result.current(0.5);
+        result.current.update(0.5);
       });
 
       expect(onProgressUpdate).toHaveBeenCalledWith(0.5);

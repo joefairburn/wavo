@@ -113,7 +113,7 @@ const ProgressDemo = () => {
 
       {/* Waveform Display */}
       <div className="h-[200px] w-full border-b border-white/10 bg-black">
-        <Waveform.Container
+        <Waveform
           className="h-full w-full px-4"
           dataPoints={dataPoints}
           progress={progress}
@@ -125,7 +125,7 @@ const ProgressDemo = () => {
             <Waveform.Progress gradient={gradientPresets[selectedPreset].gradient} />
           )}
           {demoMode === "imperative" && <Waveform.Progress ref={progressRef} color="#f96706" />}
-        </Waveform.Container>
+        </Waveform>
       </div>
 
       {/* Controls */}

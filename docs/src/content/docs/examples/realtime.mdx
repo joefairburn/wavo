@@ -89,9 +89,9 @@ function MicrophoneVisualizer() {
 
   return (
     <div>
-      <Waveform.Container dataPoints={initialData}>
+      <Waveform dataPoints={initialData}>
         <Waveform.Bars ref={barsRef} optimized />
-      </Waveform.Container>
+      </Waveform>
 
       <button onClick={() => setIsActive(!isActive)}>{isActive ? "Stop" : "Start"}</button>
     </div>

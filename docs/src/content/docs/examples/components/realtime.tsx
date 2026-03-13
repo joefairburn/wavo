@@ -104,9 +104,9 @@ const RealtimeDemo = () => {
 
       {/* Visualization */}
       <div className="relative h-[200px] w-full border-b border-white/10 bg-black">
-        <Waveform.Container className="h-full w-full px-4" dataPoints={initialData}>
+        <Waveform className="h-full w-full px-4" dataPoints={initialData}>
           <Waveform.Bars ref={barsRef} width={3} gap={2} radius={1} optimized />
-        </Waveform.Container>
+        </Waveform>
 
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4">

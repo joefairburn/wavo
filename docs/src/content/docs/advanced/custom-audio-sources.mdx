@@ -24,10 +24,9 @@ Any object matching this interface works with `useAudioProgress`.
 
 ```tsx
 import { useRef, useState, useEffect } from "react";
-import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+import { Waveform, useAudioProgress } from "wavo";
 
 function WebAudioPlayer() {
-  const progressRef = useRef<ProgressHandle>(null);
   const [audioSource, setAudioSource] = useState<AudioSource>({
     currentTime: 0,
     duration: 0,
@@ -39,9 +38,8 @@ function WebAudioPlayer() {
   const sourceNodeRef = useRef<AudioBufferSourceNode>();
   const startTimeRef = useRef(0);
 
-  useAudioProgress({
+  const { ref: progressRef } = useAudioProgress({
     audioSource,
-    progressRef,
     isPlaying,
   });
 
@@ -85,10 +83,10 @@ function WebAudioPlayer() {
   };
 
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Bars />
       <Waveform.Progress ref={progressRef} color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -132,9 +130,9 @@ function FrequencyVisualizer() {
   }, [isActive]);
 
   return (
-    <Waveform.Container dataPoints={new Array(128).fill(0.1)}>
+    <Waveform dataPoints={new Array(128).fill(0.1)}>
       <Waveform.Bars ref={barsRef} optimized />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -190,9 +188,9 @@ function MicrophoneWaveform() {
       <button type="button" onClick={() => setIsListening(!isListening)}>
         {isListening ? "Stop" : "Start"} Listening
       </button>
-      <Waveform.Container dataPoints={new Array(256).fill(0.1)}>
-        <Waveform.Path ref={barsRef} smooth />
-      </Waveform.Container>
+      <Waveform dataPoints={new Array(256).fill(0.1)}>
+        <Waveform.Path ref={barsRef} />
+      </Waveform>
     </>
   );
 }
@@ -216,10 +214,10 @@ function StreamingPlayer() {
   }, [buffered]);
 
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Bars />
       <Waveform.Progress ref={progressRef} color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -231,21 +229,19 @@ Use with video elements:
 ```tsx
 function VideoWaveform() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
 
   // useAudioProgress works with any media element
-  useAudioProgress({
+  const { ref: progressRef } = useAudioProgress({
     audioRef: videoRef as React.RefObject<HTMLAudioElement>,
-    progressRef,
   });
 
   return (
     <>
       <video ref={videoRef} src="video.mp4" controls />
-      <Waveform.Container dataPoints={audioData}>
+      <Waveform dataPoints={audioData}>
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
     </>
   );
 }
@@ -258,7 +254,6 @@ Wrap third-party player APIs:
 ```tsx
 // Example with a hypothetical player API
 function ThirdPartyPlayer() {
-  const progressRef = useRef<ProgressHandle>(null);
   const [audioSource, setAudioSource] = useState<AudioSource>({
     currentTime: 0,
     duration: 0,
@@ -291,17 +286,16 @@ function ThirdPartyPlayer() {
     });
   }, []);
 
-  useAudioProgress({
+  const { ref: progressRef } = useAudioProgress({
     audioSource,
-    progressRef,
     isPlaying: !audioSource.paused,
   });
 
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Bars />
       <Waveform.Progress ref={progressRef} />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```

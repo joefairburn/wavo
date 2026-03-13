@@ -122,7 +122,7 @@ const ContainerDemo = () => {
 
       {/* Waveform Display */}
       <div className="relative h-[200px] w-full border-b border-white/10 bg-black">
-        <Waveform.Container
+        <Waveform
           ref={svgRef}
           className="h-full w-full px-4 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-400"
           dataPoints={dataPoints}
@@ -138,7 +138,7 @@ const ContainerDemo = () => {
         >
           <Waveform.Bars width={3} gap={2} radius={1} />
           <Waveform.Progress color="#f96706" />
-        </Waveform.Container>
+        </Waveform>
 
         {/* Event Display */}
         {demoMode === "interactive" && lastEvent && (

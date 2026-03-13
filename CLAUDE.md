@@ -57,7 +57,7 @@ Wavo is a React library for rendering audio waveforms as SVG components. The lib
 
 ### Key Patterns
 
-- **Compound Components**: Use `Waveform.Container`, `Waveform.Bars`, etc.
+- **Compound Components**: Use `Waveform`, `Waveform.Bars`, etc.
 - **Context-driven**: Child components access shared state via `useWaveform()`
 - **SVG-based**: All rendering uses SVG for scalability and performance
 - **Type Safety**: Comprehensive TypeScript types throughout

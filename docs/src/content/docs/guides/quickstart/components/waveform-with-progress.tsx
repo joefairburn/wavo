@@ -29,7 +29,7 @@ const WaveformWithProgress = () => {
   };
 
   return (
-    <Waveform.Container
+    <Waveform
       className="w-full text-[#3a2f27]"
       dataPoints={dataPoints}
       onClick={setProgress}
@@ -39,7 +39,7 @@ const WaveformWithProgress = () => {
     >
       <Waveform.Bars gap={10} width={5} />
       <Waveform.Progress color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 };
 

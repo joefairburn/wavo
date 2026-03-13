@@ -10,7 +10,7 @@ Wavo provides multiple ways to style your waveforms, from CSS variables to data 
 The primary way to customize waveforms:
 
 ```tsx
-<Waveform.Container
+<Waveform
   dataPoints={audioData}
   style={{
     "--wavo-bar-color": "#333",
@@ -21,7 +21,7 @@ The primary way to customize waveforms:
 >
   <Waveform.Bars />
   <Waveform.Progress />
-</Waveform.Container>
+</Waveform>
 ```
 
 See [CSS Variables](/docs/advanced/css-variables) for the complete reference.
@@ -31,10 +31,10 @@ See [CSS Variables](/docs/advanced/css-variables) for the complete reference.
 Apply CSS classes to components:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} className="my-waveform">
+<Waveform dataPoints={audioData} className="my-waveform">
   <Waveform.Bars className="my-bars" />
   <Waveform.Path className="my-path" />
-</Waveform.Container>
+</Waveform>
 ```
 
 ```css
@@ -77,14 +77,13 @@ Target specific elements with data attribute selectors:
 
 ### Available Data Attributes
 
-| Attribute               | Applied To     | Description          |
-| ----------------------- | -------------- | -------------------- |
-| `data-wavo-svg`         | SVG element    | Main container       |
-| `data-wavo-bar`         | rect elements  | Individual bars      |
-| `data-wavo-path="line"` | path element   | Line visualization   |
-| `data-wavo-path="bar"`  | path element   | Bar path (optimized) |
-| `data-wavo-gradient`    | linearGradient | Progress gradient    |
-| `data-wavo-animate`     | SVG element    | Animation state      |
+| Attribute               | Applied To     | Description        |
+| ----------------------- | -------------- | ------------------ |
+| `data-wavo-svg`         | SVG element    | Main container     |
+| `data-wavo-bar`         | rect elements  | Individual bars    |
+| `data-wavo-path="line"` | path element   | Line visualization |
+| `data-wavo-gradient`    | linearGradient | Progress gradient  |
+| `data-wavo-animate`     | SVG element    | Animation state    |
 
 ## Theming
 
@@ -111,9 +110,9 @@ Create theme variations using CSS:
 ```
 
 ```tsx
-<Waveform.Container className="waveform-dark" dataPoints={data}>
+<Waveform className="waveform-dark" dataPoints={data}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Tailwind CSS
@@ -121,21 +120,21 @@ Create theme variations using CSS:
 Use Tailwind classes directly:
 
 ```tsx
-<Waveform.Container className="h-20 w-full rounded-lg bg-black p-4" dataPoints={audioData}>
+<Waveform className="h-20 w-full rounded-lg bg-black p-4" dataPoints={audioData}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 For dynamic styling, use Tailwind's arbitrary values:
 
 ```tsx
-<Waveform.Container
+<Waveform
   className="[--wavo-bar-color:#333] [--wavo-bar-color-progress:#f96706]"
   dataPoints={audioData}
 >
   <Waveform.Bars />
   <Waveform.Progress />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Unstyled Mode
@@ -143,9 +142,9 @@ For dynamic styling, use Tailwind's arbitrary values:
 Disable all default styles for complete control:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} unstyled>
+<Waveform dataPoints={audioData} unstyled>
   <Waveform.Bars className="custom-bars" />
-</Waveform.Container>
+</Waveform>
 ```
 
 When `unstyled` is true:
@@ -183,17 +182,17 @@ Override the default entrance animation:
 Control animation duration and easing:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} transitionDuration={0.5} easing={[0.4, 0, 0.2, 1]}>
+<Waveform dataPoints={audioData} transitionDuration={0.5} easing={[0.4, 0, 0.2, 1]}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 ### Disable Animations
 
 ```tsx
-<Waveform.Container dataPoints={audioData} shouldAnimate={false}>
+<Waveform dataPoints={audioData} shouldAnimate={false}>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Responsive Styling
@@ -266,7 +265,7 @@ Works with styled-components, emotion, etc:
 import styled from "styled-components";
 import { Waveform } from "wavo";
 
-const StyledWaveform = styled(Waveform.Container)`
+const StyledWaveform = styled(Waveform)`
   --wavo-bar-color: ${(props) => props.theme.colors.muted};
   --wavo-bar-color-progress: ${(props) => props.theme.colors.primary};
   background: ${(props) => props.theme.colors.background};

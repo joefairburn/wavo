@@ -50,7 +50,7 @@ function InteractiveWaveform() {
   const [progress, setProgress] = useState(0);
 
   return (
-    <Waveform.Container
+    <Waveform
       dataPoints={audioData}
       progress={progress}
       onClick={(percentage) => setProgress(percentage)}
@@ -58,7 +58,7 @@ function InteractiveWaveform() {
     >
       <Waveform.Bars />
       <Waveform.Progress color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -70,9 +70,9 @@ function InteractiveWaveform() {
 Vertical bars with customizable width, gap, and radius:
 
 ```tsx
-<Waveform.Container dataPoints={audioData}>
+<Waveform dataPoints={audioData}>
   <Waveform.Bars width={3} gap={2} radius={2} />
-</Waveform.Container>
+</Waveform>
 ```
 
 ### Path / Line
@@ -80,9 +80,9 @@ Vertical bars with customizable width, gap, and radius:
 Smooth curves or jagged lines:
 
 ```tsx
-<Waveform.Container dataPoints={audioData}>
-  <Waveform.Path smooth />
-</Waveform.Container>
+<Waveform dataPoints={audioData}>
+  <Waveform.Path />
+</Waveform>
 ```
 
 ## Compound Component Pattern
@@ -90,10 +90,10 @@ Smooth curves or jagged lines:
 Wavo uses a compound component pattern. The Container provides context to child components:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} progress={0.5}>
+<Waveform dataPoints={audioData} progress={0.5}>
   <Waveform.Bars /> {/* Visualization */}
   <Waveform.Progress /> {/* Progress indicator */}
-</Waveform.Container>
+</Waveform>
 ```
 
 Or use direct imports:

@@ -42,7 +42,7 @@ describe("Path imperative API", () => {
 
     render(
       <TestWrapper svgRef={svgRef}>
-        <Path ref={pathRef} type="bar" />
+        <Path ref={pathRef} />
       </TestWrapper>,
     );
 
@@ -59,7 +59,7 @@ describe("Path imperative API", () => {
 
     render(
       <TestWrapper svgRef={svgRef}>
-        <Path ref={pathRef} type="bar" />
+        <Path ref={pathRef} />
       </TestWrapper>,
     );
 
@@ -76,7 +76,7 @@ describe("Path imperative API", () => {
 
     render(
       <TestWrapper svgRef={svgRef}>
-        <Path ref={pathRef} type="bar" />
+        <Path ref={pathRef} />
       </TestWrapper>,
     );
 
@@ -101,7 +101,7 @@ describe("Path imperative API", () => {
 
     render(
       <TestWrapper svgRef={svgRef}>
-        <Path ref={pathRef} type="bar" />
+        <Path ref={pathRef} />
       </TestWrapper>,
     );
 

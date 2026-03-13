@@ -10,7 +10,6 @@ import {
 } from "react";
 import { useWaveform } from "../contexts/waveform-context";
 import { getReducedDataPoints } from "../lib";
-import type { WaveformData } from "../waveform";
 
 /**
  * Type for corner radius with constrained values
@@ -19,12 +18,9 @@ import type { WaveformData } from "../waveform";
 export type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
 
 /**
- * Rendering mode for the Path component
- * - 'bar': Renders individual bars like the Bars component but as a single path
- *   @deprecated Use `<Bars optimized />` instead for bar-style rendering
- * - 'line': Renders a continuous line connecting all data points
+ * @internal Rendering mode for the Path component (used internally by Bars optimized)
  */
-export type RenderType = "bar" | "line";
+type RenderType = "bar" | "line";
 
 // CSS variable names
 const CSS_VAR_BAR_WIDTH = "--wavo-bar-width";
@@ -313,15 +309,6 @@ export interface PathHandle {
  */
 export interface PathProps {
   /**
-   * Rendering type for the waveform visualization
-   * - 'bar': Individual bars (similar to Bars component but as a single path)
-   *   @deprecated Use `<Bars optimized />` instead for bar-style rendering
-   * - 'line': Continuous line connecting points
-   * @default 'line'
-   */
-  type?: RenderType;
-
-  /**
    * Width of each segment in pixels
    * @default 3
    */
@@ -334,40 +321,28 @@ export interface PathProps {
   gap?: number;
 
   /**
-   * Current progress value (0-1) for playback indication
-   * Used in conjunction with the Progress component
-   */
-  progress?: number;
-
-  /**
-   * Corner radius for bars when type='bar'
+   * Corner radius for bars (used internally by Bars optimized)
    * @default 2
    */
   radius?: BarRadius;
 
   /**
-   * Smoothness factor for curves when type='line'
-   * 0 = jagged lines, 1 = very smooth curves
-   * @default 0
+   * Smoothness of the curve. 0 = jagged lines, higher values = smoother curves.
+   * @default 0.1
    */
   curvature?: number;
-
-  /**
-   * Whether to use smooth curves (when type='line')
-   * @default true
-   */
-  smooth?: boolean;
 
   /**
    * CSS class for styling the path
    */
   className?: string;
+}
 
-  /**
-   * Optional custom dataPoints to use instead of those from context
-   * Generally not needed as dataPoints are provided by the Waveform container
-   */
-  dataPoints?: WaveformData;
+/**
+ * @internal Extended props used by Bars optimized mode
+ */
+export interface InternalPathProps extends PathProps {
+  type?: RenderType;
 }
 
 /**
@@ -375,42 +350,27 @@ export interface PathProps {
  *
  * Renders the waveform as a single SVG path element for line/curve visualizations.
  *
- * Features:
- * - Better performance for large waveforms (uses single path vs. many elements)
- * - Smooth curve or jagged line rendering modes
- * - Automatic data point reduction for optimal rendering
- * - Responsive to container size changes
- * - Compatible with Progress component for partial coloring
- *
  * @example
  * ```tsx
- * // Continuous line visualization (default)
+ * // Smooth line visualization (default)
  * <Waveform dataPoints={audioData}>
- *   <Path smooth={true} />
+ *   <Waveform.Path />
  * </Waveform>
  *
  * // Jagged line visualization
  * <Waveform dataPoints={audioData}>
- *   <Path smooth={false} />
+ *   <Waveform.Path curvature={0} />
  * </Waveform>
  *
  * // With progress indicator
  * <Waveform dataPoints={audioData} progress={0.5}>
- *   <Path />
- *   <Progress progress={0.5} color="#f00" />
- * </Waveform>
- *
- * // For bar-style rendering, use Bars with optimized prop instead:
- * <Waveform dataPoints={audioData}>
- *   <Bars optimized />
+ *   <Waveform.Path />
+ *   <Waveform.Progress color="#f00" />
  * </Waveform>
  * ```
  */
-export const Path = forwardRef<PathHandle, PathProps>(
-  (
-    { type = "line", width = 3, gap = 1, radius = 2, curvature = 0, smooth = true, className },
-    ref,
-  ) => {
+export const Path = forwardRef<PathHandle, InternalPathProps>(
+  ({ type = "line", width = 3, gap = 1, radius = 2, curvature = 0.1, className }, ref) => {
     const { dataPoints: _dataPoints, svgRef, hasProgress, id } = useWaveform();
     // We need this state to force re-renders when the size changes
     const [svgWidth, setSvgWidth] = useState<number | null>(null);
@@ -469,12 +429,12 @@ export const Path = forwardRef<PathHandle, PathProps>(
           const newPath =
             type === "bar"
               ? createBarPath(scaledPoints, cssBarWidth, cssBarGap, radius)
-              : createLinePath(scaledPoints, cssBarWidth, cssBarGap, smooth ? 0.1 : curvature);
+              : createLinePath(scaledPoints, cssBarWidth, cssBarGap, curvature);
           pathRef.current.setAttribute("d", newPath);
         },
         getSegmentCount: () => segmentCountRef.current,
       }),
-      [type, cssBarWidth, cssBarGap, radius, curvature, smooth],
+      [type, cssBarWidth, cssBarGap, radius, curvature],
     );
 
     // Update path imperatively when dataPoints or dimensions change
@@ -486,10 +446,10 @@ export const Path = forwardRef<PathHandle, PathProps>(
       const newPath =
         type === "bar"
           ? createBarPath(reducedDataPoints, cssBarWidth, cssBarGap, radius)
-          : createLinePath(reducedDataPoints, cssBarWidth, cssBarGap, smooth ? 0.1 : curvature);
+          : createLinePath(reducedDataPoints, cssBarWidth, cssBarGap, curvature);
 
       pathRef.current.setAttribute("d", newPath);
-    }, [_dataPoints, segmentCount, cssBarWidth, cssBarGap, radius, type, curvature, smooth]);
+    }, [_dataPoints, segmentCount, cssBarWidth, cssBarGap, radius, type, curvature]);
 
     // Calculate the viewBox to ensure the path scales properly with the container
     const viewBox = useMemo(() => {

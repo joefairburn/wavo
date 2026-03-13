@@ -5,7 +5,7 @@ description: The main wrapper component that manages waveform state, interaction
 
 import ContainerDemo from "./components/container-demo";
 
-The `Waveform.Container` (or just `Waveform`) is the main wrapper component for all waveform visualizations. It manages state, interactions, and provides context to child components like `Bars`, `Path`, and `Progress`.
+The `Waveform` component is the main wrapper for all waveform visualizations. It manages state, interactions, and provides context to child components like `Bars`, `Path`, and `Progress`.
 
 <ContainerDemo client:load />
 
@@ -16,9 +16,9 @@ import { Waveform } from "wavo";
 
 function MyWaveform() {
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Bars />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -59,15 +59,10 @@ function InteractiveWaveform() {
   };
 
   return (
-    <Waveform.Container
-      dataPoints={audioData}
-      progress={progress}
-      onClick={handleSeek}
-      onDrag={handleSeek}
-    >
+    <Waveform dataPoints={audioData} progress={progress} onClick={handleSeek} onDrag={handleSeek}>
       <Waveform.Bars />
       <Waveform.Progress color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -95,7 +90,7 @@ function AccessibleWaveform() {
   };
 
   return (
-    <Waveform.Container
+    <Waveform
       dataPoints={audioData}
       progress={progress}
       onClick={setProgress}
@@ -103,7 +98,7 @@ function AccessibleWaveform() {
     >
       <Waveform.Bars />
       <Waveform.Progress />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -113,9 +108,9 @@ function AccessibleWaveform() {
 Enable lazy loading to defer rendering until the waveform is visible:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} lazyLoad>
+<Waveform dataPoints={audioData} lazyLoad>
   <Waveform.Bars />
-</Waveform.Container>
+</Waveform>
 ```
 
 This uses the Intersection Observer API to only render the waveform when it enters the viewport, improving performance for pages with many waveforms.
@@ -126,10 +121,10 @@ Control the animation timing with the `easing` prop:
 
 ```tsx
 // Named easing functions
-<Waveform.Container dataPoints={data} easing="ease-in-out">
+<Waveform dataPoints={data} easing="ease-in-out">
 
 // Custom cubic-bezier
-<Waveform.Container dataPoints={data} easing={[0.1, 0.9, 0.2, 1.0]}>
+<Waveform dataPoints={data} easing={[0.1, 0.9, 0.2, 1.0]}>
 ```
 
 Available easing options:
@@ -153,9 +148,9 @@ function WaveformWithRef() {
   const svgRef = useRef<SVGSVGElement>(null);
 
   return (
-    <Waveform.Container ref={svgRef} dataPoints={audioData}>
+    <Waveform ref={svgRef} dataPoints={audioData}>
       <Waveform.Bars />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -175,10 +170,10 @@ The Container uses React's compound component pattern. Child components access s
 
 ```tsx
 // These are equivalent
-<Waveform.Container dataPoints={data}>
+<Waveform dataPoints={data}>
   <Waveform.Bars />
   <Waveform.Progress />
-</Waveform.Container>;
+</Waveform>;
 
 // Direct imports also work
 import { Waveform, Bars, Progress } from "wavo";

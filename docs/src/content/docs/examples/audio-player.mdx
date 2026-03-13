@@ -23,7 +23,7 @@ This example demonstrates:
 
 ```tsx
 import { useRef, useState, useEffect } from "react";
-import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+import { Waveform, useAudioProgress } from "wavo";
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -33,15 +33,13 @@ function formatTime(seconds: number): string {
 
 function AudioPlayer({ audioSrc, waveformData }) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
   const [progress, setProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
 
   // 60fps progress updates
-  const updateProgress = useAudioProgress({
+  const { ref: progressRef, update } = useAudioProgress({
     audioRef,
-    progressRef,
     onProgressUpdate: setProgress,
   });
 
@@ -75,7 +73,7 @@ function AudioPlayer({ audioSrc, waveformData }) {
   const handleSeek = (percentage: number) => {
     if (audioRef.current && duration) {
       audioRef.current.currentTime = duration * percentage;
-      updateProgress(percentage);
+      update(percentage);
     }
   };
 
@@ -108,7 +106,7 @@ function AudioPlayer({ audioSrc, waveformData }) {
     <div>
       <audio ref={audioRef} src={audioSrc} preload="metadata" />
 
-      <Waveform.Container
+      <Waveform
         dataPoints={waveformData}
         progress={progress}
         onClick={handleSeek}
@@ -119,7 +117,7 @@ function AudioPlayer({ audioSrc, waveformData }) {
       >
         <Waveform.Bars width={3} gap={2} radius={1} />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
 
       <div>
         <button onClick={togglePlayback}>{isPlaying ? "Pause" : "Play"}</button>
@@ -139,9 +137,8 @@ function AudioPlayer({ audioSrc, waveformData }) {
 Using `useAudioProgress` ensures smooth visual updates without React re-renders:
 
 ```tsx
-const updateProgress = useAudioProgress({
+const { ref: progressRef, update } = useAudioProgress({
   audioRef,
-  progressRef,
   onProgressUpdate: setProgress, // ~10fps for UI state
 });
 ```
@@ -151,7 +148,7 @@ const updateProgress = useAudioProgress({
 Pause during drag, resume on drag end for smooth seeking:
 
 ```tsx
-<Waveform.Container
+<Waveform
   onDrag={handleSeek}
   onDragStart={() => audioRef.current?.pause()}
   onDragEnd={() => isPlaying && audioRef.current?.play()}

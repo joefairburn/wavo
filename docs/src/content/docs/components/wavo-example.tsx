@@ -5,7 +5,6 @@ import {
   type BarRadius,
   type EasingFunction,
   type GradientStop,
-  type ProgressHandle,
   useAudioProgress,
   Waveform,
 } from "wavo";
@@ -101,7 +100,6 @@ const FPSDisplay = () => {
 const WavoExample = () => {
   const [progress, setProgress] = useState(0.5);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
 
   const [controls, setControls] = useState({
     gap: 10,
@@ -117,9 +115,8 @@ const WavoExample = () => {
   });
 
   // Use the audio progress hook for 60fps updates
-  const updateProgress = useAudioProgress({
+  const { ref: progressRef, update: updateProgress } = useAudioProgress({
     audioRef,
-    progressRef,
     onProgressUpdate: setProgress,
   });
 
@@ -218,7 +215,7 @@ const WavoExample = () => {
         {/* Waveform Area */}
         <div className="relative flex h-[400px] w-full items-center justify-center overflow-hidden border-b border-white/10 bg-black">
           {/* Waveform */}
-          <Waveform.Container
+          <Waveform
             className="h-full w-full px-4 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-400 focus-visible:ring-opacity-75"
             dataPoints={dataPoints}
             easing={controls.easing}
@@ -242,8 +239,7 @@ const WavoExample = () => {
             {controls.renderMode === "line" && (
               <Waveform.Path
                 gap={controls.gap}
-                smooth={controls.smooth}
-                type="line"
+                curvature={controls.smooth ? 0.1 : 0}
                 width={controls.width}
               />
             )}
@@ -252,7 +248,7 @@ const WavoExample = () => {
             ) : (
               <Waveform.Progress color={controls.color} ref={progressRef} />
             )}
-          </Waveform.Container>
+          </Waveform>
 
           {/* Stats display */}
           <div className="absolute bottom-4 right-4 flex gap-4 font-mono text-[10px] uppercase text-white/30">

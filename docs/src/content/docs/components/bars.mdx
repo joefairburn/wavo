@@ -16,9 +16,9 @@ import { Waveform } from "wavo";
 
 function MyWaveform() {
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Bars />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -59,9 +59,9 @@ Adjust width, gap, and radius to achieve different visual styles:
 For large waveforms or performance-critical applications, enable optimized mode:
 
 ```tsx
-<Waveform.Container dataPoints={audioData}>
+<Waveform dataPoints={audioData}>
   <Waveform.Bars optimized />
-</Waveform.Container>
+</Waveform>
 ```
 
 **Standard mode** renders each bar as an individual `<rect>` element. This provides maximum flexibility for styling and animations, but can be slower with many bars.
@@ -93,9 +93,9 @@ function ImperativeExample() {
   };
 
   return (
-    <Waveform.Container dataPoints={initialData}>
+    <Waveform dataPoints={initialData}>
       <Waveform.Bars ref={barsRef} />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -128,10 +128,10 @@ This ensures the waveform always looks good regardless of container size.
 Combine with the Progress component to show playback position:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} progress={0.5}>
+<Waveform dataPoints={audioData} progress={0.5}>
   <Waveform.Bars width={3} gap={2} />
   <Waveform.Progress color="#f96706" />
-</Waveform.Container>
+</Waveform>
 ```
 
 The bars automatically use the gradient defined by Progress to distinguish played vs unplayed sections.
@@ -141,7 +141,7 @@ The bars automatically use the gradient defined by Progress to distinguish playe
 Style bars using CSS variables:
 
 ```tsx
-<Waveform.Container
+<Waveform
   dataPoints={audioData}
   style={{
     "--wavo-bar-color": "#333",
@@ -152,7 +152,7 @@ Style bars using CSS variables:
 >
   <Waveform.Bars />
   <Waveform.Progress />
-</Waveform.Container>
+</Waveform>
 ```
 
 See [CSS Variables](/docs/advanced/css-variables) for all available variables.

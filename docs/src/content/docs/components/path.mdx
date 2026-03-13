@@ -16,69 +16,41 @@ import { Waveform } from "wavo";
 
 function MyWaveform() {
   return (
-    <Waveform.Container dataPoints={audioData}>
+    <Waveform dataPoints={audioData}>
       <Waveform.Path />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
 
 ## Props
 
-| Prop        | Type         | Default  | Description                                 |
-| ----------- | ------------ | -------- | ------------------------------------------- |
-| `type`      | `RenderType` | `"line"` | Rendering type: `"line"` or `"bar"`         |
-| `width`     | `number`     | `3`      | Width of each segment in pixels             |
-| `gap`       | `number`     | `1`      | Gap between segments in pixels              |
-| `smooth`    | `boolean`    | `true`   | Enable smooth curves                        |
-| `curvature` | `number`     | `0`      | Curve smoothness (0-1) when smooth is false |
-| `radius`    | `BarRadius`  | `2`      | Corner radius for bar type (0-5)            |
-| `className` | `string`     | -        | CSS class for styling                       |
-
-### RenderType
-
-```tsx
-type RenderType = "bar" | "line";
-```
-
-> **Note:** `type="bar"` is deprecated. Use `<Bars optimized />` instead for bar-style rendering.
-
-## Smooth Curves
-
-Enable smooth curves for a flowing waveform appearance:
-
-```tsx
-// Default smooth mode
-<Waveform.Path smooth />
-
-// Explicit smooth mode
-<Waveform.Path smooth={true} />
-```
-
-## Jagged Lines
-
-Disable smooth for a more angular appearance:
-
-```tsx
-<Waveform.Path smooth={false} />
-```
+| Prop        | Type     | Default | Description                                                     |
+| ----------- | -------- | ------- | --------------------------------------------------------------- |
+| `width`     | `number` | `3`     | Width of each segment in pixels                                 |
+| `gap`       | `number` | `1`     | Gap between segments in pixels                                  |
+| `curvature` | `number` | `0.1`   | Curve smoothness (0 = jagged, 0.1 = default, higher = smoother) |
+| `className` | `string` | -       | CSS class for styling                                           |
 
 ## Curvature Control
 
-When `smooth` is false, control the curve tension with `curvature`:
+Control the curve smoothness with the `curvature` prop:
 
 ```tsx
 // Completely jagged (straight line segments)
-<Waveform.Path smooth={false} curvature={0} />
+<Waveform.Path curvature={0} />
+
+// Default smooth (0.1)
+<Waveform.Path />
 
 // Slightly curved
-<Waveform.Path smooth={false} curvature={0.3} />
+<Waveform.Path curvature={0.3} />
 
 // Very smooth
-<Waveform.Path smooth={false} curvature={1} />
+<Waveform.Path curvature={1} />
 ```
 
-The `curvature` prop only applies when `smooth={false}`. When `smooth={true}`, an optimal curvature (0.1) is used automatically.
+The default curvature of `0.1` produces smooth, natural-looking curves. Set to `0` for jagged straight-line segments, or increase for smoother curves.
 
 ## Imperative Handle
 
@@ -97,9 +69,9 @@ function RealTimeVisualization() {
   };
 
   return (
-    <Waveform.Container dataPoints={initialData}>
+    <Waveform dataPoints={initialData}>
       <Waveform.Path ref={pathRef} />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
@@ -142,17 +114,15 @@ interface PathHandle {
 Path works seamlessly with the Progress component:
 
 ```tsx
-<Waveform.Container dataPoints={audioData} progress={0.5}>
-  <Waveform.Path smooth />
+<Waveform dataPoints={audioData} progress={0.5}>
+  <Waveform.Path />
   <Waveform.Progress color="#f96706" />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## How Path Rendering Works
 
 The Path component creates SVG path strings differently based on settings:
-
-### Line Mode (default)
 
 Creates a mirrored waveform shape:
 
@@ -160,16 +130,16 @@ Creates a mirrored waveform shape:
 2. Bottom half: Mirror of top, connecting right to left
 3. Path is closed to create a filled shape
 
-### Smooth Curves
+### Curvature
 
-When smooth curves are enabled, the path uses cubic Bézier curves (`C` command) instead of straight lines (`L` command). Control points are calculated to create natural-looking curves between data points.
+When curvature is greater than 0, the path uses cubic Bezier curves (`C` command) instead of straight lines (`L` command). Control points are calculated to create natural-looking curves between data points.
 
 ## CSS Variables
 
 Path respects CSS variables for styling:
 
 ```tsx
-<Waveform.Container
+<Waveform
   dataPoints={audioData}
   style={{
     "--wavo-bar-width": "4px",
@@ -178,7 +148,7 @@ Path respects CSS variables for styling:
   }}
 >
   <Waveform.Path />
-</Waveform.Container>
+</Waveform>
 ```
 
 ## Data Attributes
@@ -186,7 +156,6 @@ Path respects CSS variables for styling:
 Path elements include data attributes for CSS targeting:
 
 - `[data-wavo-path="line"]` - Line type path
-- `[data-wavo-path="bar"]` - Bar type path (deprecated)
 
 ```css
 /* Custom path styling */
@@ -228,9 +197,9 @@ function AudioAnalyzer() {
   }, []);
 
   return (
-    <Waveform.Container dataPoints={new Array(128).fill(0)}>
-      <Waveform.Path ref={pathRef} smooth />
-    </Waveform.Container>
+    <Waveform dataPoints={new Array(128).fill(0)}>
+      <Waveform.Path ref={pathRef} />
+    </Waveform>
   );
 }
 ```

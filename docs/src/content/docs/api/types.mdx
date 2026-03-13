@@ -53,16 +53,6 @@ Constrained corner radius values:
 type BarRadius = 0 | 1 | 2 | 3 | 4 | 5;
 ```
 
-### RenderType
-
-Path rendering modes:
-
-```tsx
-type RenderType = "bar" | "line";
-```
-
-> **Note:** `"bar"` is deprecated. Use `<Bars optimized />` instead.
-
 ### GradientStop
 
 Gradient color stop definition:
@@ -123,9 +113,6 @@ interface BarsProps {
   radius?: BarRadius;
   optimized?: boolean;
   className?: string;
-  // Internal props (from context)
-  progress?: number;
-  dataPoints?: WaveformData;
 }
 ```
 
@@ -133,16 +120,10 @@ interface BarsProps {
 
 ```tsx
 interface PathProps {
-  type?: RenderType;
   width?: number;
   gap?: number;
-  radius?: BarRadius;
   curvature?: number;
-  smooth?: boolean;
   className?: string;
-  // Internal props (from context)
-  progress?: number;
-  dataPoints?: WaveformData;
 }
 ```
 
@@ -192,10 +173,19 @@ interface PathHandle {
 interface UseAudioProgressOptions {
   audioRef?: React.RefObject<HTMLAudioElement | null>;
   audioSource?: AudioSource;
-  progressRef: React.RefObject<ProgressHandle | null>;
+  progressRef?: React.RefObject<ProgressHandle | null>;
   onProgressUpdate?: (progress: number) => void;
   enableHighFrequency?: boolean;
   isPlaying?: boolean;
+}
+```
+
+### UseAudioProgressReturn
+
+```tsx
+interface UseAudioProgressReturn {
+  ref: React.RefObject<ProgressHandle | null>;
+  update: (progress: number) => void;
 }
 ```
 
@@ -298,6 +288,7 @@ import type {
   ProgressHandle,
   BarsHandle,
   PathHandle,
+  UseAudioProgressReturn,
 } from "wavo";
 ```
 

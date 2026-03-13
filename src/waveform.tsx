@@ -1,6 +1,7 @@
 "use client";
 
 import React, { forwardRef, useRef } from "react";
+import { Bars } from "./components/bars";
 import WaveformSVG from "./components/waveform-svg";
 import { WaveformProvider } from "./contexts/waveform-context";
 import { useInteraction } from "./hooks/use-interaction";
@@ -47,13 +48,6 @@ export interface WaveformProps {
    * Array of normalized amplitude values (0-1) representing the audio waveform
    */
   dataPoints: WaveformData;
-
-  /**
-   * Percentage of the waveform that has been rendered (0-100)
-   * Useful for progressive loading animations
-   * @deprecated Use progress instead
-   */
-  completionPercentage?: number;
 
   /**
    * Enable lazy loading of the waveform - only renders when visible in viewport
@@ -124,24 +118,22 @@ export interface WaveformProps {
   unstyled?: boolean;
 
   /**
-   * Child components to render inside the waveform
-   * Should include Bars, Path, or Progress components
+   * Child components to render inside the waveform.
+   * Defaults to `<Bars />` when not provided.
    */
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 /**
- * Waveform container component
+ * Waveform component
  *
  * Renders an SVG-based audio waveform visualization with customizable appearance and behaviors.
- * This is the main container that manages waveform data, interactions, and rendering context.
+ * When no children are provided, renders bars by default.
  *
  * @example
  * ```tsx
- * // Basic usage
- * <Waveform dataPoints={audioData}>
- *   <Bars />
- * </Waveform>
+ * // Zero-config — renders bars by default
+ * <Waveform dataPoints={audioData} />
  *
  * // With progress indicator
  * <Waveform
@@ -149,13 +141,13 @@ export interface WaveformProps {
  *   progress={0.5}
  *   onClick={(position) => setProgress(position)}
  * >
- *   <Bars />
- *   <Progress />
+ *   <Waveform.Bars />
+ *   <Waveform.Progress />
  * </Waveform>
  *
- * // With path-based rendering instead of bars
+ * // With path-based rendering
  * <Waveform dataPoints={audioData}>
- *   <Path type="line" smooth={true} />
+ *   <Waveform.Path />
  * </Waveform>
  * ```
  */
@@ -204,8 +196,14 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
     // Handle styles
     useStyles({ unstyled, easing });
 
+    // Default to Bars when no children are provided
+    const resolvedChildren = children ?? <Bars />;
+
     // Check if there is a Progress component
-    const hasProgress = React.useMemo(() => hasProgressComponent(children), [children]);
+    const hasProgress = React.useMemo(
+      () => hasProgressComponent(resolvedChildren),
+      [resolvedChildren],
+    );
 
     // Memoize SVG attributes to reduce prop calculations on each render
     const svgAttributes = React.useMemo(
@@ -247,7 +245,7 @@ export const Waveform = forwardRef<SVGSVGElement, WaveformProps>(
           svgAttributes={svgAttributes}
           svgRef={svgRef}
         >
-          {children}
+          {resolvedChildren}
         </WaveformSVG>
       </WaveformProvider>
     );

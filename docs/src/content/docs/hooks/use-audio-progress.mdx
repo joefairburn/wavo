@@ -9,24 +9,22 @@ The `useAudioProgress` hook provides 60fps audio progress updates using `request
 
 ```tsx
 import { useRef } from "react";
-import { Waveform, useAudioProgress, type ProgressHandle } from "wavo";
+import { Waveform, useAudioProgress } from "wavo";
 
 function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
 
-  useAudioProgress({
+  const { ref: progressRef, update } = useAudioProgress({
     audioRef,
-    progressRef,
   });
 
   return (
     <>
       <audio ref={audioRef} src="audio.mp3" controls />
-      <Waveform.Container dataPoints={audioData}>
+      <Waveform dataPoints={audioData}>
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
     </>
   );
 }
@@ -42,8 +40,8 @@ interface UseAudioProgressOptions {
   // Custom audio source (for Web Audio API, etc.)
   audioSource?: AudioSource;
 
-  // Progress component reference to update
-  progressRef: React.RefObject<ProgressHandle | null>;
+  // Optional progress component reference (hook creates one internally if not provided)
+  progressRef?: React.RefObject<ProgressHandle | null>;
 
   // Optional callback for state synchronization
   onProgressUpdate?: (progress: number) => void;
@@ -56,21 +54,30 @@ interface UseAudioProgressOptions {
 }
 ```
 
-| Option                | Type                          | Default      | Description                          |
-| --------------------- | ----------------------------- | ------------ | ------------------------------------ |
-| `audioRef`            | `RefObject<HTMLAudioElement>` | -            | HTML audio element reference         |
-| `audioSource`         | `AudioSource`                 | -            | Custom audio source (Web Audio API)  |
-| `progressRef`         | `RefObject<ProgressHandle>`   | **required** | Progress component reference         |
-| `onProgressUpdate`    | `(progress: number) => void`  | -            | State sync callback (~10fps)         |
-| `enableHighFrequency` | `boolean`                     | `true`       | Enable 60fps updates                 |
-| `isPlaying`           | `boolean`                     | -            | Manual play state for custom sources |
+| Option                | Type                          | Default | Description                          |
+| --------------------- | ----------------------------- | ------- | ------------------------------------ |
+| `audioRef`            | `RefObject<HTMLAudioElement>` | -       | HTML audio element reference         |
+| `audioSource`         | `AudioSource`                 | -       | Custom audio source (Web Audio API)  |
+| `progressRef`         | `RefObject<ProgressHandle>`   | -       | Optional progress component ref      |
+| `onProgressUpdate`    | `(progress: number) => void`  | -       | State sync callback (~10fps)         |
+| `enableHighFrequency` | `boolean`                     | `true`  | Enable 60fps updates                 |
+| `isPlaying`           | `boolean`                     | -       | Manual play state for custom sources |
 
 ## Return Value
 
-Returns a function to manually update progress (useful for seeking):
+Returns an object with `ref` and `update`:
 
 ```tsx
-const updateProgress = useAudioProgress({ audioRef, progressRef });
+interface UseAudioProgressReturn {
+  // Ref to attach to the Progress component
+  ref: React.RefObject<ProgressHandle | null>;
+  // Function to manually update progress (useful for seeking)
+  update: (progress: number) => void;
+}
+```
+
+```tsx
+const { ref: progressRef, update } = useAudioProgress({ audioRef });
 
 const handleSeek = (percentage: number) => {
   // Update audio position
@@ -78,7 +85,7 @@ const handleSeek = (percentage: number) => {
     audioRef.current.currentTime = audioRef.current.duration * percentage;
   }
   // Immediately update progress visualization
-  updateProgress(percentage);
+  update(percentage);
 };
 ```
 
@@ -89,22 +96,20 @@ Use `onProgressUpdate` to sync with React state (throttled to ~10fps):
 ```tsx
 function AudioPlayerWithState() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
   const [progress, setProgress] = useState(0);
 
-  useAudioProgress({
+  const { ref: progressRef } = useAudioProgress({
     audioRef,
-    progressRef,
     onProgressUpdate: setProgress, // ~10fps for UI updates
   });
 
   return (
     <>
       <audio ref={audioRef} src="audio.mp3" />
-      <Waveform.Container dataPoints={audioData} progress={progress}>
+      <Waveform dataPoints={audioData} progress={progress}>
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
       <span>Progress: {(progress * 100).toFixed(1)}%</span>
     </>
   );
@@ -120,19 +125,17 @@ Full example with click and drag seeking:
 ```tsx
 function InteractiveAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const progressRef = useRef<ProgressHandle>(null);
   const [progress, setProgress] = useState(0);
 
-  const updateProgress = useAudioProgress({
+  const { ref: progressRef, update } = useAudioProgress({
     audioRef,
-    progressRef,
     onProgressUpdate: setProgress,
   });
 
   const handleSeek = (percentage: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = audioRef.current.duration * percentage;
-      updateProgress(percentage);
+      update(percentage);
     }
   };
 
@@ -161,7 +164,7 @@ function InteractiveAudioPlayer() {
   return (
     <>
       <audio ref={audioRef} src="audio.mp3" />
-      <Waveform.Container
+      <Waveform
         dataPoints={audioData}
         progress={progress}
         onClick={handleSeek}
@@ -170,7 +173,7 @@ function InteractiveAudioPlayer() {
       >
         <Waveform.Bars />
         <Waveform.Progress ref={progressRef} color="#f96706" />
-      </Waveform.Container>
+      </Waveform>
     </>
   );
 }
@@ -189,7 +192,6 @@ interface AudioSource {
 }
 
 function WebAudioPlayer() {
-  const progressRef = useRef<ProgressHandle>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Custom audio source state
@@ -200,17 +202,16 @@ function WebAudioPlayer() {
     ended: false,
   });
 
-  useAudioProgress({
+  const { ref: progressRef } = useAudioProgress({
     audioSource: audioSourceRef.current,
-    progressRef,
     isPlaying,
   });
 
   return (
-    <Waveform.Container dataPoints={audioData}>
-      <Waveform.Path smooth />
+    <Waveform dataPoints={audioData}>
+      <Waveform.Path />
       <Waveform.Progress ref={progressRef} color="#f96706" />
-    </Waveform.Container>
+    </Waveform>
   );
 }
 ```
