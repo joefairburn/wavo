@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useAudioProgress } from "./use-audio-progress";
+import { useAudioProgress, PROGRESS_UPDATE_FRAME_INTERVAL } from "./use-audio-progress";
 import type { ProgressHandle } from "../components/progress";
 
 type Listeners = Record<string, ((...args: unknown[]) => void)[]>;
@@ -213,7 +213,7 @@ describe("useAudioProgress", () => {
       expect(setProgress).toHaveBeenCalledWith(0.5);
     });
 
-    it("calls onProgressUpdate every 6th frame, not every frame", () => {
+    it("throttles onProgressUpdate to fire less frequently than setProgress", () => {
       const onProgressUpdate = vi.fn();
       const mockAudio = createMockAudio({
         paused: false,
@@ -227,14 +227,14 @@ describe("useAudioProgress", () => {
         useAudioProgress({ audioRef, progressRef, onProgressUpdate, __raf: raf.__raf }),
       );
 
-      // Step through 12 frames
-      for (let i = 0; i < 12; i++) {
+      const totalFrames = PROGRESS_UPDATE_FRAME_INTERVAL * 2;
+      for (let i = 0; i < totalFrames; i++) {
         act(() => {
           raf.tick();
         });
       }
 
-      // onProgressUpdate should be called every 6th frame: frames 6 and 12
+      // onProgressUpdate fires every PROGRESS_UPDATE_FRAME_INTERVAL frames
       expect(onProgressUpdate).toHaveBeenCalledTimes(2);
       expect(onProgressUpdate).toHaveBeenCalledWith(0.5);
     });
@@ -314,6 +314,31 @@ describe("useAudioProgress", () => {
       });
 
       expect(setProgress).toHaveBeenCalledWith(0.25);
+    });
+  });
+
+  describe("null refs", () => {
+    it("does not throw when progressRef.current is null", () => {
+      const mockAudio = createMockAudio({ paused: false, currentTime: 30, duration: 60 });
+      const audioRef = createAudioRef(mockAudio);
+      const progressRef = { current: null } as React.RefObject<ProgressHandle | null>;
+
+      renderHook(() => useAudioProgress({ audioRef, progressRef, __raf: raf.__raf }));
+
+      expect(() => {
+        act(() => {
+          raf.tick();
+        });
+      }).not.toThrow();
+    });
+
+    it("does not throw when audioRef.current is null", () => {
+      const audioRef = { current: null } as React.RefObject<HTMLAudioElement | null>;
+      const progressRef = createProgressRef();
+
+      expect(() => {
+        renderHook(() => useAudioProgress({ audioRef, progressRef, __raf: raf.__raf }));
+      }).not.toThrow();
     });
   });
 

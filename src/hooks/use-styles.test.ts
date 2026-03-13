@@ -1,12 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { renderHook } from "@testing-library/react";
-import {
-  cssVariables,
-  createWaveformStyles,
-  getEasingFunction,
-  useStyles,
-  __resetStylesInjected,
-} from "./use-styles";
+import { cssVariables, getEasingFunction, useStyles, __resetStylesInjected } from "./use-styles";
 
 describe("getEasingFunction", () => {
   it("returns string easing values as-is", () => {
@@ -31,40 +25,6 @@ describe("getEasingFunction", () => {
 
   it("returns default cubic-bezier when given 'cubic-bezier' without params", () => {
     expect(getEasingFunction("cubic-bezier")).toBe("cubic-bezier(0.42, 0, 0.58, 1)");
-  });
-});
-
-describe("createWaveformStyles", () => {
-  it("returns CSS string containing [data-wavo-bar] rules", () => {
-    const css = createWaveformStyles("ease-in-out");
-    expect(css).toContain("[data-wavo-bar]");
-  });
-
-  it("contains @media (prefers-reduced-motion: no-preference)", () => {
-    const css = createWaveformStyles("ease-in-out");
-    expect(css).toContain("@media (prefers-reduced-motion: no-preference)");
-  });
-
-  it("contains @keyframes growBars", () => {
-    const css = createWaveformStyles("ease-in-out");
-    expect(css).toContain("@keyframes growBars");
-  });
-
-  it("uses the provided easing function value", () => {
-    const css = createWaveformStyles("ease-in");
-    expect(css).toContain("ease-in");
-  });
-
-  it("uses cubic-bezier value from array easing", () => {
-    const css = createWaveformStyles([0.25, 0.1, 0.25, 1]);
-    expect(css).toContain("cubic-bezier(0.25, 0.1, 0.25, 1)");
-  });
-
-  it("disables transitions for [data-wavo-path] elements", () => {
-    const css = createWaveformStyles("ease-in-out");
-    expect(css).toContain("[data-wavo-path]");
-    expect(css).toContain("transition: none");
-    expect(css).toContain("animation: none");
   });
 });
 

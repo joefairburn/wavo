@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef } from "react";
 import type { ProgressHandle } from "../components/progress";
 
 /**
+ * Number of RAF frames between onProgressUpdate calls (~10fps at 60fps)
+ */
+export const PROGRESS_UPDATE_FRAME_INTERVAL = 6;
+
+/**
  * Audio source interface that provides current time and duration
  */
 export interface AudioSource {
@@ -122,7 +127,7 @@ export function useAudioProgress({
       // Optional state callback (called every 6th frame ~10fps to avoid excessive re-renders)
       // Using deterministic frame counter instead of Math.random() for predictable behavior
       frameCountRef.current++;
-      if (onProgressUpdate && frameCountRef.current % 6 === 0) {
+      if (onProgressUpdate && frameCountRef.current % PROGRESS_UPDATE_FRAME_INTERVAL === 0) {
         onProgressUpdate(percentage);
       }
     }
