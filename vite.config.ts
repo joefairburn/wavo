@@ -3,7 +3,10 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   plugins: [react()],
-  lint: { options: { typeAware: true, typeCheck: true } },
+  lint: {
+    ignorePatterns: ["docs/**", "test/**"],
+    options: { typeAware: true, typeCheck: true },
+  },
   pack: {
     entry: ["src/index.tsx"],
     format: ["esm", "cjs"],

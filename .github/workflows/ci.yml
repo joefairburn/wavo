@@ -51,6 +51,11 @@ jobs:
       - name: Build package
         run: pnpm build
 
+      - name: Lint docs and test app
+        run: |
+          cd docs && pnpm lint
+          cd ../test && pnpm lint
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
