@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+const defaultCreateObserver = (
+  callback: IntersectionObserverCallback,
+  options?: IntersectionObserverInit,
+) => new IntersectionObserver(callback, options);
+
 /**
  * Options for configuring the lazy loading behavior
  */
@@ -28,6 +33,14 @@ export interface LazyLoadOptions {
    * @default 0
    */
   threshold?: number;
+
+  /**
+   * @internal Dependency injection for IntersectionObserver factory (testing only)
+   */
+  __createObserver?: (
+    callback: IntersectionObserverCallback,
+    options?: IntersectionObserverInit,
+  ) => IntersectionObserver;
 }
 
 /**
@@ -80,6 +93,7 @@ export const useLazyLoad = ({
   enabled,
   rootMargin = "50px",
   threshold = 0,
+  __createObserver = defaultCreateObserver,
 }: LazyLoadOptions): LazyLoadResult => {
   // If lazy loading is disabled, shouldRender is always true
   const [shouldRender, setShouldRender] = useState(!enabled);
@@ -93,7 +107,7 @@ export const useLazyLoad = ({
     }
 
     // Create an intersection observer to watch for visibility changes
-    const observer = new IntersectionObserver(
+    const observer = __createObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
@@ -118,7 +132,7 @@ export const useLazyLoad = ({
 
     // Clean up the observer when the component unmounts or dependencies change
     return () => observer.disconnect();
-  }, [enabled, elementRef, rootMargin, threshold]);
+  }, [enabled, elementRef, rootMargin, threshold, __createObserver]);
 
   return { shouldRender };
 };

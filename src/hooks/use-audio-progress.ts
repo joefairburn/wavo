@@ -2,6 +2,16 @@ import { useCallback, useEffect, useRef } from "react";
 import type { ProgressHandle } from "../components/progress";
 
 /**
+ * Number of RAF frames between onProgressUpdate calls (~10fps at 60fps)
+ */
+export const PROGRESS_UPDATE_FRAME_INTERVAL = 6;
+
+const defaultRaf = {
+  requestAnimationFrame: (cb: FrameRequestCallback) => requestAnimationFrame(cb),
+  cancelAnimationFrame: (id: number) => cancelAnimationFrame(id),
+};
+
+/**
  * Audio source interface that provides current time and duration
  */
 export interface AudioSource {
@@ -46,6 +56,14 @@ export interface UseAudioProgressOptions {
    * If not provided, will attempt to use audio element events
    */
   isPlaying?: boolean;
+
+  /**
+   * @internal Dependency injection for requestAnimationFrame/cancelAnimationFrame (testing only)
+   */
+  __raf?: {
+    requestAnimationFrame: typeof requestAnimationFrame;
+    cancelAnimationFrame: typeof cancelAnimationFrame;
+  };
 }
 
 /**
@@ -84,7 +102,9 @@ export function useAudioProgress({
   onProgressUpdate,
   enableHighFrequency = true,
   isPlaying,
+  __raf,
 }: UseAudioProgressOptions) {
+  const raf = __raf ?? defaultRaf;
   const rafRef = useRef<number | undefined>(undefined);
   // Frame counter for deterministic throttling of onProgressUpdate callback
   const frameCountRef = useRef(0);
@@ -112,14 +132,14 @@ export function useAudioProgress({
       // Optional state callback (called every 6th frame ~10fps to avoid excessive re-renders)
       // Using deterministic frame counter instead of Math.random() for predictable behavior
       frameCountRef.current++;
-      if (onProgressUpdate && frameCountRef.current % 6 === 0) {
+      if (onProgressUpdate && frameCountRef.current % PROGRESS_UPDATE_FRAME_INTERVAL === 0) {
         onProgressUpdate(percentage);
       }
     }
 
     // Continue the animation loop
-    rafRef.current = requestAnimationFrame(updateProgress);
-  }, [audioRef, audioSource, progressRef, onProgressUpdate, isPlaying]);
+    rafRef.current = raf.requestAnimationFrame(updateProgress);
+  }, [audioRef, audioSource, progressRef, onProgressUpdate, isPlaying, raf]);
 
   // Start/stop the animation loop based on audio state
   useEffect(() => {
@@ -129,13 +149,13 @@ export function useAudioProgress({
 
     const startLoop = () => {
       if (!rafRef.current) {
-        rafRef.current = requestAnimationFrame(updateProgress);
+        rafRef.current = raf.requestAnimationFrame(updateProgress);
       }
     };
 
     const stopLoop = () => {
       if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
+        raf.cancelAnimationFrame(rafRef.current);
         rafRef.current = undefined;
       }
     };
