@@ -33,9 +33,7 @@ Waveform data is an array of normalized amplitude values between 0 and 1:
 import type { WaveformData } from "wavo";
 
 // Each value represents amplitude (0 = silence, 1 = max)
-const audioData: WaveformData = [
-  0.1, 0.4, 0.8, 0.6, 0.3, 0.9, 0.5, 0.2, 0.7, 0.4
-];
+const audioData: WaveformData = [0.1, 0.4, 0.8, 0.6, 0.3, 0.9, 0.5, 0.2, 0.7, 0.4];
 ```
 
 The number of bars rendered is determined by the container width and bar dimensions, not the array length. Wavo automatically reduces larger datasets to fit.
@@ -93,7 +91,7 @@ Wavo uses a compound component pattern. The Container provides context to child 
 
 ```tsx
 <Waveform.Container dataPoints={audioData} progress={0.5}>
-  <Waveform.Bars />     {/* Visualization */}
+  <Waveform.Bars /> {/* Visualization */}
   <Waveform.Progress /> {/* Progress indicator */}
 </Waveform.Container>
 ```
@@ -106,7 +104,7 @@ import { Waveform, Bars, Progress } from "wavo";
 <Waveform dataPoints={audioData}>
   <Bars />
   <Progress />
-</Waveform>
+</Waveform>;
 ```
 
 ## Next Steps

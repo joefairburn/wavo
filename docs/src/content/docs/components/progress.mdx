@@ -26,11 +26,11 @@ function MyWaveform() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `progress` | `number` | Container's progress | Playback progress (0-1) |
-| `color` | `string` | `"currentColor"` | Color for the played portion |
-| `gradient` | `GradientStop[]` | - | Multi-color gradient stops |
+| Prop       | Type             | Default              | Description                  |
+| ---------- | ---------------- | -------------------- | ---------------------------- |
+| `progress` | `number`         | Container's progress | Playback progress (0-1)      |
+| `color`    | `string`         | `"currentColor"`     | Color for the played portion |
+| `gradient` | `GradientStop[]` | -                    | Multi-color gradient stops   |
 
 ## Progress Value
 
@@ -188,20 +188,17 @@ The unplayed portion uses `currentColor` by default. Set this via CSS:
 ```tsx
 <Waveform.Container
   dataPoints={audioData}
-  style={{ color: "#333" }}  // Unplayed color
+  style={{ color: "#333" }} // Unplayed color
 >
   <Waveform.Bars />
-  <Waveform.Progress color="#f96706" />  // Played color
+  <Waveform.Progress color="#f96706" /> // Played color
 </Waveform.Container>
 ```
 
 Or use CSS variables:
 
 ```tsx
-<Waveform.Container
-  dataPoints={audioData}
-  style={{ "--wavo-bar-color": "#333" }}
->
+<Waveform.Container dataPoints={audioData} style={{ "--wavo-bar-color": "#333" }}>
   <Waveform.Bars />
   <Waveform.Progress color="#f96706" />
 </Waveform.Container>

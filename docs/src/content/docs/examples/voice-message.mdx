@@ -12,6 +12,7 @@ A compact voice message component similar to WhatsApp or Telegram, featuring a p
 ## Implementation
 
 This example demonstrates:
+
 - Compact waveform layout
 - Inline play button
 - Duration display (switches to elapsed time during playback)
@@ -103,9 +104,7 @@ function VoiceMessage({ audioSrc, waveformData }) {
               <Waveform.Progress ref={progressRef} color="#f96706" />
             </Waveform.Container>
           </div>
-          <span className="time">
-            {formatTime(isPlaying ? progress * duration : duration)}
-          </span>
+          <span className="time">{formatTime(isPlaying ? progress * duration : duration)}</span>
         </div>
       </div>
     </div>
@@ -164,7 +163,9 @@ function VoiceMessage({ audioSrc, waveformData }) {
 The waveform fits in a small space by adjusting dimensions:
 
 ```tsx
-<div className="h-8"> {/* 32px height */}
+<div className="h-8">
+  {" "}
+  {/* 32px height */}
   <Waveform.Container dataPoints={data}>
     <Waveform.Bars width={2} gap={1} radius={1} />
   </Waveform.Container>
@@ -176,9 +177,7 @@ The waveform fits in a small space by adjusting dimensions:
 Shows duration when paused, elapsed time when playing:
 
 ```tsx
-<span className="time">
-  {formatTime(isPlaying ? progress * duration : duration)}
-</span>
+<span className="time">{formatTime(isPlaying ? progress * duration : duration)}</span>
 ```
 
 ### Touch-Friendly

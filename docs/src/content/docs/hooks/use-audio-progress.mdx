@@ -56,14 +56,14 @@ interface UseAudioProgressOptions {
 }
 ```
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `audioRef` | `RefObject<HTMLAudioElement>` | - | HTML audio element reference |
-| `audioSource` | `AudioSource` | - | Custom audio source (Web Audio API) |
-| `progressRef` | `RefObject<ProgressHandle>` | **required** | Progress component reference |
-| `onProgressUpdate` | `(progress: number) => void` | - | State sync callback (~10fps) |
-| `enableHighFrequency` | `boolean` | `true` | Enable 60fps updates |
-| `isPlaying` | `boolean` | - | Manual play state for custom sources |
+| Option                | Type                          | Default      | Description                          |
+| --------------------- | ----------------------------- | ------------ | ------------------------------------ |
+| `audioRef`            | `RefObject<HTMLAudioElement>` | -            | HTML audio element reference         |
+| `audioSource`         | `AudioSource`                 | -            | Custom audio source (Web Audio API)  |
+| `progressRef`         | `RefObject<ProgressHandle>`   | **required** | Progress component reference         |
+| `onProgressUpdate`    | `(progress: number) => void`  | -            | State sync callback (~10fps)         |
+| `enableHighFrequency` | `boolean`                     | `true`       | Enable 60fps updates                 |
+| `isPlaying`           | `boolean`                     | -            | Manual play state for custom sources |
 
 ## Return Value
 
@@ -224,10 +224,10 @@ function WebAudioPlayer() {
 
 ## Performance Benefits
 
-| Approach | Re-renders | Smoothness |
-|----------|------------|------------|
-| React state at 60fps | High | Janky |
-| useAudioProgress | Low (~10fps) | Smooth (60fps) |
+| Approach             | Re-renders   | Smoothness     |
+| -------------------- | ------------ | -------------- |
+| React state at 60fps | High         | Janky          |
+| useAudioProgress     | Low (~10fps) | Smooth (60fps) |
 
 By separating visual updates (60fps via imperative handle) from React state updates (~10fps), you get smooth animations without performance degradation.
 

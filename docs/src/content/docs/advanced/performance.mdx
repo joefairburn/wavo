@@ -54,6 +54,7 @@ const updateProgress = useAudioProgress({
 ```
 
 Benefits:
+
 - Automatic RAF loop management
 - Event-based start/stop (play/pause/ended)
 - Throttled state callback (~10fps)
@@ -71,10 +72,10 @@ For large waveforms, use optimized mode:
 <Waveform.Bars optimized />
 ```
 
-| Mode | DOM Elements | Best For |
-|------|--------------|----------|
-| Standard | Many rects | < 100 bars |
-| Optimized | Single path | 100+ bars |
+| Mode      | DOM Elements | Best For   |
+| --------- | ------------ | ---------- |
+| Standard  | Many rects   | < 100 bars |
+| Optimized | Single path  | 100+ bars  |
 
 ## Data Reduction
 
@@ -119,6 +120,7 @@ Defer off-screen waveforms:
 ```
 
 Benefits:
+
 - Faster initial page load
 - Reduced memory usage
 - Animation triggered on visibility
@@ -212,6 +214,7 @@ function RealTimeWaveform() {
 ```
 
 Key patterns:
+
 - Use imperative `setDataPoints()` for updates
 - Use `optimized` prop for fewer DOM nodes
 - Initialize with placeholder data

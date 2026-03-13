@@ -77,14 +77,14 @@ Target specific elements with data attribute selectors:
 
 ### Available Data Attributes
 
-| Attribute | Applied To | Description |
-|-----------|------------|-------------|
-| `data-wavo-svg` | SVG element | Main container |
-| `data-wavo-bar` | rect elements | Individual bars |
-| `data-wavo-path="line"` | path element | Line visualization |
-| `data-wavo-path="bar"` | path element | Bar path (optimized) |
-| `data-wavo-gradient` | linearGradient | Progress gradient |
-| `data-wavo-animate` | SVG element | Animation state |
+| Attribute               | Applied To     | Description          |
+| ----------------------- | -------------- | -------------------- |
+| `data-wavo-svg`         | SVG element    | Main container       |
+| `data-wavo-bar`         | rect elements  | Individual bars      |
+| `data-wavo-path="line"` | path element   | Line visualization   |
+| `data-wavo-path="bar"`  | path element   | Bar path (optimized) |
+| `data-wavo-gradient`    | linearGradient | Progress gradient    |
+| `data-wavo-animate`     | SVG element    | Animation state      |
 
 ## Theming
 
@@ -121,10 +121,7 @@ Create theme variations using CSS:
 Use Tailwind classes directly:
 
 ```tsx
-<Waveform.Container
-  className="h-20 w-full rounded-lg bg-black p-4"
-  dataPoints={audioData}
->
+<Waveform.Container className="h-20 w-full rounded-lg bg-black p-4" dataPoints={audioData}>
   <Waveform.Bars />
 </Waveform.Container>
 ```
@@ -152,6 +149,7 @@ Disable all default styles for complete control:
 ```
 
 When `unstyled` is true:
+
 - No CSS is injected
 - No animations are applied
 - No transitions are configured
@@ -185,11 +183,7 @@ Override the default entrance animation:
 Control animation duration and easing:
 
 ```tsx
-<Waveform.Container
-  dataPoints={audioData}
-  transitionDuration={0.5}
-  easing={[0.4, 0, 0.2, 1]}
->
+<Waveform.Container dataPoints={audioData} transitionDuration={0.5} easing={[0.4, 0, 0.2, 1]}>
   <Waveform.Bars />
 </Waveform.Container>
 ```

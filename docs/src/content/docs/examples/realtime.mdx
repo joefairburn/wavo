@@ -12,6 +12,7 @@ Real-time audio visualization from microphone input using the Web Audio API and 
 ## Implementation
 
 This example demonstrates:
+
 - Web Audio API integration with `AnalyserNode`
 - Microphone input capture via `getUserMedia`
 - Imperative updates via `setDataPoints()` at 60fps
@@ -92,9 +93,7 @@ function MicrophoneVisualizer() {
         <Waveform.Bars ref={barsRef} optimized />
       </Waveform.Container>
 
-      <button onClick={() => setIsActive(!isActive)}>
-        {isActive ? "Stop" : "Start"}
-      </button>
+      <button onClick={() => setIsActive(!isActive)}>{isActive ? "Stop" : "Start"}</button>
     </div>
   );
 }
@@ -109,7 +108,7 @@ const audioContext = new AudioContext();
 const source = audioContext.createMediaStreamSource(stream);
 const analyser = audioContext.createAnalyser();
 
-analyser.fftSize = 256;           // 128 frequency bins
+analyser.fftSize = 256; // 128 frequency bins
 analyser.smoothingTimeConstant = 0.7; // Smooth transitions
 
 source.connect(analyser);
@@ -122,7 +121,7 @@ Get frequency data as a Uint8Array (0-255 values):
 ```tsx
 const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-analyser.getByteFrequencyData(dataArray);  // Frequency data
+analyser.getByteFrequencyData(dataArray); // Frequency data
 // OR
 analyser.getByteTimeDomainData(dataArray); // Waveform data
 ```
@@ -165,13 +164,14 @@ analyser.smoothingTimeConstant = 0.7; // 0.0 - 1.0
 3. **Adjust fftSize** - Smaller = fewer bars, better performance
 
 ```tsx
-analyser.fftSize = 256;  // Results in 128 frequency bins
+analyser.fftSize = 256; // Results in 128 frequency bins
 // Options: 32, 64, 128, 256, 512, 1024, 2048
 ```
 
 ## Frequency vs Time Domain
 
 ### Frequency Data (shown above)
+
 Shows audio spectrum - bass on left, treble on right:
 
 ```tsx
@@ -179,15 +179,14 @@ analyser.getByteFrequencyData(dataArray);
 ```
 
 ### Time Domain Data
+
 Shows raw waveform shape:
 
 ```tsx
 analyser.getByteTimeDomainData(dataArray);
 
 // Convert to amplitude
-const amplitude = Array.from(dataArray).map((v) =>
-  Math.abs(v - 128) / 128
-);
+const amplitude = Array.from(dataArray).map((v) => Math.abs(v - 128) / 128);
 ```
 
 ## Browser Permissions
@@ -197,7 +196,7 @@ Handle permission states gracefully:
 ```tsx
 // Check permission before requesting
 const result = await navigator.permissions.query({
-  name: "microphone" as PermissionName
+  name: "microphone" as PermissionName,
 });
 
 if (result.state === "denied") {

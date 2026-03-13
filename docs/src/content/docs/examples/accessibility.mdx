@@ -12,6 +12,7 @@ A fully accessible audio player implementation with comprehensive keyboard navig
 ## Implementation
 
 This example demonstrates:
+
 - Full keyboard navigation (arrow keys, space, enter, home, end)
 - Screen reader announcements via live regions
 - Proper ARIA attributes on interactive elements
@@ -85,12 +86,7 @@ function AccessibleAudioPlayer({ audioSrc, waveformData }) {
   return (
     <div>
       {/* Live region for announcements */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </div>
 
@@ -108,10 +104,7 @@ function AccessibleAudioPlayer({ audioSrc, waveformData }) {
         <Waveform.Progress ref={progressRef} color="#f96706" />
       </Waveform.Container>
 
-      <button
-        onClick={togglePlayback}
-        aria-label={isPlaying ? "Pause audio" : "Play audio"}
-      >
+      <button onClick={togglePlayback} aria-label={isPlaying ? "Pause audio" : "Play audio"}>
         {isPlaying ? <PauseIcon aria-hidden /> : <PlayIcon aria-hidden />}
       </button>
     </div>
@@ -138,30 +131,26 @@ Waveform.Container automatically adds when interactive:
 
 ### Keyboard Navigation
 
-| Key | Action |
-|-----|--------|
-| `Space` / `Enter` | Play/Pause |
-| `ArrowLeft` | Seek backward 5% |
-| `ArrowRight` | Seek forward 5% |
-| `Home` | Go to start |
-| `End` | Go to end |
+| Key               | Action           |
+| ----------------- | ---------------- |
+| `Space` / `Enter` | Play/Pause       |
+| `ArrowLeft`       | Seek backward 5% |
+| `ArrowRight`      | Seek forward 5%  |
+| `Home`            | Go to start      |
+| `End`             | Go to end        |
 
 ### Screen Reader Announcements
 
 Use a live region for dynamic announcements:
 
 ```tsx
-<div
-  role="status"
-  aria-live="polite"
-  aria-atomic="true"
-  className="sr-only"
->
+<div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
   {announcement}
 </div>
 ```
 
 Update the announcement when:
+
 - Playback starts/stops
 - User seeks
 - Audio ends

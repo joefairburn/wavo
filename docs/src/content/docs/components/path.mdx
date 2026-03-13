@@ -25,15 +25,15 @@ function MyWaveform() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `type` | `RenderType` | `"line"` | Rendering type: `"line"` or `"bar"` |
-| `width` | `number` | `3` | Width of each segment in pixels |
-| `gap` | `number` | `1` | Gap between segments in pixels |
-| `smooth` | `boolean` | `true` | Enable smooth curves |
-| `curvature` | `number` | `0` | Curve smoothness (0-1) when smooth is false |
-| `radius` | `BarRadius` | `2` | Corner radius for bar type (0-5) |
-| `className` | `string` | - | CSS class for styling |
+| Prop        | Type         | Default  | Description                                 |
+| ----------- | ------------ | -------- | ------------------------------------------- |
+| `type`      | `RenderType` | `"line"` | Rendering type: `"line"` or `"bar"`         |
+| `width`     | `number`     | `3`      | Width of each segment in pixels             |
+| `gap`       | `number`     | `1`      | Gap between segments in pixels              |
+| `smooth`    | `boolean`    | `true`   | Enable smooth curves                        |
+| `curvature` | `number`     | `0`      | Curve smoothness (0-1) when smooth is false |
+| `radius`    | `BarRadius`  | `2`      | Corner radius for bar type (0-5)            |
+| `className` | `string`     | -        | CSS class for styling                       |
 
 ### RenderType
 
@@ -118,19 +118,21 @@ interface PathHandle {
 
 ## Path vs Bars
 
-| Feature | Path | Bars |
-|---------|------|------|
-| DOM Elements | 1 path | N rects |
-| Smooth curves | Yes | No |
-| Performance | Better | Standard |
-| Styling flexibility | Standard | Higher |
+| Feature             | Path     | Bars     |
+| ------------------- | -------- | -------- |
+| DOM Elements        | 1 path   | N rects  |
+| Smooth curves       | Yes      | No       |
+| Performance         | Better   | Standard |
+| Styling flexibility | Standard | Higher   |
 
 **Choose Path when:**
+
 - You need smooth curve visualization
 - Performance is critical
 - You have many data points
 
 **Choose Bars when:**
+
 - You want individual bar styling
 - You need per-bar animations
 - Bar-based aesthetic is preferred
@@ -153,6 +155,7 @@ The Path component creates SVG path strings differently based on settings:
 ### Line Mode (default)
 
 Creates a mirrored waveform shape:
+
 1. Top half: Points connect from left to right, y-position based on amplitude
 2. Bottom half: Mirror of top, connecting right to left
 3. Path is closed to create a filled shape

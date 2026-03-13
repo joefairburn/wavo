@@ -168,9 +168,7 @@ function MicrophoneWaveform() {
         analyser.getByteTimeDomainData(dataArray);
 
         // Convert to amplitude values
-        const normalized = Array.from(dataArray).map((v) =>
-          Math.abs(v - 128) / 128
-        );
+        const normalized = Array.from(dataArray).map((v) => Math.abs(v - 128) / 128);
 
         barsRef.current?.setDataPoints(normalized);
         animationId = requestAnimationFrame(visualize);

@@ -25,13 +25,13 @@ function MyWaveform() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `width` | `number` | `3` | Width of each bar in pixels |
-| `gap` | `number` | `1` | Gap between bars in pixels |
-| `radius` | `BarRadius` | `2` | Corner radius for bars (0-5) |
-| `optimized` | `boolean` | `false` | Render as single SVG path for better performance |
-| `className` | `string` | - | CSS class for styling |
+| Prop        | Type        | Default | Description                                      |
+| ----------- | ----------- | ------- | ------------------------------------------------ |
+| `width`     | `number`    | `3`     | Width of each bar in pixels                      |
+| `gap`       | `number`    | `1`     | Gap between bars in pixels                       |
+| `radius`    | `BarRadius` | `2`     | Corner radius for bars (0-5)                     |
+| `optimized` | `boolean`   | `false` | Render as single SVG path for better performance |
+| `className` | `string`    | -       | CSS class for styling                            |
 
 ### BarRadius Type
 
@@ -67,6 +67,7 @@ For large waveforms or performance-critical applications, enable optimized mode:
 **Standard mode** renders each bar as an individual `<rect>` element. This provides maximum flexibility for styling and animations, but can be slower with many bars.
 
 **Optimized mode** renders all bars as a single `<path>` element. This significantly reduces DOM nodes and improves performance, especially for:
+
 - Waveforms with 100+ bars
 - Pages with multiple waveforms
 - Animation-heavy interfaces

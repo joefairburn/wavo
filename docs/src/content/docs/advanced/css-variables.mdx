@@ -7,14 +7,14 @@ Wavo uses CSS custom properties (variables) for styling. These can be set on the
 
 ## Available Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `--wavo-bar-width` | `3px` | Width of each bar |
-| `--wavo-bar-gap` | `1px` | Gap between bars |
-| `--wavo-bar-color` | `currentColor` | Unplayed portion color |
-| `--wavo-bar-color-progress` | `currentColor` | Played portion color |
-| `--wavo-transition-duration` | `1s` | Animation duration |
-| `--wavo-easing-function` | `ease-in-out` | Animation easing |
+| Variable                     | Default        | Description            |
+| ---------------------------- | -------------- | ---------------------- |
+| `--wavo-bar-width`           | `3px`          | Width of each bar      |
+| `--wavo-bar-gap`             | `1px`          | Gap between bars       |
+| `--wavo-bar-color`           | `currentColor` | Unplayed portion color |
+| `--wavo-bar-color-progress`  | `currentColor` | Played portion color   |
+| `--wavo-transition-duration` | `1s`           | Animation duration     |
+| `--wavo-easing-function`     | `ease-in-out`  | Animation easing       |
 
 ## Usage
 
@@ -70,9 +70,9 @@ Wavo uses CSS custom properties (variables) for styling. These can be set on the
 Controls the width of each bar in the waveform.
 
 ```css
---wavo-bar-width: 2px;   /* Thin bars */
---wavo-bar-width: 4px;   /* Default-ish */
---wavo-bar-width: 8px;   /* Thick bars */
+--wavo-bar-width: 2px; /* Thin bars */
+--wavo-bar-width: 4px; /* Default-ish */
+--wavo-bar-width: 8px; /* Thick bars */
 ```
 
 ### --wavo-bar-gap
@@ -80,9 +80,9 @@ Controls the width of each bar in the waveform.
 Controls the spacing between bars.
 
 ```css
---wavo-bar-gap: 0px;    /* No gap (solid) */
---wavo-bar-gap: 1px;    /* Minimal gap */
---wavo-bar-gap: 4px;    /* Visible gap */
+--wavo-bar-gap: 0px; /* No gap (solid) */
+--wavo-bar-gap: 1px; /* Minimal gap */
+--wavo-bar-gap: 4px; /* Visible gap */
 ```
 
 ### --wavo-bar-color
@@ -90,9 +90,9 @@ Controls the spacing between bars.
 The fill color for the unplayed portion of the waveform.
 
 ```css
---wavo-bar-color: #333;                    /* Dark gray */
+--wavo-bar-color: #333; /* Dark gray */
 --wavo-bar-color: rgba(255, 255, 255, 0.2); /* Semi-transparent */
---wavo-bar-color: currentColor;            /* Inherit from parent */
+--wavo-bar-color: currentColor; /* Inherit from parent */
 ```
 
 ### --wavo-bar-color-progress
@@ -100,8 +100,8 @@ The fill color for the unplayed portion of the waveform.
 The fill color for the played portion of the waveform.
 
 ```css
---wavo-bar-color-progress: #f96706;       /* Orange */
---wavo-bar-color-progress: currentColor;  /* Inherit from parent */
+--wavo-bar-color-progress: #f96706; /* Orange */
+--wavo-bar-color-progress: currentColor; /* Inherit from parent */
 ```
 
 > **Note:** When using the `Progress` component with `color` or `gradient` props, those take precedence over this variable.
@@ -111,10 +111,10 @@ The fill color for the played portion of the waveform.
 Controls the duration of entrance animations.
 
 ```css
---wavo-transition-duration: 0s;    /* No animation */
---wavo-transition-duration: 0.5s;  /* Fast */
---wavo-transition-duration: 1s;    /* Default */
---wavo-transition-duration: 2s;    /* Slow */
+--wavo-transition-duration: 0s; /* No animation */
+--wavo-transition-duration: 0.5s; /* Fast */
+--wavo-transition-duration: 1s; /* Default */
+--wavo-transition-duration: 2s; /* Slow */
 ```
 
 ### --wavo-easing-function
@@ -124,7 +124,7 @@ Controls the easing curve for animations.
 ```css
 --wavo-easing-function: linear;
 --wavo-easing-function: ease-in-out;
---wavo-easing-function: cubic-bezier(0.1, 0.9, 0.2, 1.0);
+--wavo-easing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
 ```
 
 ## Theming Example

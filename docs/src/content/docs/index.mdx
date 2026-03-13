@@ -28,8 +28,8 @@ Wavo uses a compound component pattern where the Container manages state and int
 
 ```tsx
 <Waveform.Container dataPoints={data} progress={0.5}>
-  <Waveform.Bars />      {/* Visualization layer */}
-  <Waveform.Progress />  {/* Progress overlay */}
+  <Waveform.Bars /> {/* Visualization layer */}
+  <Waveform.Progress /> {/* Progress overlay */}
 </Waveform.Container>
 ```
 
@@ -54,13 +54,13 @@ Wavo is ideal for:
 
 Wavo is optimized for smooth 60fps rendering:
 
-| Feature | Benefit |
-|---------|---------|
-| SVG rendering | Hardware-accelerated, resolution-independent |
-| Imperative updates | Bypass React reconciliation for progress animations |
-| Data reduction | Automatically downsamples large datasets to fit container |
-| Optimized mode | Single path element instead of individual bars |
-| Lazy loading | Intersection Observer delays rendering until visible |
+| Feature            | Benefit                                                   |
+| ------------------ | --------------------------------------------------------- |
+| SVG rendering      | Hardware-accelerated, resolution-independent              |
+| Imperative updates | Bypass React reconciliation for progress animations       |
+| Data reduction     | Automatically downsamples large datasets to fit container |
+| Optimized mode     | Single path element instead of individual bars            |
+| Lazy loading       | Intersection Observer delays rendering until visible      |
 
 ### The Imperative Pattern
 
@@ -80,11 +80,11 @@ See the [Performance Guide](/docs/advanced/performance) for optimization strateg
 Wavo supports all modern browsers:
 
 | Browser | Version |
-|---------|---------|
-| Chrome | 88+ |
-| Firefox | 85+ |
-| Safari | 14+ |
-| Edge | 88+ |
+| ------- | ------- |
+| Chrome  | 88+     |
+| Firefox | 85+     |
+| Safari  | 14+     |
+| Edge    | 88+     |
 
 Features used: SVG, CSS custom properties, Intersection Observer, ResizeObserver.
 
@@ -92,10 +92,10 @@ Features used: SVG, CSS custom properties, Intersection Observer, ResizeObserver
 
 Wavo is designed to be lightweight:
 
-| Import | Size (minified + gzipped) |
-|--------|---------------------------|
-| Full library | ~8KB |
-| Core only | ~5KB |
+| Import       | Size (minified + gzipped) |
+| ------------ | ------------------------- |
+| Full library | ~8KB                      |
+| Core only    | ~5KB                      |
 
 Tree-shaking is fully supported. Import only what you need:
 

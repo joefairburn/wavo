@@ -25,22 +25,22 @@ function MyWaveform() {
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `dataPoints` | `WaveformData` | **required** | Array of normalized amplitude values (0-1) |
-| `progress` | `number` | `0` | Current playback progress between 0 and 1 |
-| `lazyLoad` | `boolean` | `false` | Only render when visible in viewport |
-| `transitionDuration` | `number` | `1` | Duration in seconds for animations |
-| `easing` | `EasingFunction` | `[0.1, 0.9, 0.2, 1.0]` | Easing function for animations |
-| `onClick` | `(percentage, event) => void` | - | Callback when waveform is clicked |
-| `onDrag` | `(percentage, event) => void` | - | Callback during drag operations |
-| `onDragStart` | `(event) => void` | - | Callback when drag starts |
-| `onDragEnd` | `(event) => void` | - | Callback when drag ends |
-| `onKeyDown` | `(event) => void` | - | Keyboard event handler |
-| `className` | `string` | - | CSS class for the SVG element |
-| `shouldAnimate` | `boolean` | `true` | Enable/disable animations |
-| `unstyled` | `boolean` | `false` | Disable default styles |
-| `children` | `ReactNode` | **required** | Child components (Bars, Path, Progress) |
+| Prop                 | Type                          | Default                | Description                                |
+| -------------------- | ----------------------------- | ---------------------- | ------------------------------------------ |
+| `dataPoints`         | `WaveformData`                | **required**           | Array of normalized amplitude values (0-1) |
+| `progress`           | `number`                      | `0`                    | Current playback progress between 0 and 1  |
+| `lazyLoad`           | `boolean`                     | `false`                | Only render when visible in viewport       |
+| `transitionDuration` | `number`                      | `1`                    | Duration in seconds for animations         |
+| `easing`             | `EasingFunction`              | `[0.1, 0.9, 0.2, 1.0]` | Easing function for animations             |
+| `onClick`            | `(percentage, event) => void` | -                      | Callback when waveform is clicked          |
+| `onDrag`             | `(percentage, event) => void` | -                      | Callback during drag operations            |
+| `onDragStart`        | `(event) => void`             | -                      | Callback when drag starts                  |
+| `onDragEnd`          | `(event) => void`             | -                      | Callback when drag ends                    |
+| `onKeyDown`          | `(event) => void`             | -                      | Keyboard event handler                     |
+| `className`          | `string`                      | -                      | CSS class for the SVG element              |
+| `shouldAnimate`      | `boolean`                     | `true`                 | Enable/disable animations                  |
+| `unstyled`           | `boolean`                     | `false`                | Disable default styles                     |
+| `children`           | `ReactNode`                   | **required**           | Child components (Bars, Path, Progress)    |
 
 ## Interactive Example
 
@@ -133,6 +133,7 @@ Control the animation timing with the `easing` prop:
 ```
 
 Available easing options:
+
 - `"linear"` - Constant speed
 - `"ease"` - Slow start, fast middle, slow end
 - `"ease-in"` - Slow start
@@ -177,7 +178,7 @@ The Container uses React's compound component pattern. Child components access s
 <Waveform.Container dataPoints={data}>
   <Waveform.Bars />
   <Waveform.Progress />
-</Waveform.Container>
+</Waveform.Container>;
 
 // Direct imports also work
 import { Waveform, Bars, Progress } from "wavo";
@@ -185,7 +186,7 @@ import { Waveform, Bars, Progress } from "wavo";
 <Waveform dataPoints={data}>
   <Bars />
   <Progress />
-</Waveform>
+</Waveform>;
 ```
 
 ## Next Steps

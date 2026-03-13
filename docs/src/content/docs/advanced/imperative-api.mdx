@@ -9,10 +9,10 @@ Wavo components expose imperative handles for high-frequency updates that bypass
 
 React re-renders are expensive. For audio playback at 60fps:
 
-| Approach | Re-renders/sec | Smoothness |
-|----------|----------------|------------|
-| State updates | 60 | Janky |
-| Imperative | 0 | Smooth |
+| Approach      | Re-renders/sec | Smoothness |
+| ------------- | -------------- | ---------- |
+| State updates | 60             | Janky      |
+| Imperative    | 0              | Smooth     |
 
 ## Component Handles
 
@@ -35,7 +35,7 @@ const animate = () => {
   requestAnimationFrame(animate);
 };
 
-<Waveform.Progress ref={progressRef} color="#f96706" />
+<Waveform.Progress ref={progressRef} color="#f96706" />;
 ```
 
 ### BarsHandle
@@ -58,7 +58,7 @@ const count = barsRef.current?.getBarCount() ?? 0;
 // Update bars at 60fps
 barsRef.current?.setDataPoints(newData);
 
-<Waveform.Bars ref={barsRef} />
+<Waveform.Bars ref={barsRef} />;
 ```
 
 ### PathHandle
@@ -78,7 +78,7 @@ const pathRef = useRef<PathHandle>(null);
 // Update path at 60fps
 pathRef.current?.setDataPoints(newData);
 
-<Waveform.Path ref={pathRef} />
+<Waveform.Path ref={pathRef} />;
 ```
 
 ## Audio Playback Pattern

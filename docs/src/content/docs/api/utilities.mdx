@@ -18,12 +18,14 @@ const reducedData = getReducedDataPoints(barCount, originalData);
 ```
 
 **Parameters:**
+
 - `barCount: number` - Target number of data points
 - `dataPoints: WaveformData` - Original amplitude data
 
 **Returns:** `number[]` - Reduced data array
 
 **Features:**
+
 - Uses peak preservation to maintain waveform shape
 - Results are cached via WeakMap
 - Same inputs return cached result
@@ -90,6 +92,7 @@ window.addEventListener("resize", () => {
 ```
 
 **Parameters:**
+
 - `callback: (value: T) => void` - Function to debounce
 - `delay?: number` - Delay in milliseconds (default: 100)
 
@@ -111,6 +114,7 @@ const id = requestIdleCallback(() => {
 ```
 
 **Parameters:**
+
 - `callback: () => void` - Function to run
 - `timeout?: number` - Maximum wait time in ms
 
@@ -190,11 +194,7 @@ function CustomWaveform({ data }: { data: WaveformData }) {
 function AnimatedWaveform({ easingOption }: { easingOption: EasingFunction }) {
   const cssEasing = getEasingFunction(easingOption);
 
-  return (
-    <div style={{ transition: `all 0.3s ${cssEasing}` }}>
-      {/* ... */}
-    </div>
-  );
+  return <div style={{ transition: `all 0.3s ${cssEasing}` }}>{/* ... */}</div>;
 }
 ```
 
