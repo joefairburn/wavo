@@ -10,71 +10,36 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "24"
+          cache: true
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Run linter
-        run: vp run lint
-
-      - name: Check formatting
-        run: vp run format:check
-
-      - name: Run type check
-        run: vp run type-check
-
-      - name: Build package
-        run: vp run build
+      - run: vp install
+      - run: vp run lint
+      - run: vp run format:check
+      - run: vp run type-check
+      - run: vp run build
 
       - name: Lint docs and test app
         run: |
           cd docs && vp run lint
           cd ../test && vp run lint
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Run unit tests
-        run: vp run test:unit
+      - run: vp run test:unit
 
       - name: Install Playwright browsers
         run: vp exec playwright install --with-deps
 
-      - name: Run E2E tests
-        run: vp run test:e2e
+      - run: vp run test:e2e
+      - run: vp run build:docs
 
-      - name: Build docs
-        run: vp run build:docs
-
-  # Separate job for testing built library on different Node versions
   test-matrix:
     needs: test
     runs-on: ubuntu-latest
@@ -82,69 +47,46 @@ jobs:
       matrix:
         node-version: [20, 22]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: ${{ matrix.node-version }}
+          cache: true
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
+      - run: vp install
 
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Run unit tests
-        run: vp run test:unit
+      - run: vp run test:unit
 
-  # Save size baseline when pushing to main
   size-baseline:
     if: github.event_name == 'push'
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "24"
+          cache: true
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
+      - run: vp install
 
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Generate size baseline
-        run: vp exec size-limit --json > size-baseline.json
+      - run: vp exec size-limit --json > size-baseline.json
 
-      - name: Save size baseline to cache
-        uses: actions/cache/save@v4
+      - uses: actions/cache/save@v4
         with:
           path: size-baseline.json
           key: size-baseline-main
 
-  # Bundle size reporting for PRs
   size:
     if: github.event_name == 'pull_request'
     needs: test
@@ -153,40 +95,28 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "24"
+          cache: true
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
+      - run: vp install
 
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Restore size baseline
-        id: baseline
+      - id: baseline
         uses: actions/cache/restore@v4
         with:
           path: size-baseline.json
           key: size-baseline-main
 
-      - name: Get current size
-        run: vp exec size-limit --json > size-current.json
+      - run: vp exec size-limit --json > size-current.json
 
-      - name: Compare and comment
-        uses: actions/github-script@v7
+      - uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');

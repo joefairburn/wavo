@@ -12,18 +12,14 @@ jobs:
       version-changed: ${{ steps.check.outputs.changed }}
       new-version: ${{ steps.check.outputs.version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Need previous commit to compare
+          fetch-depth: 2
 
       - name: Check if version changed
         id: check
         run: |
-          # Get current version
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-
-          # Get previous version
           git checkout HEAD~1 -- package.json
           PREVIOUS_VERSION=$(node -p "require('./package.json').version")
           git checkout HEAD -- package.json
@@ -45,54 +41,33 @@ jobs:
     if: needs.check-version.outputs.version-changed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: "20"
+          cache: true
 
-      - name: Setup Node.js
+      - name: Setup npm registry
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Run type check
-        run: vp run type-check
+      - run: vp install
+      - run: vp run type-check
 
       - name: Install Playwright browsers
         run: vp exec playwright install --with-deps
 
-      - name: Run tests
-        run: vp run test
+      - run: vp run test
         continue-on-error: true
 
-      - name: Build package
-        run: vp run build
+      - run: vp run build
 
       - name: Determine NPM tag
         id: npm-tag
         run: |
           VERSION="${{ needs.check-version.outputs.new-version }}"
-
           if [[ $VERSION =~ -alpha ]]; then
             echo "tag=alpha" >> $GITHUB_OUTPUT
           elif [[ $VERSION =~ -beta ]]; then
@@ -102,7 +77,6 @@ jobs:
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
           fi
-
           echo "Publishing version $VERSION with tag: $(cat $GITHUB_OUTPUT | grep tag= | cut -d'=' -f2)"
 
       - name: Publish to NPM
