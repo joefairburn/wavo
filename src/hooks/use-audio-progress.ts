@@ -6,6 +6,11 @@ import type { ProgressHandle } from "../components/progress";
  */
 export const PROGRESS_UPDATE_FRAME_INTERVAL = 6;
 
+const defaultRaf = {
+  requestAnimationFrame: (cb: FrameRequestCallback) => requestAnimationFrame(cb),
+  cancelAnimationFrame: (id: number) => cancelAnimationFrame(id),
+};
+
 /**
  * Audio source interface that provides current time and duration
  */
@@ -99,7 +104,7 @@ export function useAudioProgress({
   isPlaying,
   __raf,
 }: UseAudioProgressOptions) {
-  const raf = __raf ?? { requestAnimationFrame, cancelAnimationFrame };
+  const raf = __raf ?? defaultRaf;
   const rafRef = useRef<number | undefined>(undefined);
   // Frame counter for deterministic throttling of onProgressUpdate callback
   const frameCountRef = useRef(0);

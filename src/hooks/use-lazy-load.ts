@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+const defaultCreateObserver = (
+  callback: IntersectionObserverCallback,
+  options?: IntersectionObserverInit,
+) => new IntersectionObserver(callback, options);
+
 /**
  * Options for configuring the lazy loading behavior
  */
@@ -88,7 +93,7 @@ export const useLazyLoad = ({
   enabled,
   rootMargin = "50px",
   threshold = 0,
-  __createObserver = (cb, opts) => new IntersectionObserver(cb, opts),
+  __createObserver = defaultCreateObserver,
 }: LazyLoadOptions): LazyLoadResult => {
   // If lazy loading is disabled, shouldRender is always true
   const [shouldRender, setShouldRender] = useState(!enabled);
