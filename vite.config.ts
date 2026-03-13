@@ -1,8 +1,19 @@
-import tsdownConfig from './tsdown.config.ts';
-
-import { defineConfig } from 'vite-plus';
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
-  lint: {"options":{"typeAware":true,"typeCheck":true}},
-  pack: tsdownConfig,
+  lint: { options: { typeAware: true, typeCheck: true } },
+  pack: {
+    entry: ["src/index.tsx"],
+    format: ["esm", "cjs"],
+    dts: true,
+    target: "es2018",
+    clean: true,
+    sourcemap: true,
+    treeshake: true,
+    minify: true,
+    jsx: "react-jsx",
+    external: ["react", "react-dom"],
+    outDir: "dist",
+    fixedExtension: true,
+  },
 });
