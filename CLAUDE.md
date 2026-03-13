@@ -88,7 +88,7 @@ All build tools are unified under **Vite+** (`vp` CLI):
 - **Formatter**: `vp fmt` (oxfmt) for code formatting
 - **Testing**: `vp test` (Vitest) for unit tests and benchmarks
 - **Git Hooks**: lefthook for pre-commit formatting
-- **Monorepo**: Turbo for coordinated builds across packages
+- **Monorepo**: `vp run --filter` for workspace task orchestration
 - **TypeScript**: Strict type checking required before builds
 
 <!--VITE PLUS START-->
