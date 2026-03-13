@@ -166,6 +166,17 @@ export interface BarsProps {
  *
  * @private
  */
+const renderBars = (points: readonly number[], w: number, g: number, r: BarRadius, offset = 0) =>
+  points.map((point, i) => (
+    <SingleBar
+      key={`b${i + offset}`}
+      point={point}
+      radius={r}
+      width={w}
+      x={(i + offset) * (w + g)}
+    />
+  ));
+
 const BarsRenderer = React.memo(
   forwardRef<SVGGElement, BarsProps & { dataPoints: readonly number[]; prevBarCount: number }>(
     function BarsRendererComponent(
@@ -173,42 +184,7 @@ const BarsRenderer = React.memo(
       ref,
     ) {
       const { hasProgress, id } = useWaveform();
-
-      const hasNewBars = prevBarCount > 0 && prevBarCount < dataPoints.length;
-
-      const existingBars = useMemo(() => {
-        const count = hasNewBars ? prevBarCount : dataPoints.length;
-        return dataPoints.slice(0, count).map((point, index) => (
-          <SingleBar
-            // biome-ignore lint/suspicious/noArrayIndexKey: Waveform data points have stable positions
-            key={`bar-${index}`}
-            point={point}
-            radius={radius}
-            width={width}
-            x={index * (width + gap)}
-          />
-        ));
-      }, [dataPoints, radius, width, gap, hasNewBars, prevBarCount]);
-
-      const newBars = useMemo(() => {
-        if (!hasNewBars) return null;
-        return dataPoints.slice(prevBarCount).map((point, index) => {
-          const actualIndex = index + prevBarCount;
-          return (
-            <SingleBar
-              key={`bar-${actualIndex}`}
-              point={point}
-              radius={radius}
-              width={width}
-              x={actualIndex * (width + gap)}
-            />
-          );
-        });
-      }, [dataPoints, radius, width, gap, hasNewBars, prevBarCount]);
-
-      const handleAnimationEnd = (e: React.AnimationEvent<SVGGElement>) => {
-        e.currentTarget.removeAttribute("data-new-bars");
-      };
+      const split = prevBarCount > 0 && prevBarCount < dataPoints.length ? prevBarCount : 0;
 
       return (
         <g
@@ -216,10 +192,13 @@ const BarsRenderer = React.memo(
           className={className}
           fill={hasProgress ? `url(#gradient-${id})` : "currentColor"}
         >
-          {existingBars}
-          {newBars && (
-            <g data-new-bars="true" onAnimationEnd={handleAnimationEnd}>
-              {newBars}
+          {renderBars(split ? dataPoints.slice(0, split) : dataPoints, width, gap, radius)}
+          {split > 0 && (
+            <g
+              data-new-bars="true"
+              onAnimationEnd={(e) => e.currentTarget.removeAttribute("data-new-bars")}
+            >
+              {renderBars(dataPoints.slice(split), width, gap, radius, split)}
             </g>
           )}
         </g>
