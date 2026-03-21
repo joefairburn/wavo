@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import { afterEach, vi } from "vite-plus/test";
 
 // Mock clientWidth/clientHeight for elements since jsdom doesn't compute layout
 // This needs to be set up before any tests run

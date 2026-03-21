@@ -94,7 +94,7 @@ const AccessiblePlayerDemo = () => {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        void audioRef.current.play();
       }
     }
   };
@@ -130,7 +130,7 @@ const AccessiblePlayerDemo = () => {
           }}
           onDragEnd={() => {
             if (wasPlayingRef.current) {
-              audioRef.current?.play();
+              void audioRef.current?.play();
             }
           }}
           onKeyDown={handleKeyDown}

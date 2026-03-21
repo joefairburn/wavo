@@ -1,6 +1,6 @@
 import { act, render } from "@testing-library/react";
 import { Profiler, type ProfilerOnRenderCallback, createRef } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { WaveformProvider } from "../contexts/waveform-context";
 import { Bars, type BarsHandle } from "./bars";
 import type { PathHandle } from "./path";

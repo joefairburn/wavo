@@ -1,4 +1,4 @@
-import { bench, describe } from "vitest";
+import { bench, describe } from "vite-plus/test";
 import { calculateReducedDataPoints, memoizedReducedDataPoints } from "./lib";
 
 // Test data at various scales

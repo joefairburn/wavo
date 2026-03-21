@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vite-plus/test";
 import { useInteraction } from "./use-interaction";
 
 const createSVGElement = () => {
