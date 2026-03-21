@@ -35,7 +35,7 @@ jobs:
       - run: vp run test:unit
 
       - name: Install Playwright browsers
-        run: vp exec playwright install --with-deps
+        run: vp exec --filter test playwright install --with-deps
 
       - run: vp run test:e2e
       - run: vp run build:docs

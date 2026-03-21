@@ -47,7 +47,7 @@
     "test:unit": "vp test run",
     "test:unit:watch": "vp test",
     "test:bench": "vp test bench --run > /dev/null 2>&1 && node scripts/bench-summary.js",
-    "test:e2e": "cd test && playwright test",
+    "test:e2e": "vp exec --filter test playwright test",
     "prepare": "vp config",
     "size": "size-limit"
   },
