@@ -37,7 +37,7 @@
     "dev": "vp pack --watch",
     "dev:test": "vp run --filter \"test...\" dev",
     "build:test": "vp run --filter \"test...\" build",
-    "dev:docs": "vp run --filter \"docs...\" dev",
+    "dev:docs": "vp run --filter docs dev",
     "build:docs": "vp run --filter \"docs...\" build",
     "format": "vp fmt .",
     "format:check": "vp fmt --check .",
