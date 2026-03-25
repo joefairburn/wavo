@@ -1,8 +1,16 @@
 {
-  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "paths": {
-      "@docs/*": ["./src/*"]
+      "@docs/*": ["./src/*"],
+      "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src", ".source"]
 }

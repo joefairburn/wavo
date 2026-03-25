@@ -1,3 +1,5 @@
+'use client';
+
 import type React from "react";
 import { useRef } from "react";
 import { useResizable } from "../hooks/use-resizable";
