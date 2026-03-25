@@ -1,6 +1,6 @@
-import '../styles/global.css';
-import { Provider } from '../components/provider';
-import type { ReactNode } from 'react';
+import "../styles/global.css";
+import { Provider } from "../components/provider";
+import type { ReactNode } from "react";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return <Provider>{children}</Provider>;
@@ -8,6 +8,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 export const getConfig = async () => {
   return {
-    render: 'static',
+    render: "static",
   } as const;
 };

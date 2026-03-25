@@ -1,5 +1,5 @@
-import DynamicWaveformShowcase from '../components/DynamicWaveformShowcase';
-import { siteConfig } from '../config/site';
+import DynamicWaveformShowcase from "../components/DynamicWaveformShowcase";
+import { siteConfig } from "../config/site";
 
 export default function HomePage() {
   return (
@@ -9,8 +9,8 @@ export default function HomePage() {
           className="absolute inset-0 z-0 opacity-10 pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
+              "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
           }}
         />
 
@@ -25,7 +25,7 @@ export default function HomePage() {
 
             <h2
               className="text-white text-6xl sm:text-7xl lg:text-8xl font-black leading-[0.85] tracking-tighter mb-8"
-              style={{ textTransform: 'none' }}
+              style={{ textTransform: "none" }}
             >
               Waveforms for React
             </h2>
@@ -72,19 +72,19 @@ export default function HomePage() {
               </div>
 
               <div className="p-5 bg-[#161616] font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto">
-                <div className="text-gray-500 mb-2">{'// 1. Import component'}</div>
+                <div className="text-gray-500 mb-2">{"// 1. Import component"}</div>
                 <div className="text-white/80 mb-4">
-                  <span className="text-[#c678dd]">import</span> {'{ Waveform }'}{' '}
-                  <span className="text-[#c678dd]">from</span>{' '}
+                  <span className="text-[#c678dd]">import</span> {"{ Waveform }"}{" "}
+                  <span className="text-[#c678dd]">from</span>{" "}
                   <span className="text-[#98c379]">&apos;wavo&apos;</span>;
                 </div>
-                <div className="text-gray-500 mb-2">{'// 2. Render with data'}</div>
+                <div className="text-gray-500 mb-2">{"// 2. Render with data"}</div>
                 <div className="text-white/80">
                   <span className="text-[#e5c07b]">return</span> (
                   <div className="pl-4">
                     &lt;<span className="text-[#e06c75]">Waveform</span>
                     <div className="pl-4">
-                      <span className="text-[#d19a66]">data</span>={'{waveformData}'}
+                      <span className="text-[#d19a66]">data</span>={"{waveformData}"}
                     </div>
                     /&gt;
                   </div>
@@ -171,7 +171,9 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/10 text-white/40 text-sm font-mono uppercase gap-4">
-            <p>&copy; {new Date().getFullYear()} {siteConfig.name}</p>
+            <p>
+              &copy; {new Date().getFullYear()} {siteConfig.name}
+            </p>
             <p>MIT License</p>
           </div>
         </div>
@@ -182,6 +184,6 @@ export default function HomePage() {
 
 export const getConfig = async () => {
   return {
-    render: 'static',
+    render: "static",
   } as const;
 };

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { dataPoints, musicFile } from "@docs/fixtures/data";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";

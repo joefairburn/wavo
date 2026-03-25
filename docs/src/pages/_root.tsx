@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 export default function Root({ children }: { children: ReactNode }) {
   return (
@@ -29,6 +29,6 @@ export default function Root({ children }: { children: ReactNode }) {
 
 export const getConfig = async () => {
   return {
-    render: 'static',
+    render: "static",
   } as const;
 };

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { dataPoints } from "@docs/fixtures/data";
 import type React from "react";

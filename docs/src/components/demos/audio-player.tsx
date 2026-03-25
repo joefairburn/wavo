@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { dataPoints, musicFile } from "@docs/fixtures/data";
 import { useRef, useState, useEffect } from "react";

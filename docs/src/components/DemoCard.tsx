@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 interface DemoCardProps {
   children: ReactNode;
@@ -8,12 +8,10 @@ interface DemoCardProps {
   className?: string;
 }
 
-export function DemoCard({ children, code, title, className = '' }: DemoCardProps) {
+export function DemoCard({ children, code, title, className = "" }: DemoCardProps) {
   return (
     <div className={`demo-card border-2 border-[#3a2f27] bg-[#181411] ${className}`}>
-      <div className="p-4 border-b border-[#3a2f27] bg-[#231b15]">
-        {children}
-      </div>
+      <div className="p-4 border-b border-[#3a2f27] bg-[#231b15]">{children}</div>
       {code && (
         <div className="overflow-x-auto">
           {title && (

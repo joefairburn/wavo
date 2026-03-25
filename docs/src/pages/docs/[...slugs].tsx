@@ -1,16 +1,9 @@
-import { source } from '../../lib/source';
-import type { PageProps } from 'waku/router';
-import { getMDXComponents } from '../../components/mdx';
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-} from 'fumadocs-ui/page';
+import { source } from "../../lib/source";
+import type { PageProps } from "waku/router";
+import { getMDXComponents } from "../../components/mdx";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/page";
 
-export default function DocPage({
-  slugs,
-}: PageProps<'/docs/[...slugs]'>) {
+export default function DocPage({ slugs }: PageProps<"/docs/[...slugs]">) {
   const page = source.getPage(slugs);
 
   if (!page) {
@@ -33,7 +26,7 @@ export default function DocPage({
 export async function getConfig() {
   const pages = source.generateParams();
   return {
-    render: 'static' as const,
+    render: "static" as const,
     staticPaths: pages.map((item) => item.slug),
   } as const;
 }
