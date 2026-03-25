@@ -1,0 +1,117 @@
+---
+title: Quick Start
+description: Learn how to quickly integrate and use wavo in your React application
+---
+
+import BasicWaveform from "../../../components/demos/basic-waveform";
+import WaveformWithProgress from "../../../components/demos/waveform-with-progress";
+import { DemoCard } from "../../../components/DemoCard";
+import basicWaveformCode from "../../../components/demos/basic-waveform.tsx?raw";
+import waveformWithProgressCode from "../../../components/demos/waveform-with-progress.tsx?raw";
+
+## Basic Usage
+
+Import and use wavo in your React components:
+
+<DemoCard code={basicWaveformCode} lang="ts" title="BasicWaveform">
+  <BasicWaveform />
+</DemoCard>
+
+## Adding Playback Progress
+
+To show playback progress, add the `Progress` component and pass a `progress` prop (value between 0 and 1):
+
+<DemoCard code={waveformWithProgressCode} lang="ts" title="WaveformWithProgress">
+  <WaveformWithProgress />
+</DemoCard>
+
+## Understanding the Data Format
+
+Waveform data is an array of normalized amplitude values between 0 and 1:
+
+```tsx
+import type { WaveformData } from "wavo";
+
+// Each value represents amplitude (0 = silence, 1 = max)
+const audioData: WaveformData = [0.1, 0.4, 0.8, 0.6, 0.3, 0.9, 0.5, 0.2, 0.7, 0.4];
+```
+
+The number of bars rendered is determined by the container width and bar dimensions, not the array length. Wavo automatically reduces larger datasets to fit.
+
+## Adding Interactivity
+
+Enable click and drag seeking:
+
+```tsx
+import { useState } from "react";
+import { Waveform } from "wavo";
+
+function InteractiveWaveform() {
+  const [progress, setProgress] = useState(0);
+
+  return (
+    <Waveform
+      dataPoints={audioData}
+      progress={progress}
+      onClick={(percentage) => setProgress(percentage)}
+      onDrag={(percentage) => setProgress(percentage)}
+    >
+      <Waveform.Bars />
+      <Waveform.Progress color="#f96706" />
+    </Waveform>
+  );
+}
+```
+
+## Visualization Styles
+
+### Bars (default)
+
+Vertical bars with customizable width, gap, and radius:
+
+```tsx
+<Waveform dataPoints={audioData}>
+  <Waveform.Bars width={3} gap={2} radius={2} />
+</Waveform>
+```
+
+### Path / Line
+
+Smooth curves or jagged lines:
+
+```tsx
+<Waveform dataPoints={audioData}>
+  <Waveform.Path />
+</Waveform>
+```
+
+## Compound Component Pattern
+
+Wavo uses a compound component pattern. The Container provides context to child components:
+
+```tsx
+<Waveform dataPoints={audioData} progress={0.5}>
+  <Waveform.Bars /> {/* Visualization */}
+  <Waveform.Progress /> {/* Progress indicator */}
+</Waveform>
+```
+
+Or use direct imports:
+
+```tsx
+import { Waveform, Bars, Progress } from "wavo";
+
+<Waveform dataPoints={audioData}>
+  <Bars />
+  <Progress />
+</Waveform>;
+```
+
+## Next Steps
+
+- Explore [Container](/docs/components/container) props and features
+- Learn about [Bars](/docs/components/bars) customization
+- See [Path](/docs/components/path) for line visualizations
+- Add [Progress](/docs/components/progress) indicators
+- Use [useAudioProgress](/docs/hooks/use-audio-progress) for 60fps audio sync
+- Browse [Examples](/docs/examples/audio-player) for complete implementations

@@ -1,9 +1,13 @@
 {
   "name": "wavo-docs",
+  "main": "./src/waku.server",
+  "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2026-01-25",
   "assets": {
-    "directory": "./dist",
-    "html_handling": "auto-trailing-slash",
-    "not_found_handling": "single-page-application"
-  }
+    "binding": "ASSETS",
+    "directory": "./dist/public",
+    "html_handling": "drop-trailing-slash"
+  },
+  "rules": [{ "type": "ESModule", "globs": ["**/*.js", "**/*.mjs"] }],
+  "no_bundle": true
 }

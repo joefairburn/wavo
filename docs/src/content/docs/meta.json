@@ -1,0 +1,30 @@
+{
+  "title": "Getting Started",
+  "pages": [
+    "index",
+    "---Guides---",
+    "guides/installation",
+    "guides/quickstart",
+    "---Components---",
+    "components/container",
+    "components/bars",
+    "components/path",
+    "components/progress",
+    "---Hooks---",
+    "hooks/use-audio-progress",
+    "---Advanced---",
+    "advanced/styling",
+    "advanced/css-variables",
+    "advanced/performance",
+    "advanced/imperative-api",
+    "advanced/custom-audio-sources",
+    "---API Reference---",
+    "api/types",
+    "api/utilities",
+    "---Examples---",
+    "examples/audio-player",
+    "examples/voice-message",
+    "examples/realtime",
+    "examples/accessibility"
+  ]
+}

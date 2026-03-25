@@ -1,3 +1,5 @@
+"use client";
+
 import { type RefObject, useCallback, useEffect, useState } from "react";
 
 interface ResizableOptions {

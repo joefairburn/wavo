@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro",
+    "dev": "waku dev",
+    "build": "waku build",
+    "start": "waku start",
+    "preview": "waku build && waku start",
+    "postinstall": "fumadocs-mdx",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "format": "vp fmt .",
@@ -15,19 +15,20 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.6",
-    "@astrojs/mdx": "5.0.0-beta.2",
-    "@astrojs/react": "5.0.0-beta.2",
-    "@tailwindcss/postcss": "^4.1.18",
-    "astro": "6.0.0-beta.3",
-    "astro-expressive-code": "^0.41.6",
-    "sharp": "^0.33.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/mdx": "^2.0.13",
+    "fumadocs-core": "^16.7.4",
+    "fumadocs-mdx": "^14.2.11",
+    "fumadocs-ui": "^16.7.4",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^4.3.2",
+    "waku": "^1.0.0-alpha.5",
     "wavo": "workspace:*"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.30.0",
     "vite-plus": "catalog:",
-    "wrangler": "^4"
+    "wrangler": "^4.76.0"
   }
 }

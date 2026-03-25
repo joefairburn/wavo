@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type BarsHandle, Waveform } from "wavo";
 import { useFPS } from "../hooks/use-fps";
