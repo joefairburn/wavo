@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
-import type { PageTree } from "fumadocs-core/server";
+import type { Root } from "fumadocs-core/page-tree";
 
-export function DocsLayoutClient({ tree, children }: { tree: PageTree.Root; children: ReactNode }) {
+export function DocsLayoutClient({ tree, children }: { tree: Root; children: ReactNode }) {
   return (
     <DocsLayout
       tree={tree}
